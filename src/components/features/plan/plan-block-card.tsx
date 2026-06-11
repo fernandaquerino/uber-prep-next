@@ -1,7 +1,6 @@
 "use client";
 
 import type { EffectiveScheduledBlock, PlanBlockExecutionStatus } from "@/lib/domain/progress";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   PlayIcon,
@@ -12,7 +11,8 @@ import {
   CalendarIcon,
   InfoIcon,
 } from "lucide-react";
-import { formatMinutes, getCategoryLabel, getStatusLabel, formatCalendarDate, getCategoryMeta } from "./plan-utils";
+import { formatMinutes, getStatusLabel, formatCalendarDate } from "./plan-utils";
+import { getCategoryVisual, getBlockTypeLabel } from "@/lib/presentation/category-visuals";
 import { cn } from "@/lib/utils";
 
 type PlanBlockCardProps = {
@@ -27,12 +27,12 @@ type PlanBlockCardProps = {
   onOpen: () => void;
 };
 
-const STATUS_COLORS: Record<PlanBlockExecutionStatus, string> = {
+const STATUS_BORDER: Record<PlanBlockExecutionStatus, string> = {
   pending: "border-l-border",
   in_progress: "border-l-blue-500",
   completed: "border-l-green-500",
   stuck: "border-l-amber-500",
-  skipped: "border-l-muted-foreground",
+  skipped: "border-l-muted-foreground/40",
 };
 
 export function PlanBlockCard({
@@ -49,70 +49,81 @@ export function PlanBlockCard({
   const { executionStatus, isOverdue, isRescheduled, timingStatus } = block;
   const isPast = timingStatus === "past";
   const isCompleted = executionStatus === "completed";
-  const categoryMeta = getCategoryMeta(block.category);
+  const isSkipped = executionStatus === "skipped";
+  const visual = getCategoryVisual(block.category);
 
   return (
     <article
       className={cn(
         "rounded-lg border border-l-4 p-3 transition-colors",
-        STATUS_COLORS[executionStatus],
+        STATUS_BORDER[executionStatus],
         isCompleted && "opacity-70",
+        isSkipped && "opacity-50",
       )}
       aria-label={`${block.title} — ${getStatusLabel(executionStatus)}`}
     >
       <div className="flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-1">
+          <div className="min-w-0 flex-1">
+            {block.startTime && (
+              <p className="text-muted-foreground mb-0.5 text-[11px] tabular-nums">
+                {block.startTime}
+              </p>
+            )}
             <button
               onClick={onOpen}
-              className="text-left text-sm font-medium hover:underline"
-              aria-label={`Abrir detalhes do bloco: ${block.title}`}
+              className="text-left text-sm leading-snug font-medium hover:underline"
+              aria-label={`Abrir detalhes: ${block.title}`}
             >
               {block.title}
             </button>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Badge variant="secondary" className="text-[10px]" 
-                style={
-                  categoryMeta
-                    ? {
-                        backgroundColor: `${categoryMeta.color}20`,
-                        borderColor: `${categoryMeta.color}60`,
-                        color: categoryMeta.color,
-                      }
-                    : undefined
-                }>
-                {getCategoryLabel(block.category)}
-              </Badge>
-              <span className="text-muted-foreground text-xs">
+
+            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                  visual.badge,
+                )}
+              >
+                {visual.label}
+              </span>
+              <span className="text-muted-foreground text-[11px]">
+                {getBlockTypeLabel(block.type)}
+              </span>
+              <span className="text-muted-foreground text-[11px]">·</span>
+              <span className="text-muted-foreground text-[11px]">
                 {formatMinutes(block.estimatedMinutes)}
               </span>
+
               {isOverdue && (
-                <Badge variant="destructive" className="text-[10px]">
-                  <AlertTriangleIcon className="mr-0.5 h-2.5 w-2.5" aria-hidden />
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                  <AlertTriangleIcon className="h-2.5 w-2.5" aria-hidden />
                   Atrasado
-                </Badge>
+                </span>
               )}
               {isRescheduled && (
-                <Badge variant="outline" className="text-[10px]">
-                  <CalendarIcon className="mr-0.5 h-2.5 w-2.5" aria-hidden />
+                <span className="inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-[10px] font-medium">
+                  <CalendarIcon className="h-2.5 w-2.5" aria-hidden />
                   Reagendado
-                </Badge>
+                </span>
               )}
             </div>
+
             {isRescheduled && (
-              <p className="text-muted-foreground text-xs">
-                Original: {formatCalendarDate(block.originalScheduledDate, "short")} →{" "}
+              <p className="text-muted-foreground mt-0.5 text-[11px]">
+                {formatCalendarDate(block.originalScheduledDate, "short")} →{" "}
                 {formatCalendarDate(block.scheduledDate, "short")}
               </p>
             )}
             {block.actualMinutes !== undefined && (
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground mt-0.5 text-[11px]">
                 Real: {formatMinutes(block.actualMinutes)}
-                {block.difficulty !== undefined && ` · Dificuldade ${block.difficulty}/5`}
-                {block.confidence !== undefined && ` · Confiança ${block.confidence}/5`}
+                {block.difficulty !== undefined && ` · D ${block.difficulty}/5`}
+                {block.confidence !== undefined && ` · C ${block.confidence}/5`}
               </p>
             )}
           </div>
+
           <button
             onClick={onOpen}
             className="text-muted-foreground hover:text-foreground shrink-0 p-0.5"
@@ -162,14 +173,14 @@ function BlockActions({
 }: BlockActionsProps) {
   if (status === "completed") {
     return (
-      <div className="flex flex-wrap gap-1.5">
-        <Badge variant="outline" className="text-[10px] text-green-600 dark:text-green-400">
-          <CheckIcon className="mr-0.5 h-2.5 w-2.5" aria-hidden />
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
+          <CheckIcon className="h-2.5 w-2.5" aria-hidden />
           Concluído
-        </Badge>
+        </span>
         <button
           onClick={onReturnToPending}
-          className="text-muted-foreground hover:text-foreground text-xs underline"
+          className="text-muted-foreground hover:text-foreground text-[11px] underline"
           aria-label="Desfazer conclusão"
         >
           Desfazer
@@ -180,11 +191,11 @@ function BlockActions({
 
   if (status === "skipped") {
     return (
-      <div className="flex flex-wrap gap-1.5">
-        <Badge variant="secondary" className="text-[10px]">
-          <SkipForwardIcon className="mr-0.5 h-2.5 w-2.5" aria-hidden />
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-muted-foreground inline-flex items-center gap-0.5 text-[10px]">
+          <SkipForwardIcon className="h-2.5 w-2.5" aria-hidden />
           Pulado
-        </Badge>
+        </span>
         <Button size="sm" variant="ghost" onClick={onRestore} className="h-5 px-2 text-[10px]">
           <RotateCcwIcon className="mr-0.5 h-2.5 w-2.5" aria-hidden />
           Restaurar

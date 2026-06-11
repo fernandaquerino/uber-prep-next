@@ -2,9 +2,10 @@
 
 import type { CurrentStudyState } from "@/lib/domain/progress";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { PlayIcon, AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
-import { formatMinutes, getCategoryLabel, getCategoryMeta } from "./plan-utils";
+import { formatMinutes } from "./plan-utils";
+import { getCategoryVisual } from "@/lib/presentation/category-visuals";
+import { cn } from "@/lib/utils";
 
 type PlanCurrentItemProps = {
   currentStudyState: CurrentStudyState;
@@ -42,7 +43,7 @@ export function PlanCurrentItem({
 
   const isOverdue = currentItem.isOverdue;
   const isInProgress = currentItem.executionStatus === "in_progress";
-  const categoryMeta = getCategoryMeta(currentItem.category);
+  const visual = getCategoryVisual(currentItem.category);
 
   return (
     <div className="rounded-lg border p-4">
@@ -65,31 +66,27 @@ export function PlanCurrentItem({
           >
             {currentItem.title}
           </button>
-          <div className="flex flex-wrap gap-1.5">
-            <Badge variant="secondary" className="text-[10px]" 
-            style={
-                categoryMeta
-                  ? {
-                      backgroundColor: `${categoryMeta.color}20`,
-                      borderColor: `${categoryMeta.color}60`,
-                      color: categoryMeta.color,
-                    }
-                  : undefined
-              }>
-              {getCategoryLabel(currentItem.category)}
-            </Badge>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
+                visual.badge,
+              )}
+            >
+              {visual.label}
+            </span>
             <span className="text-muted-foreground text-xs">
               {formatMinutes(currentItem.estimatedMinutes)}
             </span>
             {isOverdue && (
-              <Badge variant="destructive" className="text-[10px]">
+              <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
                 Atrasado
-              </Badge>
+              </span>
             )}
             {isInProgress && (
-              <Badge variant="default" className="text-[10px]">
+              <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                 Em andamento
-              </Badge>
+              </span>
             )}
           </div>
         </div>

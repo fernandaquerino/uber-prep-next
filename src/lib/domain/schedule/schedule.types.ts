@@ -32,6 +32,8 @@ export type StudyPlanBlock = {
   description?: string;
   tags?: string[];
   type: string;
+  startTime?: string;
+  resourceUrl?: string;
 };
 
 export type StudyPlanDay = {
@@ -56,6 +58,8 @@ export type ScheduledStudyBlock = {
   category: string;
   estimatedMinutes: number;
   type: string;
+  startTime?: string;
+  resourceUrl?: string;
 };
 
 export type CapacityStatus = "available" | "full" | "over_capacity" | "rest";

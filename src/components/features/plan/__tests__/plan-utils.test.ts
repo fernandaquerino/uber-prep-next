@@ -62,8 +62,9 @@ describe("getStatusLabel", () => {
 });
 
 describe("getCategoryLabel", () => {
-  it("maps algo to Algoritmos", () => expect(getCategoryLabel("algo")).toBe("Algoritmos"));
-  it("maps system to System Design", () =>
-    expect(getCategoryLabel("system")).toBe("System Design"));
+  it("maps algo to Algoritmos & ED", () =>
+    expect(getCategoryLabel("algo")).toBe("Algoritmos & ED"));
+  it("maps system to Frontend System Design", () =>
+    expect(getCategoryLabel("system")).toBe("Frontend System Design"));
   it("passes through unknown", () => expect(getCategoryLabel("xyz")).toBe("xyz"));
 });

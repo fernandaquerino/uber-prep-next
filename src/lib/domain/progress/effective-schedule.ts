@@ -144,5 +144,9 @@ function createEffectiveItem(
     confidence: record?.confidence,
     notes: record?.notes,
     patternUsed: record?.patternUsed,
+    solution: record?.solution,
+    timeComplexity: record?.timeComplexity,
+    spaceComplexity: record?.spaceComplexity,
+    solutionNotes: record?.solutionNotes,
   };
 }

@@ -132,6 +132,8 @@ function mapPlanDayToScheduledBlocks(planDay: StudyPlanDay): ScheduledStudyBlock
     category: block.category,
     estimatedMinutes: block.estimatedMinutes,
     type: block.type,
+    startTime: block.startTime,
+    resourceUrl: block.resourceUrl,
   }));
 }
 

@@ -42,7 +42,7 @@ export class UberPrepDatabase extends Dexie {
   constructor(name: string = DATABASE_NAME, options?: ConstructorParameters<typeof Dexie>[1]) {
     super(name, options);
 
-    this.version(DATABASE_VERSION).stores({
+    const stores = {
       settings: "id",
       planProgress: "id, blockId, status, scheduledDate, planDayId, planDaySequence",
       progressEvents: "id, blockId, type, occurredAt, actionGroupId",
@@ -60,6 +60,9 @@ export class UberPrepDatabase extends Dexie {
       playgroundSolutions: "id, language, updatedAt",
       checklistItems: "id, phase",
       metadata: "id",
-    });
+    };
+
+    this.version(2).stores(stores);
+    this.version(DATABASE_VERSION).stores(stores);
   }
 }

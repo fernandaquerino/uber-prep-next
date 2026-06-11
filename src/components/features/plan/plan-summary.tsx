@@ -2,7 +2,6 @@
 
 import type { PlanCompletionSummary, CurrentStudyState } from "@/lib/domain/progress";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 
 type PlanSummaryProps = {
   summary: PlanCompletionSummary;
@@ -10,77 +9,67 @@ type PlanSummaryProps = {
 };
 
 export function PlanSummary({ summary, currentStudyState }: PlanSummaryProps) {
-  const { overdueItems, isPlanCompleted } = currentStudyState;
+  const { overdueItems } = currentStudyState;
 
   return (
-    <div className="rounded-lg border p-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold">Progresso geral</h2>
-        <span className="text-muted-foreground text-xs">
-          {summary.completionPercentage}% concluído
+    <div className="rounded-lg border px-4 py-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          <StatChip
+            label="Concluídos"
+            value={summary.completed}
+            total={summary.total}
+            highlight="green"
+          />
+          {summary.inProgress > 0 && (
+            <StatChip label="Em andamento" value={summary.inProgress} highlight="blue" />
+          )}
+          {summary.stuck > 0 && (
+            <StatChip label="Travados" value={summary.stuck} highlight="amber" />
+          )}
+          {overdueItems.length > 0 && (
+            <StatChip label="Atrasados" value={overdueItems.length} highlight="red" />
+          )}
+          {summary.skipped > 0 && (
+            <StatChip label="Pulados" value={summary.skipped} highlight="muted" />
+          )}
+        </div>
+        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+          {summary.completionPercentage}%
         </span>
       </div>
 
       <Progress
         value={summary.completionPercentage}
         aria-label={`${summary.completionPercentage}% do plano concluído`}
-        className="mb-4 h-2"
+        className="h-1.5"
       />
-
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        <StatBadge
-          label="Concluídos"
-          count={summary.completed}
-          total={summary.total}
-          variant="default"
-        />
-        <StatBadge label="Em andamento" count={summary.inProgress} variant="secondary" />
-        <StatBadge label="Pendentes" count={summary.pending} variant="outline" />
-        <StatBadge label="Travados" count={summary.stuck} variant="destructive" />
-        <StatBadge label="Pulados" count={summary.skipped} variant="secondary" />
-        <StatBadge
-          label="Atrasados"
-          count={overdueItems.length}
-          variant={overdueItems.length > 0 ? "destructive" : "outline"}
-        />
-      </div>
-
-      {!isPlanCompleted && overdueItems.length > 0 && (
-        <p className="text-destructive mt-3 text-xs" role="alert">
-          Você possui {overdueItems.length} conteúdo{overdueItems.length > 1 ? "s" : ""} atrasado
-          {overdueItems.length > 1 ? "s" : ""}.
-        </p>
-      )}
-
-      {summary.skipped > 0 && (
-        <p className="text-muted-foreground mt-1 text-xs">
-          Resolução (concluído + pulado): {summary.resolutionPercentage}%{" "}
-          <span className="text-xs opacity-70">— pulado não conta como concluído</span>
-        </p>
-      )}
     </div>
   );
 }
 
-type StatBadgeProps = {
-  label: string;
-  count: number;
-  total?: number;
-  variant: "default" | "secondary" | "outline" | "destructive";
+type Highlight = "green" | "blue" | "amber" | "red" | "muted";
+
+const HIGHLIGHT_CLASSES: Record<Highlight, string> = {
+  green: "text-green-700 dark:text-green-400",
+  blue: "text-blue-700 dark:text-blue-400",
+  amber: "text-amber-700 dark:text-amber-400",
+  red: "text-red-700 dark:text-red-400",
+  muted: "text-muted-foreground",
 };
 
-function StatBadge({ label, count, total, variant }: StatBadgeProps) {
+type StatChipProps = {
+  label: string;
+  value: number;
+  total?: number;
+  highlight: Highlight;
+};
+
+function StatChip({ label, value, total, highlight }: StatChipProps) {
   return (
-    <div className="flex flex-col items-center gap-0.5 rounded-md border p-2 text-center">
-      <span className="text-foreground text-base font-bold tabular-nums">
-        {count}
-        {total !== undefined && (
-          <span className="text-muted-foreground text-xs font-normal"> /{total}</span>
-        )}
-      </span>
-      <Badge variant={variant} className="text-[10px]">
-        {label}
-      </Badge>
-    </div>
+    <span className={HIGHLIGHT_CLASSES[highlight]}>
+      <span className="font-semibold tabular-nums">{value}</span>
+      {total !== undefined && <span className="text-muted-foreground">/{total}</span>} {label}
+    </span>
   );
 }

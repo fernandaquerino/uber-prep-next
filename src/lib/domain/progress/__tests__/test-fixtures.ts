@@ -33,6 +33,7 @@ export function createPlanDays(count: number): StudyPlanDay[] {
           title: `Block ${sequence}`,
           category: "algorithms",
           estimatedMinutes: 120,
+          type: "exercicio",
         },
       ],
     };

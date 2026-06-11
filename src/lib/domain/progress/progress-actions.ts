@@ -41,6 +41,10 @@ export type UpdatePlanBlockProgressInput = {
   confidence?: number;
   notes?: string;
   patternUsed?: string;
+  solution?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  solutionNotes?: string;
 };
 
 export function initializePlanProgress(
@@ -219,6 +223,10 @@ export function updatePlanBlockProgressFields(
     confidence: input.confidence ?? record.confidence,
     notes: input.notes ?? record.notes,
     patternUsed: input.patternUsed ?? record.patternUsed,
+    solution: input.solution ?? record.solution,
+    timeComplexity: input.timeComplexity ?? record.timeComplexity,
+    spaceComplexity: input.spaceComplexity ?? record.spaceComplexity,
+    solutionNotes: input.solutionNotes ?? record.solutionNotes,
     updatedAt: input.occurredAt,
   };
 

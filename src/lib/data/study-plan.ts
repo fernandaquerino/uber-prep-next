@@ -32,7 +32,12 @@ function mapBlock(
   const tags: string[] = [block.type];
   if (block.difficulty) tags.push(`difficulty:${block.difficulty}`);
 
-  const description = block.leetcode ?? block.resource ?? undefined;
+  const resourceUrl = block.leetcode ?? block.resource ?? undefined;
+  const description = block.leetcode
+    ? `LeetCode: ${block.label}`
+    : block.resource
+      ? `Recurso: ${block.label}`
+      : undefined;
 
   return {
     id: buildBlockId(dayNumber, idx),
@@ -42,6 +47,8 @@ function mapBlock(
     type: block.type,
     description,
     tags,
+    startTime: block.time,
+    resourceUrl,
   };
 }
 

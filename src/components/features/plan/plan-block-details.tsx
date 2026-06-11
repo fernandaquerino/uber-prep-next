@@ -8,13 +8,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ExternalLinkIcon } from "lucide-react";
 import { PlanBlockForm } from "./plan-block-form";
-import { formatCalendarDate, formatMinutes, getCategoryLabel, getCategoryMeta, getStatusLabel } from "./plan-utils";
+import { formatCalendarDate, formatMinutes, getStatusLabel } from "./plan-utils";
+import { getCategoryVisual, getBlockTypeLabel } from "@/lib/presentation/category-visuals";
 import type { UsePlanActionsResult } from "@/hooks/use-plan-actions";
+import { cn } from "@/lib/utils";
 
 type PlanBlockDetailsProps = {
   block: EffectiveScheduledBlock | null;
@@ -24,7 +28,8 @@ type PlanBlockDetailsProps = {
   onActionDone: () => void;
 };
 
-type View = "details" | "complete" | "stuck";
+type InnerView = "details" | "complete" | "stuck";
+type Tab = "status" | "notes" | "solution";
 
 export function PlanBlockDetails({
   block,
@@ -33,11 +38,13 @@ export function PlanBlockDetails({
   actions,
   onActionDone,
 }: PlanBlockDetailsProps) {
-  const [view, setView] = useState<View>("details");
+  const [view, setView] = useState<InnerView>("details");
+  const [activeTab, setActiveTab] = useState<Tab>("status");
   const [loading, setLoading] = useState(false);
 
   function handleClose() {
     setView("details");
+    setActiveTab("status");
     onClose();
   }
 
@@ -54,42 +61,95 @@ export function PlanBlockDetails({
 
   if (!block) return null;
 
-    const categoryMeta = getCategoryMeta(block.category);
-  
+  const visual = getCategoryVisual(block.category);
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="sm:max-w-lg" aria-describedby="block-desc">
         <DialogHeader>
-          <DialogTitle>{block.title}</DialogTitle>
-          <DialogDescription id="block-desc">
-            <Badge variant="secondary" className="text-[10px]" 
-              style={
-                categoryMeta
-                  ? {
-                      backgroundColor: `${categoryMeta.color}20`,
-                      borderColor: `${categoryMeta.color}60`,
-                      color: categoryMeta.color,
-                    }
-                  : undefined
-              }>
-              {getCategoryLabel(block.category)}
-            </Badge> · {formatMinutes(block.estimatedMinutes)} estimados
+          <DialogTitle className="text-base">{block.title}</DialogTitle>
+          <DialogDescription id="block-desc" className="flex flex-wrap items-center gap-2 pt-1">
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                visual.badge,
+              )}
+            >
+              {visual.label}
+            </span>
+            <span className="text-muted-foreground text-xs">{getBlockTypeLabel(block.type)}</span>
+            <span className="text-muted-foreground text-xs">·</span>
+            <span className="text-muted-foreground text-xs">
+              {formatMinutes(block.estimatedMinutes)} estimados
+            </span>
+            {block.resourceUrl && (
+              <>
+                <span className="text-muted-foreground text-xs">·</span>
+                <a
+                  href={block.resourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary inline-flex items-center gap-0.5 text-xs hover:underline"
+                  aria-label="Abrir recurso em nova aba"
+                >
+                  Abrir recurso
+                  <ExternalLinkIcon className="h-3 w-3" aria-hidden />
+                </a>
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 
         {view === "details" && (
-          <BlockDetailsView
-            block={block}
-            loading={loading}
-            onClose={handleClose}
-            onShowComplete={() => setView("complete")}
-            onShowStuck={() => setView("stuck")}
-            onStart={() => doAction(() => actions.startBlock(block.blockId))}
-            onReturnToPending={() => doAction(() => actions.returnToPending(block.blockId))}
-            onSkip={() => doAction(() => actions.skipBlock(block.blockId))}
-            onRestore={() => doAction(() => actions.restoreBlock(block.blockId))}
-          />
+          <>
+            <TabBar activeTab={activeTab} onChange={setActiveTab} />
+
+            {activeTab === "status" && (
+              <StatusTab
+                block={block}
+                loading={loading}
+                onClose={handleClose}
+                onShowComplete={() => setView("complete")}
+                onShowStuck={() => setView("stuck")}
+                onStart={() => doAction(() => actions.startBlock(block.blockId))}
+                onReturnToPending={() => doAction(() => actions.returnToPending(block.blockId))}
+                onSkip={() => doAction(() => actions.skipBlock(block.blockId))}
+                onRestore={() => doAction(() => actions.restoreBlock(block.blockId))}
+              />
+            )}
+
+            {activeTab === "notes" && (
+              <NotesTab
+                block={block}
+                loading={loading}
+                onSave={(notes, patternUsed) =>
+                  doAction(() =>
+                    actions.updateBlockDetails({ blockId: block.blockId, notes, patternUsed }),
+                  )
+                }
+                onClose={handleClose}
+              />
+            )}
+
+            {activeTab === "solution" && (
+              <SolutionTab
+                block={block}
+                loading={loading}
+                onSave={(solution, timeComplexity, spaceComplexity, solutionNotes) =>
+                  doAction(() =>
+                    actions.updateBlockDetails({
+                      blockId: block.blockId,
+                      solution,
+                      timeComplexity,
+                      spaceComplexity,
+                      solutionNotes,
+                    }),
+                  )
+                }
+                onClose={handleClose}
+              />
+            )}
+          </>
         )}
 
         {view === "complete" && (
@@ -116,7 +176,48 @@ export function PlanBlockDetails({
   );
 }
 
-type BlockDetailsViewProps = {
+// ─── Tab Bar ─────────────────────────────────────────────────────────────────
+
+type TabBarProps = {
+  activeTab: Tab;
+  onChange: (tab: Tab) => void;
+};
+
+function TabBar({ activeTab, onChange }: TabBarProps) {
+  const tabs: { key: Tab; label: string }[] = [
+    { key: "status", label: "Status" },
+    { key: "notes", label: "Anotações" },
+    { key: "solution", label: "Solução" },
+  ];
+
+  return (
+    <div className="border-b" role="tablist" aria-label="Seções do bloco">
+      <div className="flex gap-0">
+        {tabs.map(({ key, label }) => (
+          <button
+            key={key}
+            role="tab"
+            aria-selected={activeTab === key}
+            aria-controls={`tab-panel-${key}`}
+            onClick={() => onChange(key)}
+            className={cn(
+              "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
+              activeTab === key
+                ? "border-primary text-foreground"
+                : "text-muted-foreground hover:text-foreground border-transparent",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Status Tab ──────────────────────────────────────────────────────────────
+
+type StatusTabProps = {
   block: EffectiveScheduledBlock;
   loading: boolean;
   onClose: () => void;
@@ -128,7 +229,7 @@ type BlockDetailsViewProps = {
   onRestore: () => void;
 };
 
-function BlockDetailsView({
+function StatusTab({
   block,
   loading,
   onClose,
@@ -138,7 +239,7 @@ function BlockDetailsView({
   onReturnToPending,
   onSkip,
   onRestore,
-}: BlockDetailsViewProps) {
+}: StatusTabProps) {
   const isCompleted = block.executionStatus === "completed";
   const isSkipped = block.executionStatus === "skipped";
   const isInProgress = block.executionStatus === "in_progress";
@@ -146,42 +247,36 @@ function BlockDetailsView({
   const isPending = block.executionStatus === "pending";
 
   return (
-    <>
-      <div className="flex flex-col gap-3 text-sm">
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{getStatusLabel(block.executionStatus)}</Badge>
-          {block.isOverdue && <Badge variant="destructive">Atrasado</Badge>}
-          {block.isRescheduled && <Badge variant="outline">Reagendado</Badge>}
-        </div>
-
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <Row label="Data original" value={formatCalendarDate(block.originalScheduledDate)} />
-          {block.isRescheduled && (
-            <Row label="Data efetiva" value={formatCalendarDate(block.scheduledDate)} />
-          )}
-          {block.actualMinutes !== undefined && (
-            <Row label="Tempo real" value={formatMinutes(block.actualMinutes)} />
-          )}
-          {block.difficulty !== undefined && (
-            <Row label="Dificuldade" value={`${block.difficulty}/5`} />
-          )}
-          {block.confidence !== undefined && (
-            <Row label="Confiança" value={`${block.confidence}/5`} />
-          )}
-          {block.patternUsed && <Row label="Padrão" value={block.patternUsed} />}
-        </dl>
-
-        {block.notes && (
-          <div>
-            <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
-              Notas
-            </p>
-            <p className="text-sm leading-relaxed">{block.notes}</p>
-          </div>
+    <div id="tab-panel-status" role="tabpanel" aria-label="Status" className="flex flex-col gap-4">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+        <Row label="Status" value={getStatusLabel(block.executionStatus)} />
+        <Row label="Data original" value={formatCalendarDate(block.originalScheduledDate)} />
+        {block.isRescheduled && (
+          <Row label="Data efetiva" value={formatCalendarDate(block.scheduledDate)} />
         )}
-      </div>
+        {block.isOverdue && <Row label="Situação" value="Atrasado" />}
+        {block.actualMinutes !== undefined && (
+          <Row label="Tempo real" value={formatMinutes(block.actualMinutes)} />
+        )}
+        {block.difficulty !== undefined && (
+          <Row label="Dificuldade" value={`${block.difficulty}/5`} />
+        )}
+        {block.confidence !== undefined && (
+          <Row label="Confiança" value={`${block.confidence}/5`} />
+        )}
+        {block.patternUsed && <Row label="Padrão" value={block.patternUsed} />}
+      </dl>
 
-      <DialogFooter className="flex-col gap-2 sm:flex-row">
+      {block.notes && (
+        <div>
+          <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
+            Notas
+          </p>
+          <p className="text-sm leading-relaxed">{block.notes}</p>
+        </div>
+      )}
+
+      <div className="flex flex-wrap gap-2 border-t pt-3">
         {isPending && (
           <>
             <Button size="sm" onClick={onStart} disabled={loading}>
@@ -240,10 +335,164 @@ function BlockDetailsView({
         <Button size="sm" variant="outline" onClick={onClose}>
           Fechar
         </Button>
-      </DialogFooter>
-    </>
+      </div>
+    </div>
   );
 }
+
+// ─── Notes Tab ───────────────────────────────────────────────────────────────
+
+type NotesTabProps = {
+  block: EffectiveScheduledBlock;
+  loading: boolean;
+  onSave: (notes: string | undefined, patternUsed: string | undefined) => void;
+  onClose: () => void;
+};
+
+function NotesTab({ block, loading, onSave, onClose }: NotesTabProps) {
+  const [notes, setNotes] = useState(block.notes ?? "");
+  const [patternUsed, setPatternUsed] = useState(block.patternUsed ?? "");
+
+  return (
+    <div
+      id="tab-panel-notes"
+      role="tabpanel"
+      aria-label="Anotações"
+      className="flex flex-col gap-4"
+    >
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="notes-field">Notas</Label>
+        <Textarea
+          id="notes-field"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={4}
+          placeholder="Insights, dúvidas, o que aprendeu…"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="pattern-field">Padrão usado</Label>
+        <Input
+          id="pattern-field"
+          value={patternUsed}
+          onChange={(e) => setPatternUsed(e.target.value)}
+          placeholder="Ex: Sliding Window, Hash Map, Two Pointers…"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 border-t pt-3">
+        <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading}>
+          Fechar
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          disabled={loading}
+          onClick={() => onSave(notes.trim() || undefined, patternUsed.trim() || undefined)}
+        >
+          {loading ? "Salvando…" : "Salvar anotações"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Solution Tab ─────────────────────────────────────────────────────────────
+
+type SolutionTabProps = {
+  block: EffectiveScheduledBlock;
+  loading: boolean;
+  onSave: (
+    solution: string | undefined,
+    timeComplexity: string | undefined,
+    spaceComplexity: string | undefined,
+    solutionNotes: string | undefined,
+  ) => void;
+  onClose: () => void;
+};
+
+function SolutionTab({ block, loading, onSave, onClose }: SolutionTabProps) {
+  const [solution, setSolution] = useState(block.solution ?? "");
+  const [timeComplexity, setTimeComplexity] = useState(block.timeComplexity ?? "");
+  const [spaceComplexity, setSpaceComplexity] = useState(block.spaceComplexity ?? "");
+  const [solutionNotes, setSolutionNotes] = useState(block.solutionNotes ?? "");
+
+  return (
+    <div
+      id="tab-panel-solution"
+      role="tabpanel"
+      aria-label="Solução"
+      className="flex flex-col gap-4"
+    >
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="solution-field">Solução / Abordagem</Label>
+        <Textarea
+          id="solution-field"
+          value={solution}
+          onChange={(e) => setSolution(e.target.value)}
+          rows={5}
+          placeholder="Descreva a solução ou abordagem usada…"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="time-complexity-field">Complexidade de tempo</Label>
+          <Input
+            id="time-complexity-field"
+            value={timeComplexity}
+            onChange={(e) => setTimeComplexity(e.target.value)}
+            placeholder="Ex: O(n), O(n log n)"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="space-complexity-field">Complexidade de espaço</Label>
+          <Input
+            id="space-complexity-field"
+            value={spaceComplexity}
+            onChange={(e) => setSpaceComplexity(e.target.value)}
+            placeholder="Ex: O(1), O(n)"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="solution-notes-field">Observações sobre a solução</Label>
+        <Textarea
+          id="solution-notes-field"
+          value={solutionNotes}
+          onChange={(e) => setSolutionNotes(e.target.value)}
+          rows={2}
+          placeholder="Alternativas consideradas, trade-offs, edge cases…"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 border-t pt-3">
+        <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading}>
+          Fechar
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          disabled={loading}
+          onClick={() =>
+            onSave(
+              solution.trim() || undefined,
+              timeComplexity.trim() || undefined,
+              spaceComplexity.trim() || undefined,
+              solutionNotes.trim() || undefined,
+            )
+          }
+        >
+          {loading ? "Salvando…" : "Salvar solução"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Stuck Form ───────────────────────────────────────────────────────────────
 
 type StuckFormProps = {
   onSubmit: (notes: string | undefined, difficulty: number | undefined) => void;
@@ -275,10 +524,8 @@ function StuckForm({ onSubmit, onCancel, loading }: StuckFormProps) {
               onClick={() => setDifficulty(difficulty === v ? undefined : v)}
               aria-pressed={difficulty === v}
               aria-label={`Dificuldade ${v}`}
-              className={`flex h-8 w-8 items-center justify-center rounded-md border text-sm font-medium ${
-                difficulty === v
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "hover:bg-muted border-border"
+              className={`border-border hover:bg-muted flex h-8 w-8 items-center justify-center rounded-md border text-sm font-medium ${
+                difficulty === v ? "bg-primary text-primary-foreground border-primary" : ""
               }`}
             >
               {v}
@@ -296,7 +543,7 @@ function StuckForm({ onSubmit, onCancel, loading }: StuckFormProps) {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
-          className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+          className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
           placeholder="O que travou? Que erro apareceu?"
         />
       </div>

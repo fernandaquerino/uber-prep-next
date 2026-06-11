@@ -21,7 +21,9 @@ import {
   skipPlanBlock,
   startPlanBlock,
   undoProgressAction,
+  updatePlanBlockProgress,
 } from "@/lib/application/progress";
+import type { UpdatePlanBlockProgressInput } from "@/lib/domain/progress";
 
 function getNow(): string {
   return new Date().toISOString();
@@ -59,6 +61,7 @@ export type UsePlanActionsResult = {
     newBaseSchedule: ScheduledStudyDay[];
     option: import("@/lib/application/progress").ChangeStartDateOption;
   }) => Promise<void>;
+  updateBlockDetails: (input: Omit<UpdatePlanBlockProgressInput, "occurredAt">) => Promise<void>;
 };
 
 export function usePlanActions(callbacks: PlanActionsCallbacks): UsePlanActionsResult {
@@ -172,6 +175,15 @@ export function usePlanActions(callbacks: PlanActionsCallbacks): UsePlanActionsR
         wrap(async () => {
           const db = await getDb();
           await changeStartDate({ db, ...input, now: getNow() });
+        }),
+      [wrap],
+    ),
+
+    updateBlockDetails: useCallback(
+      (input) =>
+        wrap(async () => {
+          const db = await getDb();
+          await updatePlanBlockProgress({ db, ...input, occurredAt: getNow() });
         }),
       [wrap],
     ),
