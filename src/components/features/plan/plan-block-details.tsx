@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { EffectiveScheduledBlock } from "@/lib/domain/progress";
 import {
   Dialog,
@@ -34,6 +34,28 @@ export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDet
   const [view, setView] = useState<InnerView>("details");
   const [activeTab, setActiveTab] = useState<Tab>("status");
   const [loading, setLoading] = useState(false);
+  const [hasActiveReview, setHasActiveReview] = useState(false);
+
+  // Check review status when dialog opens
+  useEffect(() => {
+    if (!open || !block) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getDb } = await import("@/lib/db/db");
+        const { hasActiveReviewForBlock } =
+          await import("@/lib/application/reviews/review-use-cases");
+        const db = await getDb();
+        const result = await hasActiveReviewForBlock(db, block.blockId);
+        if (!cancelled) setHasActiveReview(result);
+      } catch {
+        // non-fatal
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, block]);
 
   function handleClose() {
     setView("details");
@@ -94,6 +116,7 @@ export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDet
               <StatusTab
                 block={block}
                 loading={loading}
+                hasActiveReview={hasActiveReview}
                 onClose={handleClose}
                 onShowComplete={() => setView("complete")}
                 onShowStuck={() => setView("stuck")}
@@ -101,6 +124,18 @@ export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDet
                 onReturnToPending={() => doAction(() => actions.returnToPending(block.blockId))}
                 onSkip={() => doAction(() => actions.skipBlock(block.blockId))}
                 onRestore={() => doAction(() => actions.restoreBlock(block.blockId))}
+                onMarkForReview={() =>
+                  doAction(async () => {
+                    await actions.markForReview(block.blockId);
+                    setHasActiveReview(true);
+                  })
+                }
+                onUnmarkForReview={() =>
+                  doAction(async () => {
+                    await actions.unmarkForReview(block.blockId);
+                    setHasActiveReview(false);
+                  })
+                }
               />
             )}
 
@@ -206,6 +241,7 @@ function TabBar({ activeTab, onChange }: TabBarProps) {
 type StatusTabProps = {
   block: EffectiveScheduledBlock;
   loading: boolean;
+  hasActiveReview: boolean;
   onClose: () => void;
   onShowComplete: () => void;
   onShowStuck: () => void;
@@ -213,11 +249,14 @@ type StatusTabProps = {
   onReturnToPending: () => void;
   onSkip: () => void;
   onRestore: () => void;
+  onMarkForReview: () => void;
+  onUnmarkForReview: () => void;
 };
 
 function StatusTab({
   block,
   loading,
+  hasActiveReview,
   onClose,
   onShowComplete,
   onShowStuck,
@@ -225,12 +264,15 @@ function StatusTab({
   onReturnToPending,
   onSkip,
   onRestore,
+  onMarkForReview,
+  onUnmarkForReview,
 }: StatusTabProps) {
   const isCompleted = block.executionStatus === "completed";
   const isSkipped = block.executionStatus === "skipped";
   const isInProgress = block.executionStatus === "in_progress";
   const isStuck = block.executionStatus === "stuck";
   const isPending = block.executionStatus === "pending";
+  const isReviewable = block.type !== "pausa";
 
   return (
     <div id="tab-panel-status" role="tabpanel" aria-label="Status" className="flex flex-col gap-4">
@@ -280,6 +322,20 @@ function StatusTab({
         <Button size="sm" variant="ghost" onClick={onClose}>
           Fechar
         </Button>
+
+        {isReviewable && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={hasActiveReview ? onUnmarkForReview : onMarkForReview}
+            disabled={loading}
+            className={
+              hasActiveReview ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+            }
+          >
+            {hasActiveReview ? "Remover da revisão" : "Marcar para revisar"}
+          </Button>
+        )}
 
         <span className="flex-1" />
 
