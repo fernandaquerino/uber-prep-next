@@ -4,15 +4,15 @@ Migração one-time e idempotente do `localStorage` para o IndexedDB.
 
 ## Fontes migradas
 
-| Chave localStorage | Destino IndexedDB |
-|-------------------|-------------------|
-| `uber-prep-v2` | `planProgress`, `reviews`, `mocks`, `playgroundSolutions`, `learningJournal`, `weeklyReflections`, `notes` (topic notes), `settings` |
-| `uber-prep-flashcards` | `flashcards` |
-| `uber-prep-quizzes` | `quizAttempts`, `quizReviews` |
-| `uber-prep-timer-sessions` | `timerSessions` |
-| `uber-prep-checklist` | `checklistItems` |
-| `uber-prep-theme` | `settings.theme` |
-| `uber-prep-mock-audio-{id}` | `mockAudio` (Blob) |
+| Chave localStorage          | Destino IndexedDB                                                                                                                    |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `uber-prep-v2`              | `planProgress`, `reviews`, `mocks`, `playgroundSolutions`, `learningJournal`, `weeklyReflections`, `notes` (topic notes), `settings` |
+| `uber-prep-flashcards`      | `flashcards`                                                                                                                         |
+| `uber-prep-quizzes`         | `quizAttempts`, `quizReviews`                                                                                                        |
+| `uber-prep-timer-sessions`  | `timerSessions`                                                                                                                      |
+| `uber-prep-checklist`       | `checklistItems`                                                                                                                     |
+| `uber-prep-theme`           | `settings.theme`                                                                                                                     |
+| `uber-prep-mock-audio-{id}` | `mockAudio` (Blob)                                                                                                                   |
 
 ## Estratégia
 
@@ -24,10 +24,10 @@ Migração one-time e idempotente do `localStorage` para o IndexedDB.
 
 ## Mapeamento de status
 
-| Legacy | IndexedDB |
-|--------|-----------|
-| `done` | `completed` |
-| `in_progress`, `pending`, `stuck`, `skipped`, `rescheduled` | mantidos |
+| Legacy                                                      | IndexedDB   |
+| ----------------------------------------------------------- | ----------- |
+| `done`                                                      | `completed` |
+| `in_progress`, `pending`, `stuck`, `skipped`, `rescheduled` | mantidos    |
 
 ## IDs preservados
 
@@ -51,6 +51,7 @@ const report = await runLegacyMigration(db);
 ## UI
 
 `<LegacyMigrationCheck />` (em `AppLayout`) usa `useLegacyMigration()` para:
+
 1. Detectar se há dados legados na primeira visita
 2. Mostrar `MigrationDialog` para confirmação do usuário
 3. Executar a migração e exibir o relatório

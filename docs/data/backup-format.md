@@ -34,8 +34,8 @@ Exportação e importação de dados em JSON.
 ## Constantes
 
 ```ts
-BACKUP_APP_ID = "uber-prep"
-BACKUP_VERSION = 1
+BACKUP_APP_ID = "uber-prep";
+BACKUP_VERSION = 1;
 ```
 
 ## Notas importantes
@@ -45,10 +45,10 @@ BACKUP_VERSION = 1
 
 ## Modos de importação
 
-| Modo | Comportamento |
-|------|--------------|
-| `merge` | Registros já existentes são mantidos. Apenas novos IDs são inseridos. Conflitos são logados em `result.conflicts`. |
-| `replace` | Todas as tabelas (exceto `metadata` e `mockAudio`) são limpas antes da importação. |
+| Modo      | Comportamento                                                                                                      |
+| --------- | ------------------------------------------------------------------------------------------------------------------ |
+| `merge`   | Registros já existentes são mantidos. Apenas novos IDs são inseridos. Conflitos são logados em `result.conflicts`. |
+| `replace` | Todas as tabelas (exceto `metadata` e `mockAudio`) são limpas antes da importação.                                 |
 
 ## API
 
@@ -71,6 +71,7 @@ const result = await repo.import(parsedFile, "merge");
 ## Validação
 
 O schema `backupFileSchema` (em `src/lib/validation/backup.schemas.ts`) verifica:
+
 - `app === "uber-prep"`
 - `backupVersion === 1`
 - Campos obrigatórios presentes e com tipos corretos
