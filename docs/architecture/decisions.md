@@ -36,6 +36,14 @@ A estrutura `src/features/<nome>/` coloca tudo relacionado a uma funcionalidade 
 - **Playwright**: testes E2E de fluxos reais no browser. Foco em navegação, tema e mobile. Roda contra build de produção para garantir que o build não quebra nada.
 - **Cobertura**: priorizar `lib/domain/` (lógica pura) com ≥ 90% e componentes compartilhados com ≥ 80%.
 
+## Domínio de calendário
+
+O domínio de calendário fica em `src/lib/domain/schedule` porque é lógica pura compartilhada por Plano, Dashboard, Revisar Hoje e relatórios futuros. Ele não importa React, hooks, componentes, Dexie, repositories ou APIs de browser.
+
+Datas civis usam o formato `YYYY-MM-DD` com tipo branded `CalendarDate`. Operações como parse, soma de dias, comparação, diferença e dia da semana são centralizadas em `calendar-date.ts`. O domínio evita `new Date("YYYY-MM-DD")`, pois essa forma é interpretada como UTC e pode deslocar datas em algumas timezones.
+
+O scheduler inicial usa um `StudyPlanDay` por data habilitada e inclui dias de descanso na agenda. Essa decisão preserva a estrutura do plano antigo e permite que a UI futura mostre semanas reais, descanso e próximo dia de estudo sem inventar regras de progresso.
+
 ## Estratégia de tema
 
 `next-themes` com `attribute="class"` adiciona `.dark` no `<html>`. A preferência é persistida no `localStorage` automaticamente. `suppressHydrationWarning` previne flash de hidratação. CSS variables no `:root` e `.dark` do globals.css controlam todas as cores — nenhuma cor hardcoded em componentes.

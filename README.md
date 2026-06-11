@@ -2,8 +2,8 @@
 
 Plataforma de preparação para entrevistas de engenharia de software. Local-first, sem backend, sem conta.
 
-> **Estado atual:** Entrega 02 concluída — camada de dados local.
-> As Entregas 01 e 02 estão concluídas. As regras de calendário, plano, progresso e revisão ainda não foram implementadas.
+> **Estado atual:** Entrega 03 concluída — domínio de calendário e scheduler puro.
+> As Entregas 01, 02 e 03 estão concluídas. Progresso, revisões, Dashboard e página Plano funcional ainda não foram implementados.
 
 ---
 
@@ -98,6 +98,8 @@ src/
     utils/           <- Utilitários puros
 
   lib/
+    domain/
+      schedule/      <- Datas civis, disponibilidade semanal e scheduler puro
     db/              <- Dexie schema, seed, migrations, constants, errors
     repositories/    <- 12 repositórios tipados
     data/            <- Dados iniciais (40 flashcards)
@@ -124,12 +126,15 @@ tests/
 docs/
   architecture/
     decisions.md
+  domain/
+    study-schedule.md
   data/
     database-schema.md
     legacy-migration.md
     backup-format.md
   delivery-01-foundation.md
   delivery-02-data-layer.md
+  delivery-03-calendar-domain.md
 ```
 
 ---
@@ -169,7 +174,7 @@ docs/
 | --- | ---------------------------------------------- | --------- |
 | 01  | Fundação: Next.js, layout, rotas, tema, testes | Concluída |
 | 02  | IndexedDB, schema, migration, repositories     | Concluída |
-| 03  | Domínio de calendário                          | Pendente  |
+| 03  | Domínio de calendário                          | Concluída |
 | 04  | Progresso, reviews, spaced repetition          | Pendente  |
 | 05  | Página Plano                                   | Pendente  |
 | 06  | Dashboard                                      | Pendente  |
@@ -186,9 +191,21 @@ docs/
 
 ---
 
+## Calendário e Agenda
+
+- Datas civis são validadas no formato `YYYY-MM-DD`.
+- `2026-06-11` é tratado como quinta-feira e `2026-06-13` como sábado.
+- A disponibilidade padrão é segunda a sexta com 480 minutos, sábado com 240 minutos e domingo como descanso.
+- O scheduler puro gera agenda cronológica com dias de descanso incluídos.
+- Cada dia sequencial do plano ocupa uma data habilitada; blocos não são divididos automaticamente.
+- Dias acima da capacidade são marcados como `over_capacity`.
+- Agrupamento semanal usa a semana real do calendário, de segunda a domingo.
+
 ## Limitações atuais
 
-- Nenhuma regra de negócio implementada (Entregas 03+).
+- Progresso, atrasos, reagendamento, pular conteúdo e mover plano ainda não foram implementados.
+- Revisões e repetição espaçada ainda não usam a agenda.
+- Dashboard, Plano e Revisar Hoje ainda não estão integrados ao scheduler.
 - As páginas mostram estado "em construção" — o banco existe mas não há UI funcional ainda.
-- Nenhuma métrica, readiness ou progresso é exibido (não existem ainda).
+- Nenhuma métrica, readiness ou progresso é exibido.
 - Áudio de mocks não é incluído no backup JSON (apenas metadados).
