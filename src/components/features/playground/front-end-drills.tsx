@@ -1,8 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FRONTEND_DRILLS } from "@/lib/data/front-end-drills";
+import { Drill } from "./playground";
 
-export default function FrontEndDrills() {
+type FrontEndDrillsProps = {
+  loadDrill: (drill: Drill) => void;
+};
+
+export default function FrontEndDrills({ loadDrill }: FrontEndDrillsProps) {
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-2.5">
       {FRONTEND_DRILLS.map((drill) => (
@@ -17,7 +22,9 @@ export default function FrontEndDrills() {
             <Badge className="bg-[#FFB547]/15 text-[#FFB547]">{drill.difficulty}</Badge>
             <Badge className="bg-[#7C6FF7]/15 text-[#7C6FF7]">{drill.tests.length} teste</Badge>
           </div>
-          <Button variant="secondary">Praticar drill</Button>
+          <Button variant="secondary" onClick={() => loadDrill(drill)}>
+            Praticar drill
+          </Button>
         </div>
       ))}
     </div>
