@@ -9,6 +9,7 @@ type PlanWeekProps = {
   week: ScheduledWeek;
   effectiveDays: EffectiveScheduledDay[];
   today: CalendarDate;
+  isFiltered?: boolean;
   onStartBlock: (blockId: string) => void;
   onCompleteBlock: (blockId: string) => void;
   onStuckBlock: (blockId: string) => void;
@@ -24,6 +25,7 @@ export function PlanWeek({
   week,
   effectiveDays,
   today,
+  isFiltered = false,
   onStartBlock,
   onCompleteBlock,
   onStuckBlock,
@@ -39,7 +41,14 @@ export function PlanWeek({
   return (
     <div className="flex flex-col gap-2">
       {week.days.map((baseDay) => {
-        const effectiveDay = dayMap.get(baseDay.date) ?? {
+        const effectiveDay = dayMap.get(baseDay.date);
+
+        // When a quick-filter is active, skip days that have no matching items.
+        // Without this check, days not in effectiveDays fall back to the full
+        // base schedule, making the filter appear to have no effect.
+        if (!effectiveDay && isFiltered) return null;
+
+        const day = effectiveDay ?? {
           ...baseDay,
           items: baseDay.items.map((item) => ({
             ...item,
@@ -56,7 +65,7 @@ export function PlanWeek({
         return (
           <PlanDayCard
             key={baseDay.date}
-            day={effectiveDay}
+            day={day}
             today={today}
             defaultOpen={baseDay.date === today}
             onStartBlock={onStartBlock}

@@ -25,19 +25,12 @@ type PlanBlockDetailsProps = {
   open: boolean;
   onClose: () => void;
   actions: UsePlanActionsResult;
-  onActionDone: () => void;
 };
 
 type InnerView = "details" | "complete" | "stuck";
 type Tab = "status" | "notes" | "solution";
 
-export function PlanBlockDetails({
-  block,
-  open,
-  onClose,
-  actions,
-  onActionDone,
-}: PlanBlockDetailsProps) {
+export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDetailsProps) {
   const [view, setView] = useState<InnerView>("details");
   const [activeTab, setActiveTab] = useState<Tab>("status");
   const [loading, setLoading] = useState(false);
@@ -52,8 +45,10 @@ export function PlanBlockDetails({
     setLoading(true);
     try {
       await fn();
-      onActionDone();
-      handleClose();
+      // Return from sub-forms (complete/stuck) to main details view.
+      // Do NOT call handleClose() — modal must stay open after every action.
+      // Refresh is already triggered by usePlanActions.wrap → onSuccess.
+      setView("details");
     } finally {
       setLoading(false);
     }
@@ -65,7 +60,13 @@ export function PlanBlockDetails({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="sm:max-w-lg" aria-describedby="block-desc">
+      <DialogContent
+        className={cn(
+          "transition-[max-width]",
+          activeTab === "notes" || activeTab === "solution" ? "sm:max-w-xl" : "sm:max-w-lg",
+        )}
+        aria-describedby="block-desc"
+      >
         <DialogHeader>
           <DialogTitle className="text-base">{block.title}</DialogTitle>
           <DialogDescription id="block-desc" className="flex flex-wrap items-center gap-2 pt-1">
@@ -82,21 +83,6 @@ export function PlanBlockDetails({
             <span className="text-muted-foreground text-xs">
               {formatMinutes(block.estimatedMinutes)} estimados
             </span>
-            {block.resourceUrl && (
-              <>
-                <span className="text-muted-foreground text-xs">·</span>
-                <a
-                  href={block.resourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary inline-flex items-center gap-0.5 text-xs hover:underline"
-                  aria-label="Abrir recurso em nova aba"
-                >
-                  Abrir recurso
-                  <ExternalLinkIcon className="h-3 w-3" aria-hidden />
-                </a>
-              </>
-            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -248,6 +234,19 @@ function StatusTab({
 
   return (
     <div id="tab-panel-status" role="tabpanel" aria-label="Status" className="flex flex-col gap-4">
+      {/* Prominent resource link */}
+      {block.resourceUrl && (
+        <a
+          href={block.resourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:bg-muted flex items-center justify-between rounded-md border px-3 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
+        >
+          <span>Abrir recurso</span>
+          <ExternalLinkIcon className="h-4 w-4 shrink-0" aria-hidden />
+        </a>
+      )}
+
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <Row label="Status" value={getStatusLabel(block.executionStatus)} />
         <Row label="Data original" value={formatCalendarDate(block.originalScheduledDate)} />
@@ -276,18 +275,16 @@ function StatusTab({
         </div>
       )}
 
-      <div className="flex flex-wrap gap-2 border-t pt-3">
+      {/* Footer: Fechar (left) | secondary actions | primary action (right) */}
+      <div className="flex items-center gap-2 border-t pt-3">
+        <Button size="sm" variant="ghost" onClick={onClose}>
+          Fechar
+        </Button>
+
+        <span className="flex-1" />
+
         {isPending && (
           <>
-            <Button size="sm" onClick={onStart} disabled={loading}>
-              Iniciar
-            </Button>
-            <Button size="sm" variant="outline" onClick={onShowComplete} disabled={loading}>
-              Concluir
-            </Button>
-            <Button size="sm" variant="ghost" onClick={onShowStuck} disabled={loading}>
-              Travei
-            </Button>
             <Button
               size="sm"
               variant="ghost"
@@ -297,28 +294,37 @@ function StatusTab({
             >
               Pular
             </Button>
+            <Button size="sm" variant="outline" onClick={onShowStuck} disabled={loading}>
+              Travei
+            </Button>
+            <Button size="sm" variant="outline" onClick={onShowComplete} disabled={loading}>
+              Concluir
+            </Button>
+            <Button size="sm" onClick={onStart} disabled={loading}>
+              Iniciar
+            </Button>
           </>
         )}
         {isInProgress && (
           <>
-            <Button size="sm" onClick={onShowComplete} disabled={loading}>
-              Concluir
-            </Button>
-            <Button size="sm" variant="ghost" onClick={onShowStuck} disabled={loading}>
-              Travei
-            </Button>
             <Button size="sm" variant="ghost" onClick={onReturnToPending} disabled={loading}>
               Pausar
+            </Button>
+            <Button size="sm" variant="outline" onClick={onShowStuck} disabled={loading}>
+              Travei
+            </Button>
+            <Button size="sm" onClick={onShowComplete} disabled={loading}>
+              Concluir
             </Button>
           </>
         )}
         {isStuck && (
           <>
-            <Button size="sm" onClick={onShowComplete} disabled={loading}>
-              Concluir mesmo assim
-            </Button>
             <Button size="sm" variant="outline" onClick={onReturnToPending} disabled={loading}>
               Retomar
+            </Button>
+            <Button size="sm" onClick={onShowComplete} disabled={loading}>
+              Concluir mesmo assim
             </Button>
           </>
         )}
@@ -332,9 +338,6 @@ function StatusTab({
             Restaurar
           </Button>
         )}
-        <Button size="sm" variant="outline" onClick={onClose}>
-          Fechar
-        </Button>
       </div>
     </div>
   );
@@ -381,10 +384,11 @@ function NotesTab({ block, loading, onSave, onClose }: NotesTabProps) {
         />
       </div>
 
-      <div className="flex justify-end gap-2 border-t pt-3">
-        <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading}>
+      <div className="flex items-center gap-2 border-t pt-3">
+        <Button type="button" variant="ghost" size="sm" onClick={onClose} disabled={loading}>
           Fechar
         </Button>
+        <span className="flex-1" />
         <Button
           type="button"
           size="sm"
@@ -468,10 +472,11 @@ function SolutionTab({ block, loading, onSave, onClose }: SolutionTabProps) {
         />
       </div>
 
-      <div className="flex justify-end gap-2 border-t pt-3">
-        <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading}>
+      <div className="flex items-center gap-2 border-t pt-3">
+        <Button type="button" variant="ghost" size="sm" onClick={onClose} disabled={loading}>
           Fechar
         </Button>
+        <span className="flex-1" />
         <Button
           type="button"
           size="sm"

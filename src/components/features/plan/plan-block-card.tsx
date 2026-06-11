@@ -2,17 +2,13 @@
 
 import type { EffectiveScheduledBlock, PlanBlockExecutionStatus } from "@/lib/domain/progress";
 import { Button } from "@/components/ui/button";
-import {
-  PlayIcon,
-  CheckIcon,
-  SkipForwardIcon,
-  RotateCcwIcon,
-  AlertTriangleIcon,
-  CalendarIcon,
-  InfoIcon,
-} from "lucide-react";
-import { formatMinutes, getStatusLabel, formatCalendarDate } from "./plan-utils";
-import { getCategoryVisual, getBlockTypeLabel } from "@/lib/presentation/category-visuals";
+import { CheckIcon } from "lucide-react";
+import { formatMinutes, formatCalendarDate } from "./plan-utils";
+import { getBlockTypeLabel, getCategoryVisual } from "@/lib/presentation/category-visuals";
+import { getBlockActions } from "@/lib/presentation/plan-view-models";
+import { CategoryBadge } from "./category-badge";
+import { StatusBadge, OverdueBadge } from "./status-badge";
+import { BlockActionsMenu } from "./block-actions-menu";
 import { cn } from "@/lib/utils";
 
 type PlanBlockCardProps = {
@@ -32,7 +28,7 @@ const STATUS_BORDER: Record<PlanBlockExecutionStatus, string> = {
   in_progress: "border-l-blue-500",
   completed: "border-l-green-500",
   stuck: "border-l-amber-500",
-  skipped: "border-l-muted-foreground/40",
+  skipped: "border-l-muted-foreground/30",
 };
 
 export function PlanBlockCard({
@@ -46,250 +42,153 @@ export function PlanBlockCard({
   onReschedule,
   onOpen,
 }: PlanBlockCardProps) {
-  const { executionStatus, isOverdue, isRescheduled, timingStatus } = block;
-  const isPast = timingStatus === "past";
+  const { executionStatus, isOverdue, isRescheduled } = block;
   const isCompleted = executionStatus === "completed";
   const isSkipped = executionStatus === "skipped";
   const visual = getCategoryVisual(block.category);
+  const actions = getBlockActions(executionStatus);
+
+  function handleAction(id: string) {
+    switch (id) {
+      case "start":
+        onStart();
+        break;
+      case "complete":
+        onComplete();
+        break;
+      case "stuck":
+        onStuck();
+        break;
+      case "resume":
+      case "return_to_pending":
+      case "pause":
+        onReturnToPending();
+        break;
+      case "restore":
+        onRestore();
+        break;
+      case "reschedule":
+        onReschedule();
+        break;
+      case "skip":
+        onSkip();
+        break;
+      case "undo_complete":
+        onReturnToPending();
+        break;
+    }
+  }
 
   return (
     <article
       className={cn(
-        "rounded-lg border border-l-4 p-3 transition-colors",
+        "rounded-lg border border-l-4 transition-colors",
+        `border-l-${visual.dot.replace("bg-", "")}`,
         STATUS_BORDER[executionStatus],
-        isCompleted && "opacity-70",
+        isCompleted && "opacity-75",
         isSkipped && "opacity-50",
       )}
-      aria-label={`${block.title} — ${getStatusLabel(executionStatus)}`}
+      aria-label={`${block.title}`}
     >
-      <div className="flex flex-col gap-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            {block.startTime && (
-              <p className="text-muted-foreground mb-0.5 text-[11px] tabular-nums">
-                {block.startTime}
-              </p>
-            )}
-            <button
-              onClick={onOpen}
-              className="text-left text-sm leading-snug font-medium hover:underline"
-              aria-label={`Abrir detalhes: ${block.title}`}
-            >
-              {block.title}
-            </button>
+      {/* Clickable main area — opens details */}
+      <button
+        onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpen();
+          }
+        }}
+        className="w-full cursor-pointer p-3 pb-2 text-left focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none focus-visible:ring-inset"
+        aria-label={`Abrir detalhes: ${block.title}`}
+      >
+        {block.startTime && (
+          <p className="text-muted-foreground mb-1 text-[11px] tabular-nums">{block.startTime}</p>
+        )}
 
-            <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              <span
-                className={cn(
-                  "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium",
-                  visual.badge,
-                )}
-              >
-                {visual.label}
-              </span>
-              <span className="text-muted-foreground text-[11px]">
-                {getBlockTypeLabel(block.type)}
-              </span>
-              <span className="text-muted-foreground text-[11px]">·</span>
-              <span className="text-muted-foreground text-[11px]">
-                {formatMinutes(block.estimatedMinutes)}
-              </span>
+        <p className="text-sm leading-snug font-medium">{block.title}</p>
 
-              {isOverdue && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                  <AlertTriangleIcon className="h-2.5 w-2.5" aria-hidden />
-                  Atrasado
-                </span>
-              )}
-              {isRescheduled && (
-                <span className="inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-[10px] font-medium">
-                  <CalendarIcon className="h-2.5 w-2.5" aria-hidden />
-                  Reagendado
-                </span>
-              )}
-            </div>
-
-            {isRescheduled && (
-              <p className="text-muted-foreground mt-0.5 text-[11px]">
-                {formatCalendarDate(block.originalScheduledDate, "short")} →{" "}
-                {formatCalendarDate(block.scheduledDate, "short")}
-              </p>
-            )}
-            {block.actualMinutes !== undefined && (
-              <p className="text-muted-foreground mt-0.5 text-[11px]">
-                Real: {formatMinutes(block.actualMinutes)}
-                {block.difficulty !== undefined && ` · D ${block.difficulty}/5`}
-                {block.confidence !== undefined && ` · C ${block.confidence}/5`}
-              </p>
-            )}
-          </div>
-
-          <button
-            onClick={onOpen}
-            className="text-muted-foreground hover:text-foreground shrink-0 p-0.5"
-            aria-label={`Ver detalhes de ${block.title}`}
-          >
-            <InfoIcon className="h-3.5 w-3.5" aria-hidden />
-          </button>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <CategoryBadge category={block.category} />
+          <span className="text-muted-foreground text-[11px]">{getBlockTypeLabel(block.type)}</span>
+          <span className="text-muted-foreground text-[11px]">·</span>
+          <span className="text-muted-foreground text-[11px]">
+            {formatMinutes(block.estimatedMinutes)}
+          </span>
         </div>
 
-        <BlockActions
-          status={executionStatus}
-          isPast={isPast}
-          onStart={onStart}
-          onComplete={onComplete}
-          onStuck={onStuck}
-          onReturnToPending={onReturnToPending}
-          onSkip={onSkip}
-          onRestore={onRestore}
-          onReschedule={onReschedule}
-        />
+        {/* Status and annotations row */}
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <StatusBadge status={executionStatus} />
+          {isOverdue && <OverdueBadge />}
+          {isRescheduled && (
+            <span className="text-muted-foreground text-[10px]">
+              Reagendado · {formatCalendarDate(block.originalScheduledDate, "short")} →{" "}
+              {formatCalendarDate(block.scheduledDate, "short")}
+            </span>
+          )}
+        </div>
+
+        {/* Real time info when completed */}
+        {isCompleted && block.actualMinutes !== undefined && (
+          <p className="text-muted-foreground mt-1 text-[11px]">
+            {formatMinutes(block.actualMinutes)} reais
+            {block.difficulty !== undefined && ` · D ${block.difficulty}/5`}
+            {block.confidence !== undefined && ` · C ${block.confidence}/5`}
+          </p>
+        )}
+      </button>
+
+      {/* Action row — separate from clickable area */}
+      <div className="flex items-center gap-1.5 px-3 pb-3">
+        {actions.primary && (
+          <Button
+            size="sm"
+            variant={actions.primary.kind === "primary" ? "default" : "outline"}
+            className="h-6 px-2 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAction(actions.primary!.id);
+            }}
+          >
+            {actions.primary.id === "complete" && (
+              <CheckIcon className="mr-1 h-3 w-3" aria-hidden />
+            )}
+            {actions.primary.label}
+          </Button>
+        )}
+
+        {actions.secondary && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-6 px-2 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAction(actions.secondary!.id);
+            }}
+          >
+            {actions.secondary.label}
+          </Button>
+        )}
+
+        {isCompleted && !actions.primary && actions.menu.length > 0 && (
+          <span className="text-muted-foreground inline-flex items-center gap-1 text-[11px]">
+            <CheckIcon className="h-3 w-3 text-green-600 dark:text-green-400" aria-hidden />
+            Concluído
+          </span>
+        )}
+
+        <span className="flex-1" />
+
+        {actions.menu.length > 0 && (
+          <BlockActionsMenu
+            actions={actions.menu}
+            onAction={(id) => handleAction(id)}
+            label="Mais ações para este bloco"
+          />
+        )}
       </div>
     </article>
   );
-}
-
-type BlockActionsProps = {
-  status: PlanBlockExecutionStatus;
-  isPast: boolean;
-  onStart: () => void;
-  onComplete: () => void;
-  onStuck: () => void;
-  onReturnToPending: () => void;
-  onSkip: () => void;
-  onRestore: () => void;
-  onReschedule: () => void;
-};
-
-function BlockActions({
-  status,
-  onStart,
-  onComplete,
-  onStuck,
-  onReturnToPending,
-  onSkip,
-  onRestore,
-  onReschedule,
-}: BlockActionsProps) {
-  if (status === "completed") {
-    return (
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="inline-flex items-center gap-0.5 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-900/30 dark:text-green-300">
-          <CheckIcon className="h-2.5 w-2.5" aria-hidden />
-          Concluído
-        </span>
-        <button
-          onClick={onReturnToPending}
-          className="text-muted-foreground hover:text-foreground text-[11px] underline"
-          aria-label="Desfazer conclusão"
-        >
-          Desfazer
-        </button>
-      </div>
-    );
-  }
-
-  if (status === "skipped") {
-    return (
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-muted-foreground inline-flex items-center gap-0.5 text-[10px]">
-          <SkipForwardIcon className="h-2.5 w-2.5" aria-hidden />
-          Pulado
-        </span>
-        <Button size="sm" variant="ghost" onClick={onRestore} className="h-5 px-2 text-[10px]">
-          <RotateCcwIcon className="mr-0.5 h-2.5 w-2.5" aria-hidden />
-          Restaurar
-        </Button>
-      </div>
-    );
-  }
-
-  if (status === "pending") {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        <Button size="sm" onClick={onStart} className="h-6 px-2 text-xs">
-          <PlayIcon className="mr-1 h-3 w-3" aria-hidden />
-          Iniciar
-        </Button>
-        <Button size="sm" variant="outline" onClick={onComplete} className="h-6 px-2 text-xs">
-          <CheckIcon className="mr-1 h-3 w-3" aria-hidden />
-          Concluir
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onStuck} className="h-6 px-2 text-xs">
-          Travei
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onReschedule} className="h-6 px-2 text-xs">
-          Reagendar
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onSkip}
-          className="h-6 px-2 text-xs text-red-600 hover:text-red-700 dark:text-red-400"
-        >
-          Pular
-        </Button>
-      </div>
-    );
-  }
-
-  if (status === "in_progress") {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        <Button size="sm" onClick={onComplete} className="h-6 px-2 text-xs">
-          <CheckIcon className="mr-1 h-3 w-3" aria-hidden />
-          Concluir
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onStuck} className="h-6 px-2 text-xs">
-          Travei
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onReturnToPending} className="h-6 px-2 text-xs">
-          Pausar
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onReschedule} className="h-6 px-2 text-xs">
-          Reagendar
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onSkip}
-          className="h-6 px-2 text-xs text-red-600 hover:text-red-700 dark:text-red-400"
-        >
-          Pular
-        </Button>
-      </div>
-    );
-  }
-
-  if (status === "stuck") {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        <Button size="sm" onClick={onComplete} className="h-6 px-2 text-xs">
-          <CheckIcon className="mr-1 h-3 w-3" aria-hidden />
-          Concluir mesmo assim
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onReturnToPending}
-          className="h-6 px-2 text-xs"
-        >
-          Retomar
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onReschedule} className="h-6 px-2 text-xs">
-          Reagendar
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onSkip}
-          className="h-6 px-2 text-xs text-red-600 hover:text-red-700 dark:text-red-400"
-        >
-          Pular
-        </Button>
-      </div>
-    );
-  }
-
-  return null;
 }

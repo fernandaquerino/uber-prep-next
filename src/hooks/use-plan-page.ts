@@ -44,7 +44,7 @@ export type PlanPageState =
 export type UsePlanPageResult = {
   state: PlanPageState;
   selectedWeekId: string | null;
-  setSelectedWeekId: (id: string) => void;
+  setSelectedWeekId: (id: string | null) => void;
   filters: PlanFilters;
   setFilters: (filters: PlanFilters) => void;
   refresh: () => void;
@@ -151,7 +151,10 @@ export function usePlanPage(): UsePlanPageResult {
   }, [rev]);
 
   const refresh = useCallback(() => {
-    setState({ status: "loading" });
+    // Only increment rev to trigger re-fetch; do NOT set { status: "loading" }.
+    // Setting loading here would unmount the entire plan tree (modal, accordions,
+    // day cards) and reset all local UI state. The initial "loading" state is
+    // already set by useState initialisation and is only shown on first mount.
     setRev((r) => r + 1);
   }, []);
 

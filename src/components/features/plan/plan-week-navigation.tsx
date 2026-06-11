@@ -25,43 +25,39 @@ export function PlanWeekNavigation({
   const selectedIndex = weeks.findIndex((w) => w.id === selectedWeekId);
   const hasPrev = selectedIndex > 0;
   const hasNext = selectedIndex < weeks.length - 1;
-
   const todayWeekId = weeks.find((w) => w.days.some((d) => d.date === today))?.id;
+  const selectedWeek = weeks[selectedIndex];
 
   function go(offset: number) {
     const next = weeks[selectedIndex + offset];
     if (next) onSelectWeek(next.id);
   }
 
-  const selectedWeek = weeks[selectedIndex];
-
-  function getWeekStatus(week: ScheduledWeek): "today" | "overdue" | "completed" | "normal" {
+  function getWeekDot(week: ScheduledWeek): "today" | "overdue" | "completed" | null {
     const isToday = week.days.some((d) => d.date === today);
     if (isToday) return "today";
-
     const effectiveWeekDays = effectiveDays.filter((d) =>
       week.days.some((wd) => wd.date === d.date),
     );
     const studyDays = effectiveWeekDays.filter((d) => !d.isRestDay);
-    if (studyDays.length === 0) return "normal";
-
+    if (studyDays.length === 0) return null;
     const allResolved = studyDays.every((d) =>
       d.items.every((i) => i.executionStatus === "completed" || i.executionStatus === "skipped"),
     );
     if (allResolved) return "completed";
-
     const hasOverdue = studyDays.some((d) => hasOverdueItems(d));
     if (hasOverdue) return "overdue";
-
-    return "normal";
+    return null;
   }
 
   return (
-    <nav aria-label="Navegação por semana" className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
+    <nav aria-label="Navegação por semana" className="flex flex-col gap-2">
+      {/* Single-line compact navigation */}
+      <div className="flex items-center gap-1">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
+          className="h-7 w-7 shrink-0"
           onClick={() => go(-1)}
           disabled={!hasPrev}
           aria-label="Semana anterior"
@@ -69,21 +65,22 @@ export function PlanWeekNavigation({
           <ChevronLeftIcon className="h-4 w-4" aria-hidden />
         </Button>
 
-        {selectedWeek && (
-          <div className="text-center">
-            <p className="text-sm font-medium">
-              {formatCalendarDate(selectedWeek.weekStart, "short")} a{" "}
-              {formatCalendarDate(selectedWeek.weekEnd, "short")}
-            </p>
-            <p className="text-muted-foreground text-xs">
+        <div className="min-w-0 flex-1 text-center">
+          {selectedWeek && (
+            <p className="text-sm font-medium tabular-nums">
               Semana {selectedIndex + 1} de {weeks.length}
+              <span className="text-muted-foreground ml-1.5 font-normal">
+                · {formatCalendarDate(selectedWeek.weekStart, "short")} a{" "}
+                {formatCalendarDate(selectedWeek.weekEnd, "short")}
+              </span>
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
+          className="h-7 w-7 shrink-0"
           onClick={() => go(1)}
           disabled={!hasNext}
           aria-label="Próxima semana"
@@ -92,49 +89,55 @@ export function PlanWeekNavigation({
         </Button>
       </div>
 
-      {todayWeekId && todayWeekId !== selectedWeekId && (
-        <div className="flex justify-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onSelectWeek(todayWeekId)}
-            className="text-xs"
-          >
-            Ir para a semana atual
-          </Button>
-        </div>
-      )}
-
-      <div className="flex gap-1 overflow-x-auto pb-1" role="tablist" aria-label="Semanas do plano">
+      {/* Week pill row */}
+      <div
+        className="flex items-center gap-1 overflow-x-auto pb-0.5"
+        role="tablist"
+        aria-label="Semanas do plano"
+      >
         {weeks.map((week, idx) => {
-          const status = getWeekStatus(week);
+          const dot = getWeekDot(week);
+          const isSelected = week.id === selectedWeekId;
           return (
             <button
               key={week.id}
               role="tab"
-              aria-selected={week.id === selectedWeekId}
+              aria-selected={isSelected}
               onClick={() => onSelectWeek(week.id)}
               className={cn(
-                "flex h-8 min-w-[2.25rem] shrink-0 items-center justify-center rounded-md px-2 text-xs font-medium transition-colors",
-                week.id === selectedWeekId
+                "relative flex h-7 min-w-[2rem] shrink-0 items-center justify-center rounded-md px-2 text-xs font-medium transition-colors",
+                isSelected
                   ? "bg-primary text-primary-foreground"
-                  : "hover:bg-muted text-muted-foreground",
+                  : "text-muted-foreground hover:bg-muted",
               )}
-              aria-label={`Semana ${idx + 1}${status === "today" ? " (semana atual)" : ""}${status === "overdue" ? " (tem atrasos)" : ""}${status === "completed" ? " (concluída)" : ""}`}
+              aria-label={`Semana ${idx + 1}${dot === "today" ? " (semana atual)" : ""}${dot === "overdue" ? " (tem atrasos)" : ""}${dot === "completed" ? " (concluída)" : ""}`}
             >
-              <span aria-hidden="true">{idx + 1}</span>
-              {status === "overdue" && (
-                <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-red-500" aria-hidden />
-              )}
-              {status === "completed" && (
-                <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-green-500" aria-hidden />
-              )}
-              {status === "today" && (
-                <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-blue-500" aria-hidden />
+              {idx + 1}
+              {dot && (
+                <span
+                  className={cn(
+                    "absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full",
+                    dot === "today" && "bg-blue-500",
+                    dot === "overdue" && "bg-red-500",
+                    dot === "completed" && "bg-green-500",
+                  )}
+                  aria-hidden
+                />
               )}
             </button>
           );
         })}
+
+        {todayWeekId && todayWeekId !== selectedWeekId && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onSelectWeek(todayWeekId)}
+            className="text-muted-foreground ml-1 h-7 shrink-0 px-2 text-xs"
+          >
+            Ir para hoje
+          </Button>
+        )}
       </div>
     </nav>
   );

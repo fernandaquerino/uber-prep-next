@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { toast } from "sonner";
 import { usePlanPage } from "@/hooks/use-plan-page";
 import { usePlanActions } from "@/hooks/use-plan-actions";
-import type { CalendarDate, ScheduledStudyDay } from "@/lib/domain/schedule";
+import type { CalendarDate, ScheduledStudyDay, ScheduledWeek } from "@/lib/domain/schedule";
 import { DEFAULT_WEEKDAY_AVAILABILITY, parseCalendarDate } from "@/lib/domain/schedule";
-import type { HandleMissedStudyDayInput } from "@/lib/domain/progress";
+import type { HandleMissedStudyDayInput, EffectiveScheduledDay } from "@/lib/domain/progress";
 import { PlanHeader } from "./plan-header";
 import { PlanSummary } from "./plan-summary";
 import { PlanCurrentItem } from "./plan-current-item";
 import { PlanWeekNavigation } from "./plan-week-navigation";
 import { PlanWeek } from "./plan-week";
+import { PlanQuickFilters } from "./plan-quick-filters";
 import { PlanBlockDetails } from "./plan-block-details";
 import { SkipBlockDialog } from "./skip-block-dialog";
 import { RescheduleDialog } from "./reschedule-dialog";
@@ -22,6 +23,12 @@ import { EmptyState } from "@/components/feedback/empty-state";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import type { ChangeStartDateOption } from "@/lib/application/progress";
+import type { QuickFilter } from "@/lib/presentation/plan-view-models";
+
+// Stable empty arrays to avoid new references on every render
+const EMPTY_BASE_SCHEDULE: ScheduledStudyDay[] = [];
+const EMPTY_EFFECTIVE_SCHEDULE: EffectiveScheduledDay[] = [];
+const EMPTY_WEEKS: ScheduledWeek[] = [];
 
 function getTodayCalendarDate(): CalendarDate {
   const now = new Date();
@@ -29,6 +36,35 @@ function getTodayCalendarDate(): CalendarDate {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   return parseCalendarDate(`${y}-${m}-${d}`);
+}
+
+function filterDays(
+  days: EffectiveScheduledDay[],
+  filter: QuickFilter,
+  today: CalendarDate,
+): EffectiveScheduledDay[] {
+  if (filter === "all") return days;
+  return days
+    .map((day) => {
+      if (day.isRestDay) return null;
+      const filtered = day.items.filter((item) => {
+        switch (filter) {
+          case "today":
+            return day.date === today;
+          case "overdue":
+            return item.isOverdue;
+          case "in_progress":
+            return item.executionStatus === "in_progress";
+          case "stuck":
+            return item.executionStatus === "stuck";
+          default:
+            return true;
+        }
+      });
+      if (filtered.length === 0) return null;
+      return { ...day, items: filtered };
+    })
+    .filter((d): d is EffectiveScheduledDay => d !== null);
 }
 
 export function PlanScreen() {
@@ -39,6 +75,7 @@ export function PlanScreen() {
   const [rescheduleBlockId, setRescheduleBlockId] = useState<string | null>(null);
   const [missedDate, setMissedDate] = useState<CalendarDate | null>(null);
   const [changeStartDateOpen, setChangeStartDateOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
   const today = getTodayCalendarDate();
 
@@ -52,12 +89,11 @@ export function PlanScreen() {
 
   const actions = usePlanActions({ onSuccess: handleSuccess, onError: handleError });
 
-  // Derive values safe to use across all states
   const isReady = state.status === "ready";
   const startDate = isReady ? state.data.startDate : today;
-  const baseSchedule = isReady ? state.data.baseSchedule : [];
-  const effectiveSchedule = isReady ? state.data.effectiveSchedule : [];
-  const weeks = isReady ? state.data.weeks : [];
+  const baseSchedule = isReady ? state.data.baseSchedule : EMPTY_BASE_SCHEDULE;
+  const effectiveSchedule = isReady ? state.data.effectiveSchedule : EMPTY_EFFECTIVE_SCHEDULE;
+  const weeks = isReady ? state.data.weeks : EMPTY_WEEKS;
   const currentStudyState = isReady ? state.data.currentStudyState : null;
   const completionSummary = isReady ? state.data.completionSummary : null;
   const hasProgress = isReady
@@ -81,6 +117,25 @@ export function PlanScreen() {
     ? (effectiveSchedule.flatMap((d) => d.items).find((b) => b.blockId === rescheduleBlockId) ??
       null)
     : null;
+
+  // Quick filter counts (across all weeks)
+  const filterCounts = useMemo(() => {
+    const allItems = effectiveSchedule.flatMap((d) => d.items);
+    return {
+      all: allItems.length,
+      today: effectiveSchedule.filter((d) => d.date === today).flatMap((d) => d.items).length,
+      overdue: allItems.filter((i) => i.isOverdue).length,
+      in_progress: allItems.filter((i) => i.executionStatus === "in_progress").length,
+      stuck: allItems.filter((i) => i.executionStatus === "stuck").length,
+    } satisfies Record<QuickFilter, number>;
+  }, [effectiveSchedule, today]);
+
+  // Filtered days for current week view
+  const filteredEffectiveSchedule = useMemo(
+    () =>
+      quickFilter === "all" ? effectiveSchedule : filterDays(effectiveSchedule, quickFilter, today),
+    [effectiveSchedule, quickFilter, today],
+  );
 
   async function handleStartBlock(blockId: string) {
     await actions.startBlock(blockId);
@@ -125,6 +180,10 @@ export function PlanScreen() {
     await actions.changeStartDate(input);
     toast.success("Data de início alterada");
     setChangeStartDateOpen(false);
+    // The entire schedule is rebuilt after a start-date change; reset derived UI
+    // state so it is recalculated from the new data.
+    setOpenBlockId(null);
+    setSelectedWeekId(null);
     refresh();
   }
 
@@ -158,7 +217,7 @@ export function PlanScreen() {
       )}
 
       {state.status === "ready" && currentStudyState && completionSummary && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <PlanHeader
             startDate={startDate}
             baseSchedule={baseSchedule}
@@ -187,10 +246,17 @@ export function PlanScreen() {
                 onSelectWeek={setSelectedWeekId}
               />
 
+              <PlanQuickFilters
+                active={quickFilter}
+                counts={filterCounts}
+                onChange={setQuickFilter}
+              />
+
               {selectedWeek && (
                 <PlanWeek
                   week={selectedWeek}
-                  effectiveDays={effectiveSchedule}
+                  effectiveDays={filteredEffectiveSchedule}
+                  isFiltered={quickFilter !== "all"}
                   today={today}
                   onStartBlock={handleStartBlock}
                   onCompleteBlock={(blockId) => setOpenBlockId(blockId)}
@@ -203,6 +269,12 @@ export function PlanScreen() {
                   onMissedDay={setMissedDate}
                 />
               )}
+
+              {quickFilter !== "all" && filteredEffectiveSchedule.length === 0 && (
+                <p className="text-muted-foreground py-6 text-center text-sm">
+                  Nenhum bloco encontrado para este filtro nesta semana.
+                </p>
+              )}
             </>
           )}
 
@@ -211,7 +283,6 @@ export function PlanScreen() {
             open={openBlockId !== null}
             onClose={() => setOpenBlockId(null)}
             actions={actions}
-            onActionDone={refresh}
           />
 
           <SkipBlockDialog
@@ -254,7 +325,7 @@ export function PlanScreen() {
 
 function PlanSkeleton() {
   return (
-    <div className="flex flex-col gap-6" aria-busy="true" aria-label="Carregando plano de estudos">
+    <div className="flex flex-col gap-4" aria-busy="true" aria-label="Carregando plano de estudos">
       <div className="flex flex-col gap-2">
         <Skeleton className="h-8 w-56" />
         <Skeleton className="h-4 w-80" />
@@ -262,11 +333,7 @@ function PlanSkeleton() {
       </div>
       <Skeleton className="h-24 w-full rounded-lg" />
       <Skeleton className="h-32 w-full rounded-lg" />
-      <div className="flex gap-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-9 rounded-md" />
-        ))}
-      </div>
+      <Skeleton className="h-8 w-full rounded-lg" />
       <div className="flex flex-col gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-16 w-full rounded-lg" />
