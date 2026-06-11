@@ -38,6 +38,14 @@ beforeEach(() => {
 });
 
 describe("PlaygroundSaved", () => {
+  it("shows a skeleton while saved solutions are loading", () => {
+    mocks.list.mockReturnValue(new Promise(() => undefined));
+
+    render(<PlaygroundSaved onLoad={vi.fn()} />);
+
+    expect(screen.getByLabelText("Carregando soluções salvas")).toBeInTheDocument();
+  });
+
   it("lists saved solutions with metadata", async () => {
     render(<PlaygroundSaved onLoad={vi.fn()} />);
 

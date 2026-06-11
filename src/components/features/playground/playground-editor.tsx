@@ -3,10 +3,11 @@ import type { RunMode, SaveMeta, TestCase, TestResult } from "./playground";
 import { cn } from "@/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
 import dynamic from "next/dynamic";
+import { PlaygroundEditorSkeleton } from "./playground-skeleton";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react").then((mod) => mod.Editor), {
   ssr: false,
-  loading: () => <div className="bg-muted h-[380px] animate-pulse rounded-lg" />,
+  loading: () => <PlaygroundEditorSkeleton />,
 });
 
 const ERROR_TYPES = [

@@ -6,6 +6,7 @@ import { getDb } from "@/lib/db/db";
 import { createPlaygroundRepository } from "@/lib/repositories/playground.repository";
 import type { PlaygroundSolutionRecord } from "@/types/database";
 import { createSolutionId, parseStoredSolutionNotes } from "./playground-storage";
+import { PlaygroundSavedSkeleton } from "./playground-skeleton";
 
 type PlaygroundSavedProps = {
   onLoad: (solution: PlaygroundSolutionRecord) => void;
@@ -80,7 +81,7 @@ export default function PlaygroundSaved({ onLoad }: PlaygroundSavedProps) {
   });
 
   if (loading) {
-    return <p className="text-muted-foreground text-sm">Carregando soluções salvas...</p>;
+    return <PlaygroundSavedSkeleton />;
   }
 
   if (error) {
