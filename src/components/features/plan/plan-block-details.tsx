@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PlanBlockForm } from "./plan-block-form";
-import { formatCalendarDate, formatMinutes, getCategoryLabel, getStatusLabel } from "./plan-utils";
+import { formatCalendarDate, formatMinutes, getCategoryLabel, getCategoryMeta, getStatusLabel } from "./plan-utils";
 import type { UsePlanActionsResult } from "@/hooks/use-plan-actions";
 
 type PlanBlockDetailsProps = {
@@ -54,13 +54,27 @@ export function PlanBlockDetails({
 
   if (!block) return null;
 
+    const categoryMeta = getCategoryMeta(block.category);
+  
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="sm:max-w-lg" aria-describedby="block-desc">
         <DialogHeader>
           <DialogTitle>{block.title}</DialogTitle>
           <DialogDescription id="block-desc">
-            {getCategoryLabel(block.category)} · {formatMinutes(block.estimatedMinutes)} estimados
+            <Badge variant="secondary" className="text-[10px]" 
+              style={
+                categoryMeta
+                  ? {
+                      backgroundColor: `${categoryMeta.color}20`,
+                      borderColor: `${categoryMeta.color}60`,
+                      color: categoryMeta.color,
+                    }
+                  : undefined
+              }>
+              {getCategoryLabel(block.category)}
+            </Badge> · {formatMinutes(block.estimatedMinutes)} estimados
           </DialogDescription>
         </DialogHeader>
 

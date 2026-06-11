@@ -12,7 +12,7 @@ import {
   CalendarIcon,
   InfoIcon,
 } from "lucide-react";
-import { formatMinutes, getCategoryLabel, getStatusLabel, formatCalendarDate } from "./plan-utils";
+import { formatMinutes, getCategoryLabel, getStatusLabel, formatCalendarDate, getCategoryMeta } from "./plan-utils";
 import { cn } from "@/lib/utils";
 
 type PlanBlockCardProps = {
@@ -49,6 +49,7 @@ export function PlanBlockCard({
   const { executionStatus, isOverdue, isRescheduled, timingStatus } = block;
   const isPast = timingStatus === "past";
   const isCompleted = executionStatus === "completed";
+  const categoryMeta = getCategoryMeta(block.category);
 
   return (
     <article
@@ -70,7 +71,16 @@ export function PlanBlockCard({
               {block.title}
             </button>
             <div className="flex flex-wrap items-center gap-1.5">
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-[10px]" 
+                style={
+                  categoryMeta
+                    ? {
+                        backgroundColor: `${categoryMeta.color}20`,
+                        borderColor: `${categoryMeta.color}60`,
+                        color: categoryMeta.color,
+                      }
+                    : undefined
+                }>
                 {getCategoryLabel(block.category)}
               </Badge>
               <span className="text-muted-foreground text-xs">

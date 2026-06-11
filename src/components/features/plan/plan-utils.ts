@@ -1,5 +1,6 @@
 import type { CalendarDate, Weekday } from "@/lib/domain/schedule";
 import type { PlanBlockExecutionStatus, EffectiveScheduledDay } from "@/lib/domain/progress";
+import { CATEGORIES } from "@/lib/data/plan";
 
 const WEEKDAY_LABELS: Record<Weekday, string> = {
   monday: "Segunda-feira",
@@ -64,17 +65,12 @@ export function getStatusLabel(status: PlanBlockExecutionStatus): string {
   return labels[status];
 }
 
-export function getCategoryLabel(category: string): string {
-  const map: Record<string, string> = {
-    algo: "Algoritmos",
-    system: "System Design",
-    js: "JavaScript",
-    fe_coding: "Frontend Coding",
-    mock: "Mock Interview",
-    behavioral: "Behavioral",
-    revisao: "Revisão",
-  };
-  return map[category] ?? category;
+export function getCategoryMeta(category: string) {
+  return CATEGORIES.find((item) => item.key === category);
+}
+
+export function getCategoryLabel(category: string) {
+  return getCategoryMeta(category)?.label ?? category;
 }
 
 export function getDayProgressStatus(day: EffectiveScheduledDay): string {

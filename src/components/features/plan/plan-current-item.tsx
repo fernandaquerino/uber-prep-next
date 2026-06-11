@@ -4,7 +4,7 @@ import type { CurrentStudyState } from "@/lib/domain/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlayIcon, AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
-import { formatMinutes, getCategoryLabel } from "./plan-utils";
+import { formatMinutes, getCategoryLabel, getCategoryMeta } from "./plan-utils";
 
 type PlanCurrentItemProps = {
   currentStudyState: CurrentStudyState;
@@ -42,6 +42,7 @@ export function PlanCurrentItem({
 
   const isOverdue = currentItem.isOverdue;
   const isInProgress = currentItem.executionStatus === "in_progress";
+  const categoryMeta = getCategoryMeta(currentItem.category);
 
   return (
     <div className="rounded-lg border p-4">
@@ -65,7 +66,16 @@ export function PlanCurrentItem({
             {currentItem.title}
           </button>
           <div className="flex flex-wrap gap-1.5">
-            <Badge variant="secondary" className="text-[10px]">
+            <Badge variant="secondary" className="text-[10px]" 
+            style={
+                categoryMeta
+                  ? {
+                      backgroundColor: `${categoryMeta.color}20`,
+                      borderColor: `${categoryMeta.color}60`,
+                      color: categoryMeta.color,
+                    }
+                  : undefined
+              }>
               {getCategoryLabel(currentItem.category)}
             </Badge>
             <span className="text-muted-foreground text-xs">

@@ -54,7 +54,7 @@ export function PlanDayCard({
     (i) => i.executionStatus === "completed" || i.executionStatus === "skipped",
   ).length;
   const isOverCapacity = day.capacityStatus === "over_capacity";
-
+  
   return (
     <section
       className={cn(

@@ -39,6 +39,7 @@ function mapBlock(
     title: block.label,
     category: block.category,
     estimatedMinutes: block.duration,
+    type: block.type,
     description,
     tags,
   };
