@@ -7,10 +7,12 @@ import type {
   MockRecord,
   NoteRecord,
   PlanProgressRecord,
+  ProgressEventRecord,
   PlaygroundSolutionRecord,
   QuizAttemptRecord,
   QuizReviewRecord,
   ReviewRecord,
+  ScheduleOverrideRecord,
   SettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
@@ -24,6 +26,8 @@ export type ImportMode = "merge" | "replace";
 export type BackupData = {
   settings: SettingsRecord[];
   planProgress: PlanProgressRecord[];
+  progressEvents: ProgressEventRecord[];
+  scheduleOverrides: ScheduleOverrideRecord[];
   reviews: ReviewRecord[];
   flashcards: FlashcardRecord[];
   quizAttempts: QuizAttemptRecord[];

@@ -9,7 +9,9 @@ Versão: `1`
 | Tabela                | Chave primária | Índices secundários                                                         |
 | --------------------- | -------------- | --------------------------------------------------------------------------- |
 | `settings`            | `id`           | —                                                                           |
-| `planProgress`        | `id`           | `blockId`, `status`, `scheduledDate`                                        |
+| `planProgress`        | `id`           | `blockId`, `status`, `scheduledDate`, `planDayId`, `planDaySequence`        |
+| `progressEvents`      | `id`           | `blockId`, `type`, `occurredAt`, `actionGroupId`                            |
+| `scheduleOverrides`   | `id`           | `blockId`, `type`, `fromDate`, `toDate`, `actionGroupId`                    |
 | `reviews`             | `id`           | `sourceType`, `sourceId`, `scheduledFor`, `status`, `[status+scheduledFor]` |
 | `flashcards`          | `id`           | `category`, `*tags` (multi), `status`, `nextReview`                         |
 | `quizAttempts`        | `id`           | `mode`, `dailyDate`, `createdAt`                                            |
@@ -33,7 +35,7 @@ Versão: `1`
 
 ```ts
 DATABASE_NAME = "uber-prep";
-DATABASE_VERSION = 1;
+DATABASE_VERSION = 2;
 SETTINGS_ID = "app-settings";
 METADATA_ID = "app-metadata";
 AUDIO_MIGRATION_MAX_BYTES = 5 * 1024 * 1024; // 5 MB

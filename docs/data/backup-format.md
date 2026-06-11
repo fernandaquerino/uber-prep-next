@@ -75,3 +75,4 @@ O schema `backupFileSchema` (em `src/lib/validation/backup.schemas.ts`) verifica
 - `app === "uber-prep"`
 - `backupVersion === 1`
 - Campos obrigatórios presentes e com tipos corretos
+- Tabelas de progresso, eventos e overrides presentes no backup

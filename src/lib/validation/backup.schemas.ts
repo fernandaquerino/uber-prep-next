@@ -4,6 +4,8 @@ import { BACKUP_APP_ID, BACKUP_VERSION } from "@/types/backup";
 export const backupDataSchema = z.object({
   settings: z.array(z.unknown()),
   planProgress: z.array(z.unknown()),
+  progressEvents: z.array(z.unknown()),
+  scheduleOverrides: z.array(z.unknown()),
   reviews: z.array(z.unknown()),
   flashcards: z.array(z.unknown()),
   quizAttempts: z.array(z.unknown()),

@@ -2,8 +2,8 @@
 
 Plataforma de preparação para entrevistas de engenharia de software. Local-first, sem backend, sem conta.
 
-> **Estado atual:** Entrega 03 concluída — domínio de calendário e scheduler puro.
-> As Entregas 01, 02 e 03 estão concluídas. Progresso, revisões, Dashboard e página Plano funcional ainda não foram implementados.
+> **Estado atual:** Entrega 04 concluída — progresso do plano e agenda efetiva.
+> As Entregas 01–04 estão concluídas. Página Plano funcional, revisões, Dashboard e relatórios ainda não foram implementados.
 
 ---
 
@@ -100,6 +100,9 @@ src/
   lib/
     domain/
       schedule/      <- Datas civis, disponibilidade semanal e scheduler puro
+      progress/      <- Progresso do plano, agenda efetiva, shift e undo
+    application/
+      progress/      <- Casos de uso transacionais de progresso
     db/              <- Dexie schema, seed, migrations, constants, errors
     repositories/    <- 12 repositórios tipados
     data/            <- Dados iniciais (40 flashcards)
@@ -128,6 +131,8 @@ docs/
     decisions.md
   domain/
     study-schedule.md
+    plan-progress.md
+    effective-schedule.md
   data/
     database-schema.md
     legacy-migration.md
@@ -135,6 +140,7 @@ docs/
   delivery-01-foundation.md
   delivery-02-data-layer.md
   delivery-03-calendar-domain.md
+  delivery-04-plan-progress.md
 ```
 
 ---
@@ -175,7 +181,7 @@ docs/
 | 01  | Fundação: Next.js, layout, rotas, tema, testes | Concluída |
 | 02  | IndexedDB, schema, migration, repositories     | Concluída |
 | 03  | Domínio de calendário                          | Concluída |
-| 04  | Progresso, reviews, spaced repetition          | Pendente  |
+| 04  | Progresso do plano, agenda efetiva, undo       | Concluída |
 | 05  | Página Plano                                   | Pendente  |
 | 06  | Dashboard                                      | Pendente  |
 | 07  | Revisão Hoje                                   | Pendente  |
@@ -201,11 +207,21 @@ docs/
 - Dias acima da capacidade são marcados como `over_capacity`.
 - Agrupamento semanal usa a semana real do calendário, de segunda a domingo.
 
+## Progresso do Plano
+
+- Progresso de bloco possui máquina de estados validada.
+- Agenda efetiva combina agenda base, progresso, reagendamentos e shifts.
+- Atrasos são derivados por `scheduledDate < today`, sem status persistido `missed`.
+- Reagendamento preserva data original e gera histórico.
+- Dias perdidos suportam estratégias explícitas: manter atrasado, mover pendentes, reagendar itens ou pular itens.
+- Skip, restore e undo foram implementados no domínio e na camada de aplicação.
+- Persistência usa IndexedDB com tabelas de progresso, eventos e overrides.
+
 ## Limitações atuais
 
-- Progresso, atrasos, reagendamento, pular conteúdo e mover plano ainda não foram implementados.
 - Revisões e repetição espaçada ainda não usam a agenda.
 - Dashboard, Plano e Revisar Hoje ainda não estão integrados ao scheduler.
+- A página Plano final ainda não foi implementada.
 - As páginas mostram estado "em construção" — o banco existe mas não há UI funcional ainda.
 - Nenhuma métrica, readiness ou progresso é exibido.
 - Áudio de mocks não é incluído no backup JSON (apenas metadados).

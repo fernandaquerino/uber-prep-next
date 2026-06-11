@@ -9,10 +9,12 @@ import type {
   MockRecord,
   NoteRecord,
   PlanProgressRecord,
+  ProgressEventRecord,
   PlaygroundSolutionRecord,
   QuizAttemptRecord,
   QuizReviewRecord,
   ReviewRecord,
+  ScheduleOverrideRecord,
   SettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
@@ -21,6 +23,8 @@ import type {
 export class UberPrepDatabase extends Dexie {
   settings!: Table<SettingsRecord, string>;
   planProgress!: Table<PlanProgressRecord, string>;
+  progressEvents!: Table<ProgressEventRecord, string>;
+  scheduleOverrides!: Table<ScheduleOverrideRecord, string>;
   reviews!: Table<ReviewRecord, string>;
   flashcards!: Table<FlashcardRecord, string>;
   quizAttempts!: Table<QuizAttemptRecord, string>;
@@ -40,7 +44,9 @@ export class UberPrepDatabase extends Dexie {
 
     this.version(DATABASE_VERSION).stores({
       settings: "id",
-      planProgress: "id, blockId, status, scheduledDate",
+      planProgress: "id, blockId, status, scheduledDate, planDayId, planDaySequence",
+      progressEvents: "id, blockId, type, occurredAt, actionGroupId",
+      scheduleOverrides: "id, blockId, type, fromDate, toDate, actionGroupId",
       reviews: "id, sourceType, sourceId, scheduledFor, status, [status+scheduledFor]",
       flashcards: "id, category, *tags, status, nextReview",
       quizAttempts: "id, mode, dailyDate, createdAt",
