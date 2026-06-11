@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FrontEndDrills from "./front-end-drills";
 import PlaygroundEditor from "./playground-editor";
 import PlaygroundSaved from "./playground-saved";
@@ -9,6 +9,12 @@ import { createPlaygroundRepository } from "@/lib/repositories/playground.reposi
 import type { PlaygroundSolutionRecord } from "@/types/database";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  createSolutionId,
+  normalizeStoredTestCases,
+  parseStoredSolutionNotes,
+  serializeSolutionNotes,
+} from "./playground-storage";
 
 const DEFAULT_CODE = `// Escreva sua solução aqui
 // Exemplo: Two Sum
@@ -54,12 +60,6 @@ type WorkerResponse = {
   error: string | null;
 };
 
-type StoredSolutionNotes = Partial<
-  Pick<SaveMeta, "status" | "errorType" | "timeComplexity" | "spaceComplexity" | "notes">
-> & {
-  testCases?: TestCase[];
-};
-
 export type Drill = {
   id: string;
   title: string;
@@ -91,6 +91,8 @@ export default function Playground() {
   const [testCases, setTestCases] = useState<TestCase[]>([{ input: "", expected: "" }]);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const workerRef = useRef<Worker | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef(true);
   const [running, setRunning] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -117,12 +119,36 @@ export default function Playground() {
     setTestCases((prev) => prev.map((tc, idx) => (idx === i ? { ...tc, [field]: val } : tc)));
   }
 
-  function killWorker() {
+  const clearRunTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  const killWorker = useCallback(() => {
     if (workerRef.current) {
       workerRef.current.terminate();
       workerRef.current = null;
     }
-  }
+  }, []);
+
+  const finishRun = useCallback(() => {
+    clearRunTimeout();
+    killWorker();
+
+    if (mountedRef.current) {
+      setRunning(false);
+    }
+  }, [clearRunTimeout, killWorker]);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      clearRunTimeout();
+      killWorker();
+    };
+  }, [clearRunTimeout, killWorker]);
 
   function loadDrill(drill: Drill) {
     setCode(drill.starter);
@@ -204,20 +230,16 @@ export default function Playground() {
               (testResults.filter((result) => result.pass).length / testResults.length) * 100,
             )
           : null;
-      const notes = JSON.stringify(
-        {
-          status: saveMeta.status,
-          errorType: saveMeta.errorType || null,
-          timeComplexity: saveMeta.timeComplexity || null,
-          spaceComplexity: saveMeta.spaceComplexity || null,
-          notes: saveMeta.notes,
-          testCases,
-          testPassRate: passRate,
-          lastTestedAt: testResults.length > 0 ? now : null,
-        },
-        null,
-        2,
-      );
+      const notes = serializeSolutionNotes({
+        status: saveMeta.status,
+        errorType: saveMeta.errorType || null,
+        timeComplexity: saveMeta.timeComplexity || null,
+        spaceComplexity: saveMeta.spaceComplexity || null,
+        notes: saveMeta.notes,
+        testCases,
+        testPassRate: passRate,
+        lastTestedAt: testResults.length > 0 ? now : null,
+      });
 
       await repository.upsert({
         id,
@@ -247,17 +269,10 @@ export default function Playground() {
     }
   }
 
-  function createSolutionId() {
-    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-      return `playground:${crypto.randomUUID()}`;
-    }
-
-    return `playground:${Date.now()}`;
-  }
-
   const runCode = useCallback(
     (mode: RunMode) => {
       killWorker();
+      clearRunTimeout();
       setRunning(true);
       if (mode === "run") {
         setOutput([]);
@@ -268,15 +283,18 @@ export default function Playground() {
 
       const worker = createWorker();
       workerRef.current = worker;
-      const timeout = setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         killWorker();
+        timeoutRef.current = null;
+        if (!mountedRef.current) return;
+
         setRunning(false);
-        if (mode === "run")
+        if (mode === "run") {
           setOutput((prev) => [
             ...prev,
             "[timeout] Execução encerrada após 5s — verifique loops infinitos",
           ]);
-        else
+        } else {
           setTestResults([
             {
               input: "—",
@@ -286,12 +304,13 @@ export default function Playground() {
               isError: true,
             },
           ]);
+        }
       }, 5000);
 
       worker.onmessage = (e) => {
-        clearTimeout(timeout);
-        killWorker();
-        setRunning(false);
+        finishRun();
+        if (!mountedRef.current) return;
+
         const { logs, testResults: tr, error } = e.data as WorkerResponse;
         if (mode === "run") {
           const lines = [...logs];
@@ -304,9 +323,9 @@ export default function Playground() {
       };
 
       worker.onerror = (e) => {
-        clearTimeout(timeout);
-        killWorker();
-        setRunning(false);
+        finishRun();
+        if (!mountedRef.current) return;
+
         setOutput((prev) => [...prev, "[erro] " + e.message]);
       };
 
@@ -316,13 +335,22 @@ export default function Playground() {
         runMode: mode,
       });
     },
-    [code, testCases],
+    [clearRunTimeout, code, finishRun, killWorker, testCases],
   );
 
   return (
     <div className="mt-4">
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div
+        className="mb-6 flex flex-wrap items-center gap-2"
+        role="tablist"
+        aria-label="Playground"
+      >
         <button
+          id="playground-tab-editor"
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "editor"}
+          aria-controls="playground-panel-editor"
           className={`cursor-pointer rounded-lg border px-3.5 py-1.5 font-[inherit] text-xs ${
             activeTab === "editor"
               ? "border-brand-purple bg-brand-purple/10 text-brand-purple font-semibold"
@@ -333,6 +361,11 @@ export default function Playground() {
           Editor
         </button>
         <button
+          id="playground-tab-saved"
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "saved"}
+          aria-controls="playground-panel-saved"
           className={`cursor-pointer rounded-lg border px-3.5 py-1.5 font-[inherit] text-xs ${
             activeTab === "saved"
               ? "border-brand-purple bg-brand-purple/10 text-brand-purple font-semibold"
@@ -343,6 +376,11 @@ export default function Playground() {
           Soluções salvas
         </button>
         <button
+          id="playground-tab-drills"
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "drills"}
+          aria-controls="playground-panel-drills"
           className={`cursor-pointer rounded-lg border px-3.5 py-1.5 font-[inherit] text-xs ${
             activeTab === "drills"
               ? "border-brand-purple bg-brand-purple/10 text-brand-purple font-semibold"
@@ -363,55 +401,52 @@ export default function Playground() {
         )}
       </div>
 
-      {activeTab === "editor" && (
-        <PlaygroundEditor
-          code={code}
-          setCode={setCode}
-          output={output}
-          testCases={testCases}
-          addTestCase={addTestCase}
-          removeTestCase={removeTestCase}
-          updateTestCase={updateTestCase}
-          testResults={testResults}
-          running={running}
-          runCode={runCode}
-          savePanel={savePanel}
-          setSavePanel={setSavePanel}
-          saveMeta={saveMeta}
-          setSaveMeta={setSaveMeta}
-          editingId={editingId}
-          saving={saving}
-          onSave={handleSave}
-        />
-      )}
+      <section
+        id="playground-panel-editor"
+        role="tabpanel"
+        aria-labelledby="playground-tab-editor"
+        hidden={activeTab !== "editor"}
+      >
+        {activeTab === "editor" && (
+          <PlaygroundEditor
+            code={code}
+            setCode={setCode}
+            output={output}
+            testCases={testCases}
+            addTestCase={addTestCase}
+            removeTestCase={removeTestCase}
+            updateTestCase={updateTestCase}
+            testResults={testResults}
+            running={running}
+            runCode={runCode}
+            savePanel={savePanel}
+            setSavePanel={setSavePanel}
+            saveMeta={saveMeta}
+            setSaveMeta={setSaveMeta}
+            editingId={editingId}
+            saving={saving}
+            onSave={handleSave}
+          />
+        )}
+      </section>
 
-      {activeTab === "saved" && <PlaygroundSaved onLoad={loadSavedSolution} />}
+      <section
+        id="playground-panel-saved"
+        role="tabpanel"
+        aria-labelledby="playground-tab-saved"
+        hidden={activeTab !== "saved"}
+      >
+        {activeTab === "saved" && <PlaygroundSaved onLoad={loadSavedSolution} />}
+      </section>
 
-      {activeTab === "drills" && <FrontEndDrills loadDrill={loadDrill} />}
+      <section
+        id="playground-panel-drills"
+        role="tabpanel"
+        aria-labelledby="playground-tab-drills"
+        hidden={activeTab !== "drills"}
+      >
+        {activeTab === "drills" && <FrontEndDrills loadDrill={loadDrill} />}
+      </section>
     </div>
   );
-}
-
-function parseStoredSolutionNotes(notes: string | undefined): StoredSolutionNotes {
-  if (!notes) return {};
-
-  try {
-    const parsed = JSON.parse(notes) as unknown;
-    return typeof parsed === "object" && parsed !== null ? (parsed as StoredSolutionNotes) : {};
-  } catch {
-    return { notes };
-  }
-}
-
-function normalizeStoredTestCases(testCases: unknown): TestCase[] {
-  if (!Array.isArray(testCases)) return [{ input: "", expected: "" }];
-
-  const normalized = testCases
-    .filter((item): item is Partial<TestCase> => typeof item === "object" && item !== null)
-    .map((item) => ({
-      input: typeof item.input === "string" ? item.input : "",
-      expected: typeof item.expected === "string" ? item.expected : "",
-    }));
-
-  return normalized.length > 0 ? normalized : [{ input: "", expected: "" }];
 }

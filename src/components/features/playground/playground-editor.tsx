@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Editor } from "@monaco-editor/react";
 import type { RunMode, SaveMeta, TestCase, TestResult } from "./playground";
 import { cn } from "@/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
+import dynamic from "next/dynamic";
+
+const MonacoEditor = dynamic(() => import("@monaco-editor/react").then((mod) => mod.Editor), {
+  ssr: false,
+  loading: () => <div className="bg-muted h-[380px] animate-pulse rounded-lg" />,
+});
 
 const ERROR_TYPES = [
   "padrão errado",
@@ -68,11 +73,15 @@ export default function PlaygroundEditor({
 
       {savePanel && (
         <div className="border-border mb-3 rounded-lg border p-4">
-          <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+          <label
+            htmlFor="playground-save-name"
+            className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+          >
             Nome da solução *
           </label>
 
           <input
+            id="playground-save-name"
             className="border-border box-border w-full rounded-lg border px-2.5 py-[7px] font-mono text-xs outline-none"
             placeholder="ex: Two Sum — Hash Map"
             value={saveMeta.name}
@@ -86,11 +95,15 @@ export default function PlaygroundEditor({
 
           <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
             <div>
-              <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+              <label
+                htmlFor="playground-save-topic"
+                className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+              >
                 Tópico
               </label>
 
               <input
+                id="playground-save-topic"
                 className="border-border box-border w-full rounded-lg border p-2.5 font-mono text-xs outline-none"
                 placeholder="ex: Sliding Window, Debounce"
                 value={saveMeta.topic}
@@ -104,11 +117,15 @@ export default function PlaygroundEditor({
             </div>
 
             <div>
-              <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+              <label
+                htmlFor="playground-save-status"
+                className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+              >
                 Status
               </label>
 
               <select
+                id="playground-save-status"
                 className="border-border box-border w-full rounded-lg border p-2.5 font-mono text-xs outline-none"
                 value={saveMeta.status}
                 onChange={(e) =>
@@ -125,11 +142,15 @@ export default function PlaygroundEditor({
             </div>
 
             <div>
-              <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+              <label
+                htmlFor="playground-save-error-type"
+                className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+              >
                 Erro principal
               </label>
 
               <select
+                id="playground-save-error-type"
                 className="border-border box-border w-full rounded-lg border p-2.5 font-mono text-xs outline-none"
                 value={saveMeta.errorType}
                 onChange={(e) =>
@@ -152,11 +173,15 @@ export default function PlaygroundEditor({
 
           <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
             <div>
-              <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+              <label
+                htmlFor="playground-save-time-complexity"
+                className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+              >
                 Complexidade temporal
               </label>
 
               <input
+                id="playground-save-time-complexity"
                 className="border-border box-border w-full rounded-lg border px-2.5 py-[7px] font-mono text-xs outline-none"
                 placeholder="O(n)"
                 value={saveMeta.timeComplexity}
@@ -170,11 +195,15 @@ export default function PlaygroundEditor({
             </div>
 
             <div>
-              <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+              <label
+                htmlFor="playground-save-space-complexity"
+                className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+              >
                 Complexidade espacial
               </label>
 
               <input
+                id="playground-save-space-complexity"
                 className="border-border box-border w-full rounded-lg border p-2.5 font-mono text-xs outline-none"
                 placeholder="O(n)"
                 value={saveMeta.spaceComplexity}
@@ -188,11 +217,15 @@ export default function PlaygroundEditor({
             </div>
           </div>
 
-          <label className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+          <label
+            htmlFor="playground-save-notes"
+            className="mt-2.5 mb-1 block font-mono text-[10px] font-semibold tracking-[0.08em] uppercase"
+          >
             Anotações
           </label>
 
           <textarea
+            id="playground-save-notes"
             className="border-border min-h-14 w-full resize-y rounded-lg border p-2.5 font-mono text-xs leading-[1.6] outline-none"
             placeholder="Observações sobre a solução..."
             value={saveMeta.notes}
@@ -217,7 +250,7 @@ export default function PlaygroundEditor({
       )}
 
       <div className="border-border mb-3 overflow-hidden rounded-lg border">
-        <Editor
+        <MonacoEditor
           height="380px"
           defaultLanguage="javascript"
           theme="vs-dark"
@@ -271,6 +304,8 @@ export default function PlaygroundEditor({
           <div key={i}>
             <div className="mb-2 flex items-center gap-2">
               <input
+                id={`playground-test-input-${i}`}
+                aria-label={`Input do teste ${i + 1}`}
                 placeholder="ex: twoSum([2,7,11,15], 9)"
                 value={tc.input}
                 onChange={(e) => updateTestCase(i, "input", e.target.value)}
@@ -278,6 +313,8 @@ export default function PlaygroundEditor({
               />
               <span className="font-mono text-xs">→</span>
               <input
+                id={`playground-test-expected-${i}`}
+                aria-label={`Resultado esperado do teste ${i + 1}`}
                 placeholder="ex: [0,1]"
                 value={tc.expected}
                 onChange={(e) => updateTestCase(i, "expected", e.target.value)}

@@ -30,6 +30,50 @@ const formatConsoleValue = (value: unknown): string => {
 const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : String(error);
 
+function normalizeComparable(value: unknown): unknown {
+  if (typeof value === "number" && Number.isNaN(value)) return "__NaN__";
+  if (value === undefined) return "__undefined__";
+  if (value instanceof Map) {
+    return {
+      __type: "Map",
+      entries: [...value.entries()].map(([key, entryValue]) => [
+        normalizeComparable(key),
+        normalizeComparable(entryValue),
+      ]),
+    };
+  }
+  if (value instanceof Set) {
+    return {
+      __type: "Set",
+      values: [...value.values()].map(normalizeComparable).sort(compareSerialized),
+    };
+  }
+  if (Array.isArray(value)) return value.map(normalizeComparable);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, entryValue]) => [key, normalizeComparable(entryValue)]),
+    );
+  }
+
+  return value;
+}
+
+function compareSerialized(left: unknown, right: unknown): number {
+  return stringifyComparable(left).localeCompare(stringifyComparable(right));
+}
+
+function stringifyComparable(value: unknown): string {
+  return JSON.stringify(normalizeComparable(value)) ?? "__undefined__";
+}
+
+function formatResult(value: unknown): string {
+  if (value === undefined) return "undefined";
+  if (typeof value === "number" && Number.isNaN(value)) return "NaN";
+  return formatConsoleValue(value);
+}
+
 self.onmessage = async function (event: MessageEvent<RunnerMessage>) {
   const { code, testCases, runMode } = event.data;
   const logs: string[] = [];
@@ -51,12 +95,12 @@ self.onmessage = async function (event: MessageEvent<RunnerMessage>) {
         try {
           const fn = new Function("console", `${code}\nreturn (${testCase.input})`);
           const result = (await fn(fakeConsole)) as unknown;
-          const resultString = JSON.stringify(result);
+          const resultString = formatResult(result);
           let pass = false;
 
           try {
             const expected = JSON.parse(testCase.expected) as unknown;
-            pass = JSON.stringify(expected) === resultString;
+            pass = stringifyComparable(expected) === stringifyComparable(result);
           } catch {
             pass = String(result) === testCase.expected.trim();
           }
