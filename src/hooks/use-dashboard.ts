@@ -7,11 +7,13 @@ import { getDashboardData } from "@/lib/application/dashboard/get-dashboard-data
 export type UseDashboardResult = {
   state: DashboardPageState;
   refresh: () => void;
+  isRefreshing: boolean;
 };
 
 export function useDashboard(): UseDashboardResult {
   const [state, setState] = useState<DashboardPageState>({ status: "loading" });
   const [rev, setRev] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,7 +24,7 @@ export function useDashboard(): UseDashboardResult {
         if (result.kind === "no_start_date") {
           setState({ status: "no_start_date" });
         } else {
-          setState({ status: "ready", data: result.data });
+          setState({ status: "ready", viewModel: result.viewModel });
         }
       })
       .catch((err: unknown) => {
@@ -31,6 +33,9 @@ export function useDashboard(): UseDashboardResult {
           status: "error",
           error: err instanceof Error ? err : new Error(String(err)),
         });
+      })
+      .finally(() => {
+        if (!cancelled) setIsRefreshing(false);
       });
 
     return () => {
@@ -39,8 +44,9 @@ export function useDashboard(): UseDashboardResult {
   }, [rev]);
 
   const refresh = useCallback(() => {
+    setIsRefreshing(true);
     setRev((r) => r + 1);
   }, []);
 
-  return { state, refresh };
+  return { state, refresh, isRefreshing };
 }

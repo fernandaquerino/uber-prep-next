@@ -1,6 +1,7 @@
 import type { CalendarDate } from "@/lib/domain/schedule";
 import {
   buildStudySchedule,
+  groupScheduleByCalendarWeek,
   parseCalendarDate,
   DEFAULT_WEEKDAY_AVAILABILITY,
 } from "@/lib/domain/schedule";
@@ -8,12 +9,26 @@ import {
   getCurrentStudyState,
   getPlanCompletionSummary,
   getCompletedPlanItems,
-  getOverduePlanItems,
 } from "@/lib/domain/progress";
 import { getEffectiveSchedule } from "@/lib/application/progress";
 import { STUDY_PLAN } from "@/lib/data/study-plan";
-import type { DashboardData, ActivityDay, DashboardStreak } from "@/lib/presentation/dashboard/dashboard-view-model";
-import { getDashboardRecommendations } from "./get-dashboard-recommendations";
+import type { DashboardViewModel } from "@/lib/presentation/dashboard/dashboard-view-model";
+import { buildDashboardViewModel } from "./build-dashboard-view-model";
+
+// ─── Exported supporting types ────────────────────────────────────────────────
+
+export type ActivityDay = {
+  date: CalendarDate;
+  completedCount: number;
+  isRestDay: boolean;
+};
+
+export type DashboardStreak = {
+  current: number;
+  longestEver: number;
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getTodayCalendarDate(): CalendarDate {
   const now = new Date();
@@ -39,7 +54,6 @@ function buildActivityDays(
     effectiveSchedule.filter((d) => d.isRestDay).map((d) => d.date),
   );
 
-  // Include all dates that appear in the schedule
   const allDates = new Set<CalendarDate>([
     ...effectiveSchedule.map((d) => d.date),
     ...countByDate.keys(),
@@ -55,10 +69,7 @@ function buildActivityDays(
 }
 
 function computeStreak(activityDays: ActivityDay[], today: CalendarDate): DashboardStreak {
-  // Streak: consecutive study days (non-rest) with ≥1 completed block, going backwards from today.
-  // Rest days do not break the streak.
   const sortedDays = [...activityDays].sort((a, b) => b.date.localeCompare(a.date));
-
   let current = 0;
   let longestEver = 0;
   let runLength = 0;
@@ -66,13 +77,12 @@ function computeStreak(activityDays: ActivityDay[], today: CalendarDate): Dashbo
 
   for (const day of sortedDays) {
     if (day.date > today) continue;
-    if (day.isRestDay) continue; // rest days are transparent
+    if (day.isRestDay) continue;
 
     if (day.completedCount > 0) {
       runLength++;
       if (counting) current++;
     } else {
-      // Study day with no activity — ends both current and this run
       if (counting) counting = false;
       longestEver = Math.max(longestEver, runLength);
       runLength = 0;
@@ -83,8 +93,10 @@ function computeStreak(activityDays: ActivityDay[], today: CalendarDate): Dashbo
   return { current, longestEver };
 }
 
+// ─── Main use case ────────────────────────────────────────────────────────────
+
 export type GetDashboardDataResult =
-  | { kind: "ready"; data: DashboardData }
+  | { kind: "ready"; viewModel: DashboardViewModel }
   | { kind: "no_start_date" };
 
 export async function getDashboardData(): Promise<GetDashboardDataResult> {
@@ -119,51 +131,24 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
 
   const currentStudyState = getCurrentStudyState(effectiveSchedule);
   const completionSummary = getPlanCompletionSummary(effectiveSchedule);
-  const overdueItems = getOverduePlanItems(effectiveSchedule);
+
+  const weeks = groupScheduleByCalendarWeek(
+    baseSchedule as Parameters<typeof groupScheduleByCalendarWeek>[0],
+  );
 
   const activityDays = buildActivityDays(effectiveSchedule);
   const streak = computeStreak(activityDays, today);
 
-  const todayDay = effectiveSchedule.find((d) => d.date === today) ?? null;
+  const viewModel = buildDashboardViewModel({
+    today,
+    startDate,
+    effectiveSchedule,
+    currentStudyState,
+    completionSummary,
+    weeks,
+    activityDays,
+    streak,
+  });
 
-  const todayItems = todayDay?.items ?? [];
-  const todayProgress = {
-    completedCount: todayItems.filter((i) => i.executionStatus === "completed").length,
-    totalCount: todayItems.length,
-    completedMinutes: todayItems
-      .filter((i) => i.executionStatus === "completed")
-      .reduce((sum, i) => sum + (i.actualMinutes ?? i.estimatedMinutes), 0),
-    estimatedMinutes: todayItems.reduce((sum, i) => sum + i.estimatedMinutes, 0),
-    isRestDay: todayDay?.isRestDay ?? false,
-  };
-
-  // Upcoming: next 3 non-rest, future items not already in the current study state
-  const upcomingItems = effectiveSchedule
-    .filter((d) => d.date > today && !d.isRestDay)
-    .flatMap((d) => d.items)
-    .filter(
-      (item) =>
-        item.executionStatus === "pending" &&
-        item.blockId !== currentStudyState.currentItem?.blockId,
-    )
-    .slice(0, 3);
-
-  const recommendations = getDashboardRecommendations({ currentStudyState, completionSummary });
-
-  return {
-    kind: "ready",
-    data: {
-      today,
-      startDate,
-      currentStudyState,
-      completionSummary,
-      todayProgress,
-      activityDays,
-      streak,
-      overdueItems,
-      upcomingItems,
-      recommendations,
-      todayDay,
-    },
-  };
+  return { kind: "ready", viewModel };
 }

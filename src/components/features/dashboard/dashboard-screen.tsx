@@ -1,141 +1,181 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, RefreshCw } from "lucide-react";
+import { CalendarDays, Loader2, RefreshCw } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
 import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/feedback/page-header";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { useDashboard } from "@/hooks/use-dashboard";
-import type { DashboardData } from "@/lib/presentation/dashboard/dashboard-view-model";
-import { DashboardCurrentStudy } from "./dashboard-current-study";
-import { DashboardTodayProgress } from "./dashboard-today-progress";
-import { DashboardProgress } from "./dashboard-progress";
-import { DashboardStreak } from "./dashboard-streak";
-import { DashboardRecommendations } from "./dashboard-recommendations";
-import { DashboardOverdue } from "./dashboard-overdue";
-import { DashboardUpcoming } from "./dashboard-upcoming";
-import { DashboardActivityCalendar } from "./dashboard-activity-calendar";
+import type { DashboardViewModel } from "@/lib/presentation/dashboard/dashboard-view-model";
+import { DashboardFocus } from "./dashboard-focus";
+import { DashboardPriorities } from "./dashboard-priorities";
+import { DashboardProgressSection } from "./dashboard-progress-section";
+import { DashboardWeekDays } from "./dashboard-week-days";
+import { DashboardUpcomingEnhanced } from "./dashboard-upcoming-enhanced";
+import { DashboardActivityEnhanced } from "./dashboard-activity-enhanced";
+import { DashboardConsistency } from "./dashboard-consistency";
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function DashboardSkeleton() {
   return (
     <div className="space-y-6" role="status" aria-label="Carregando dashboard" aria-busy="true">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-32" />
-        <Skeleton className="h-4 w-56" />
+      <div className="space-y-1">
+        <Skeleton className="h-7 w-28" />
+        <Skeleton className="h-4 w-52" />
       </div>
-      <Skeleton className="h-36 w-full rounded-xl" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Skeleton className="h-28 rounded-xl" />
-        <Skeleton className="h-28 rounded-xl" />
-        <Skeleton className="h-28 rounded-xl" />
+      {/* Focus + week summary */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Skeleton className="h-44 rounded-xl lg:col-span-2" />
+        <Skeleton className="h-44 rounded-xl" />
       </div>
-      <Skeleton className="h-48 w-full rounded-xl" />
+      {/* Priorities */}
+      <Skeleton className="h-14 w-full rounded-lg" />
+      {/* Progress section */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Skeleton className="h-40 rounded-xl" />
+        <Skeleton className="h-40 rounded-xl" />
+      </div>
+      {/* Week days */}
+      <Skeleton className="h-28 w-full rounded-xl" />
+      {/* Upcoming + Activity */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Skeleton className="h-52 rounded-xl" />
+        <Skeleton className="h-52 rounded-xl" />
+      </div>
+      {/* Consistency */}
+      <Skeleton className="h-24 w-full rounded-xl" />
       <span className="sr-only">Carregando dashboard…</span>
     </div>
   );
 }
 
-export function DashboardScreen() {
-  const { state, refresh } = useDashboard();
+// ─── Header ───────────────────────────────────────────────────────────────────
 
+function DashboardHeader({
+  header,
+  onRefresh,
+  isRefreshing,
+}: {
+  header: DashboardViewModel["header"];
+  onRefresh: () => void;
+  isRefreshing: boolean;
+}) {
   return (
-    <PageContainer>
-      <div className="space-y-8">
-        <PageHeader
-          title="Dashboard"
-          description="Resumo da sua preparação"
-          actions={
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={refresh}
-              aria-label="Atualizar dashboard"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-          }
-        />
-
-        {state.status === "loading" && <DashboardSkeleton />}
-
-        {state.status === "error" && (
-          <ErrorState
-            description={state.error.message}
-            onRetry={refresh}
-          />
-        )}
-
-        {state.status === "no_start_date" && (
-          <EmptyState
-            icon={<CalendarDays className="h-10 w-10" />}
-            title="Data de início não configurada"
-            description="Configure a data de início do seu plano para ver o dashboard."
-            action={
-              <Link href="/configuracoes" className={cn(buttonVariants())}>
-                Configurar data de início
-              </Link>
-            }
-          />
-        )}
-
-        {state.status === "ready" && (
-          <DashboardContent data={state.data} />
-        )}
+    <div className="space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-0.5">
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">
+            {header.todayFormatted} · {header.weekLabel} · {header.planPeriodFormatted}
+          </p>
+        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={onRefresh}
+                  disabled={isRefreshing}
+                  aria-label={isRefreshing ? "Atualizando…" : "Atualizar dashboard"}
+                >
+                  {isRefreshing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" aria-hidden />
+                  )}
+                </Button>
+              }
+            />
+            <TooltipContent>Atualizar dashboard</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
-    </PageContainer>
+      <Separator />
+    </div>
   );
 }
 
-type DashboardContentProps = {
-  data: DashboardData;
-};
+// ─── Main content ─────────────────────────────────────────────────────────────
 
-function DashboardContent({ data }: DashboardContentProps) {
-  const {
-    today,
-    currentStudyState,
-    completionSummary,
-    todayProgress,
-    activityDays,
-    streak,
-    overdueItems,
-    upcomingItems,
-    recommendations,
-  } = data;
-
+function DashboardContent({ vm }: { vm: DashboardViewModel }) {
   return (
     <div className="space-y-6">
-      {/* Priority 1: Current study item */}
-      <DashboardCurrentStudy currentStudyState={currentStudyState} />
+      {/* 1. Foco do dia + resumo rápido da semana */}
+      <DashboardFocus focus={vm.focus} weekSummary={vm.weekQuickSummary} />
 
-      {/* Priority 2: Recommendations */}
-      {recommendations.length > 0 && (
-        <DashboardRecommendations recommendations={recommendations} />
-      )}
+      {/* 2. Prioridades compactas */}
+      <DashboardPriorities priorities={vm.priorities} />
 
-      {/* Priority 3: Metrics row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <DashboardTodayProgress todayProgress={todayProgress} />
-        <DashboardProgress completionSummary={completionSummary} />
-        <DashboardStreak streak={streak} />
+      {/* 3. Progresso geral + por área */}
+      <DashboardProgressSection progress={vm.progress} categoryProgress={vm.categoryProgress} />
+
+      {/* 4. Semana atual — 7 dias */}
+      <DashboardWeekDays currentWeek={vm.currentWeek} weekLabel={vm.weekQuickSummary.weekLabel} />
+
+      {/* 5. Próximos estudos + Atividade */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <DashboardUpcomingEnhanced upcoming={vm.upcoming} />
+        <DashboardActivityEnhanced activity={vm.activity} />
       </div>
 
-      {/* Priority 4: Overdue items */}
-      {overdueItems.length > 0 && (
-        <DashboardOverdue overdueItems={overdueItems} />
-      )}
-
-      {/* Priority 5: Upcoming items */}
-      {upcomingItems.length > 0 && (
-        <DashboardUpcoming upcomingItems={upcomingItems} />
-      )}
-
-      {/* Priority 6: Activity calendar */}
-      <DashboardActivityCalendar activityDays={activityDays} today={today} />
+      {/* 6. Consistência */}
+      <DashboardConsistency consistency={vm.consistency} />
     </div>
+  );
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
+
+export function DashboardScreen() {
+  const { state, refresh, isRefreshing } = useDashboard();
+
+  return (
+    <PageContainer>
+      <div className="space-y-6">
+        {state.status === "loading" && <DashboardSkeleton />}
+
+        {state.status === "error" && (
+          <>
+            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            <ErrorState description={state.error.message} onRetry={refresh} />
+          </>
+        )}
+
+        {state.status === "no_start_date" && (
+          <>
+            <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+            <EmptyState
+              icon={<CalendarDays className="h-10 w-10" />}
+              title="Data de início não configurada"
+              description="Configure a data de início do seu plano para ver o dashboard."
+              action={
+                <Link href="/configuracoes" className={cn(buttonVariants())}>
+                  Configurar data de início
+                </Link>
+              }
+            />
+          </>
+        )}
+
+        {state.status === "ready" && (
+          <>
+            <DashboardHeader
+              header={state.viewModel.header}
+              onRefresh={refresh}
+              isRefreshing={isRefreshing}
+            />
+            <DashboardContent vm={state.viewModel} />
+          </>
+        )}
+      </div>
+    </PageContainer>
   );
 }

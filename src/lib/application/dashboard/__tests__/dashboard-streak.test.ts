@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { ActivityDay } from "@/lib/presentation/dashboard/dashboard-view-model";
+import type { ActivityDay } from "../get-dashboard-data";
 import type { CalendarDate } from "@/lib/domain/schedule";
 
 // Extract the streak logic for isolated testing.
