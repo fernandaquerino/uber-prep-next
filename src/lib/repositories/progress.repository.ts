@@ -4,6 +4,7 @@ import { DatabaseError } from "@/lib/db/errors";
 
 export interface ProgressRepository {
   findById(id: string): Promise<PlanProgressRecord | undefined>;
+  findByBlockId(blockId: string): Promise<PlanProgressRecord | undefined>;
   list(): Promise<PlanProgressRecord[]>;
   listByStatus(status: PlanProgressStatus): Promise<PlanProgressRecord[]>;
   upsert(record: PlanProgressRecord): Promise<void>;
@@ -27,6 +28,14 @@ export function createProgressRepository(db: UberPrepDatabase): ProgressReposito
       return await db.planProgress.toArray();
     } catch (err) {
       throw new DatabaseError("Failed to list progress records", err);
+    }
+  }
+
+  async function findByBlockId(blockId: string): Promise<PlanProgressRecord | undefined> {
+    try {
+      return await db.planProgress.where("blockId").equals(blockId).first();
+    } catch (err) {
+      throw new DatabaseError(`Failed to get progress record for block ${blockId}`, err);
     }
   }
 
@@ -78,5 +87,15 @@ export function createProgressRepository(db: UberPrepDatabase): ProgressReposito
     }
   }
 
-  return { findById, list, listByStatus, upsert, bulkUpsert, delete: delete_, clear, count };
+  return {
+    findById,
+    findByBlockId,
+    list,
+    listByStatus,
+    upsert,
+    bulkUpsert,
+    delete: delete_,
+    clear,
+    count,
+  };
 }

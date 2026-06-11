@@ -164,7 +164,11 @@ async function migrateProgress(
 
     const legacyStatus = block.status ?? "pending";
     const mappedStatus: PlanProgressRecord["status"] =
-      legacyStatus === "done" ? "completed" : (legacyStatus as PlanProgressRecord["status"]);
+      legacyStatus === "done"
+        ? "completed"
+        : legacyStatus === "rescheduled"
+          ? "pending"
+          : (legacyStatus as PlanProgressRecord["status"]);
 
     const record: PlanProgressRecord = {
       id,

@@ -14,6 +14,8 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
     const [
       settings,
       planProgress,
+      progressEvents,
+      scheduleOverrides,
       reviews,
       flashcards,
       quizAttempts,
@@ -29,6 +31,8 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
     ] = await Promise.all([
       db.settings.toArray(),
       db.planProgress.toArray(),
+      db.progressEvents.toArray(),
+      db.scheduleOverrides.toArray(),
       db.reviews.toArray(),
       db.flashcards.toArray(),
       db.quizAttempts.toArray(),
@@ -55,6 +59,8 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
       data: {
         settings,
         planProgress,
+        progressEvents,
+        scheduleOverrides,
         reviews,
         flashcards,
         quizAttempts,
@@ -91,6 +97,8 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
       [
         db.settings,
         db.planProgress,
+        db.progressEvents,
+        db.scheduleOverrides,
         db.reviews,
         db.flashcards,
         db.quizAttempts,
@@ -109,6 +117,8 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
           await Promise.all([
             db.settings.clear(),
             db.planProgress.clear(),
+            db.progressEvents.clear(),
+            db.scheduleOverrides.clear(),
             db.reviews.clear(),
             db.flashcards.clear(),
             db.quizAttempts.clear(),
@@ -129,6 +139,8 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
         }> = [
           { key: "settings", table: db.settings as never },
           { key: "planProgress", table: db.planProgress as never },
+          { key: "progressEvents", table: db.progressEvents as never },
+          { key: "scheduleOverrides", table: db.scheduleOverrides as never },
           { key: "reviews", table: db.reviews as never },
           { key: "flashcards", table: db.flashcards as never },
           { key: "quizAttempts", table: db.quizAttempts as never },

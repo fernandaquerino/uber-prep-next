@@ -30,6 +30,8 @@ export const MINIMAL_BACKUP: BackupFile = {
         updatedAt: "2025-01-10T00:00:00.000Z",
       },
     ],
+    progressEvents: [],
+    scheduleOverrides: [],
     reviews: [],
     flashcards: [],
     quizAttempts: [],

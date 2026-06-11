@@ -29,28 +29,69 @@ export type ReviewRecord = {
 
 // ─── Plan Progress ────────────────────────────────────────────────────────────
 
-export type PlanProgressStatus =
-  | "pending"
-  | "in_progress"
-  | "completed"
-  | "stuck"
-  | "skipped"
-  | "rescheduled";
+export type PlanProgressStatus = "pending" | "in_progress" | "completed" | "stuck" | "skipped";
 
 export type PlanProgressRecord = {
   id: string;
   blockId: string;
   legacyBlockKey?: string;
+  planDayId?: string;
+  planDaySequence?: number;
   status: PlanProgressStatus;
   scheduledDate?: string;
   originalScheduledDate?: string;
+  startedAt?: string;
+  skippedAt?: string;
   notes?: string;
   patternUsed?: string;
   difficulty?: number;
+  confidence?: number;
   actualMinutes?: number;
   completedAt?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type ProgressEventType =
+  | "created"
+  | "started"
+  | "completed"
+  | "marked_stuck"
+  | "returned_to_pending"
+  | "skipped"
+  | "restored"
+  | "rescheduled"
+  | "schedule_shifted"
+  | "notes_updated"
+  | "difficulty_updated"
+  | "confidence_updated"
+  | "minutes_updated"
+  | "undone";
+
+export type ProgressEventRecord = {
+  id: string;
+  blockId: string;
+  type: ProgressEventType;
+  occurredAt: string;
+  previousProgress?: PlanProgressRecord;
+  nextProgress?: PlanProgressRecord;
+  previousValue?: unknown;
+  nextValue?: unknown;
+  metadata?: Record<string, unknown>;
+  actionGroupId?: string;
+  undoneAt?: string;
+};
+
+export type ScheduleOverrideType = "reschedule" | "shift";
+
+export type ScheduleOverrideRecord = {
+  id: string;
+  blockId: string;
+  type: ScheduleOverrideType;
+  fromDate: string;
+  toDate: string;
+  createdAt: string;
+  actionGroupId?: string;
 };
 
 // ─── Flashcards ───────────────────────────────────────────────────────────────
