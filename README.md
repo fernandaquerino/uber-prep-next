@@ -2,8 +2,8 @@
 
 Plataforma de preparação para entrevistas de engenharia de software. Local-first, sem backend, sem conta.
 
-> **Estado atual:** Entrega 01 concluída — fundação técnica.
-> A Entrega 01 contém apenas a estrutura base. As regras de calendário, plano, progresso e revisão ainda não foram implementadas.
+> **Estado atual:** Entrega 02 concluída — camada de dados local.
+> As Entregas 01 e 02 estão concluídas. As regras de calendário, plano, progresso e revisão ainda não foram implementadas.
 
 ---
 
@@ -22,7 +22,9 @@ Plataforma de preparação para entrevistas de engenharia de software. Local-fir
 | Testes E2E       | Playwright                             |
 | Lint             | ESLint (next/core-web-vitals)          |
 | Formatação       | Prettier + prettier-plugin-tailwindcss |
-| Persistência     | IndexedDB via Dexie _(Entrega 02)_     |
+| Persistência     | IndexedDB via Dexie 4                  |
+| Validação        | Zod 4                                  |
+| Testes IndexedDB | fake-indexeddb                         |
 
 ---
 
@@ -95,16 +97,39 @@ src/
     types/           <- Tipos globais
     utils/           <- Utilitários puros
 
+  lib/
+    db/              <- Dexie schema, seed, migrations, constants, errors
+    repositories/    <- 12 repositórios tipados
+    data/            <- Dados iniciais (40 flashcards)
+    validation/      <- Schemas Zod (legacy, database, backup)
+
+  types/
+    database.ts      <- Tipos de registro (15 tabelas)
+    legacy.ts        <- Tipos e chaves do localStorage legado
+    backup.ts        <- Tipos para export/import de backup
+
+  hooks/
+    use-database-status.ts
+    use-legacy-migration.ts
+
   test/
     setup.ts         <- Configuração do Vitest + mocks
+    indexed-db.ts    <- Helper createTestDatabase() com fake-indexeddb
 
 tests/
   e2e/               <- Testes Playwright
+  integration/       <- Testes de integração (migration)
+  fixtures/          <- Dados de teste (legacy, backup)
 
 docs/
   architecture/
     decisions.md
+  data/
+    database-schema.md
+    legacy-migration.md
+    backup-format.md
   delivery-01-foundation.md
+  delivery-02-data-layer.md
 ```
 
 ---
@@ -143,7 +168,7 @@ docs/
 | #   | Escopo                                         | Status    |
 | --- | ---------------------------------------------- | --------- |
 | 01  | Fundação: Next.js, layout, rotas, tema, testes | Concluída |
-| 02  | IndexedDB, schema, migration, repositories     | Pendente  |
+| 02  | IndexedDB, schema, migration, repositories     | Concluída |
 | 03  | Domínio de calendário                          | Pendente  |
 | 04  | Progresso, reviews, spaced repetition          | Pendente  |
 | 05  | Página Plano                                   | Pendente  |
@@ -163,7 +188,7 @@ docs/
 
 ## Limitações atuais
 
-- Nenhuma regra de negócio implementada.
-- Nenhum dado persistido.
-- Todas as páginas mostram estado "em construção" com a entrega planejada.
+- Nenhuma regra de negócio implementada (Entregas 03+).
+- As páginas mostram estado "em construção" — o banco existe mas não há UI funcional ainda.
 - Nenhuma métrica, readiness ou progresso é exibido (não existem ainda).
+- Áudio de mocks não é incluído no backup JSON (apenas metadados).
