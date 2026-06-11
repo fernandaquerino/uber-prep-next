@@ -21,7 +21,7 @@ export function DashboardUpcomingEnhanced({ upcoming }: Props) {
     <section aria-labelledby="upcoming-heading">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground" id="upcoming-heading">
+          <CardTitle className="text-muted-foreground text-sm font-medium" id="upcoming-heading">
             Próximos estudos
           </CardTitle>
         </CardHeader>
@@ -29,10 +29,10 @@ export function DashboardUpcomingEnhanced({ upcoming }: Props) {
           {upcoming.map((item) => (
             <div
               key={item.blockId}
-              className="flex items-start gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/40 transition-colors"
+              className="hover:bg-muted/40 flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors"
             >
               <div className="min-w-0 flex-1 space-y-0.5">
-                <p className="text-sm font-medium leading-snug line-clamp-2">{item.title}</p>
+                <p className="line-clamp-2 text-sm leading-snug font-medium">{item.title}</p>
                 <div className="flex flex-wrap items-center gap-1.5">
                   <CategoryBadge category={item.category} />
                   <span className="text-muted-foreground text-xs">{item.typeLabel}</span>
@@ -41,18 +41,23 @@ export function DashboardUpcomingEnhanced({ upcoming }: Props) {
                     {item.durationFormatted}
                   </span>
                   {item.isOverdue && (
-                    <span className="text-xs font-medium text-red-600 dark:text-red-400">Atrasado</span>
+                    <span className="text-xs font-medium text-red-600 dark:text-red-400">
+                      Atrasado
+                    </span>
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground">{item.scheduledDateFormatted}</p>
+                <p className="text-muted-foreground text-[11px]">{item.scheduledDateFormatted}</p>
               </div>
             </div>
           ))}
 
-          <div className="pt-1 border-t mt-2">
+          <div className="mt-2 border-t pt-1">
             <Link
               href="/plano"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "w-full justify-center text-xs")}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "w-full justify-center text-xs",
+              )}
             >
               Ver plano completo
             </Link>

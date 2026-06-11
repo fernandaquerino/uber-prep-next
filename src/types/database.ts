@@ -1,12 +1,39 @@
 // ─── Review ──────────────────────────────────────────────────────────────────
 
 export type ReviewSourceType = "plan" | "flashcard" | "quiz" | "mock" | "manual";
-export type ReviewStatus = "scheduled" | "due" | "completed" | "dismissed" | "rescheduled";
-export type ReviewRating = "good" | "again" | "hard";
+
+export type ReviewStatus =
+  | "scheduled"
+  | "due"
+  | "completed"
+  | "dismissed"
+  | "rescheduled"
+  | "cancelled";
+
+export type ReviewResult = "again" | "hard" | "good" | "easy";
+
+/** Backward-compat alias — new code should use ReviewResult */
+export type ReviewRating = ReviewResult;
+
+export type ReviewReason =
+  | "completed_plan_block"
+  | "marked_manually"
+  | "stuck"
+  | "low_confidence"
+  | "high_difficulty"
+  | "failed_review"
+  | "future_flashcard"
+  | "future_quiz"
+  | "future_mock_gap";
 
 export type ReviewHistoryEntry = {
+  id?: string;
   date: string;
-  result?: ReviewRating;
+  result?: ReviewResult;
+  previousCycleIndex?: number;
+  nextCycleIndex?: number;
+  nextReviewAt?: string | null;
+  response?: string;
 };
 
 export type ReviewRecord = {
@@ -15,10 +42,16 @@ export type ReviewRecord = {
   sourceId: string;
   status: ReviewStatus;
   scheduledFor: string;
+  originalScheduledFor?: string;
   cycleIndex: number;
-  reason?: string;
-  lastRating?: ReviewRating;
+  reason?: ReviewReason | string;
+  lastResult?: ReviewResult;
+  /** Backward-compat alias for lastResult */
+  lastRating?: ReviewResult;
   history: ReviewHistoryEntry[];
+  markedAt?: string;
+  cancelledAt?: string;
+  dismissedAt?: string;
   legacyBlockKey?: string;
   legacyBlockLabel?: string;
   legacyLeetcode?: string | null;

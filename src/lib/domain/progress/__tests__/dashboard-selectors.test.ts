@@ -88,9 +88,7 @@ describe("getPlanProgressByCategory", () => {
   });
 
   it("counts stuck items", () => {
-    const schedule = [
-      makeDay("2026-06-11", [makeBlock("b1", "algo", "stuck")]),
-    ];
+    const schedule = [makeDay("2026-06-11", [makeBlock("b1", "algo", "stuck")])];
     const result = getPlanProgressByCategory(schedule);
     expect(result[0].stuck).toBe(1);
   });
@@ -123,7 +121,10 @@ describe("getCurrentWeekDays", () => {
     const today = "2026-06-11" as CalendarDate;
     const schedule = [
       makeDay("2026-06-09", [makeBlock("b1", "algo", "completed")]),
-      makeDay("2026-06-11", [makeBlock("b2", "algo", "completed"), makeBlock("b3", "algo", "pending")]),
+      makeDay("2026-06-11", [
+        makeBlock("b2", "algo", "completed"),
+        makeBlock("b3", "algo", "pending"),
+      ]),
     ];
     const days = getCurrentWeekDays(schedule, today);
     const monday = days.find((d) => d.date === "2026-06-09");

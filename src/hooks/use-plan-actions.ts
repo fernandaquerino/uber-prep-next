@@ -8,6 +8,7 @@ import type {
   ReschedulePlanBlockInput,
   ShiftPendingScheduleInput,
 } from "@/lib/domain/progress";
+import type { CalendarDate } from "@/lib/domain/schedule";
 import type { ScheduledStudyDay } from "@/lib/domain/schedule";
 import {
   changeStartDate,
@@ -29,9 +30,17 @@ function getNow(): string {
   return new Date().toISOString();
 }
 
+function getTodayCalendarDate(): CalendarDate {
+  return new Date().toISOString().slice(0, 10) as CalendarDate;
+}
+
 async function getDb() {
   const { getDb: _getDb } = await import("@/lib/db/db");
   return _getDb();
+}
+
+async function getReviewUseCases() {
+  return import("@/lib/application/reviews/review-use-cases");
 }
 
 export type PlanActionsCallbacks = {
@@ -62,6 +71,8 @@ export type UsePlanActionsResult = {
     option: import("@/lib/application/progress").ChangeStartDateOption;
   }) => Promise<void>;
   updateBlockDetails: (input: Omit<UpdatePlanBlockProgressInput, "occurredAt">) => Promise<void>;
+  markForReview: (blockId: string) => Promise<void>;
+  unmarkForReview: (blockId: string) => Promise<void>;
 };
 
 export function usePlanActions(callbacks: PlanActionsCallbacks): UsePlanActionsResult {
@@ -94,6 +105,17 @@ export function usePlanActions(callbacks: PlanActionsCallbacks): UsePlanActionsR
         wrap(async () => {
           const db = await getDb();
           await completePlanBlock({ db, ...input, completedAt: getNow() });
+          // Auto-create spaced repetition review for completed blocks
+          const { createReviewForCompletedBlock } = await getReviewUseCases();
+          await createReviewForCompletedBlock(
+            db,
+            input.blockId,
+            getTodayCalendarDate(),
+            input.confidence,
+            input.difficulty,
+          ).catch(() => {
+            // Non-fatal: review creation failure should not block completion
+          });
         }),
       [wrap],
     ),
@@ -103,6 +125,11 @@ export function usePlanActions(callbacks: PlanActionsCallbacks): UsePlanActionsR
         wrap(async () => {
           const db = await getDb();
           await markPlanBlockStuck({ db, ...input, occurredAt: getNow() });
+          // Auto-create review when user marks a block as stuck
+          const { createReviewForStuckBlock } = await getReviewUseCases();
+          await createReviewForStuckBlock(db, input.blockId, getTodayCalendarDate()).catch(() => {
+            // Non-fatal
+          });
         }),
       [wrap],
     ),
@@ -184,6 +211,26 @@ export function usePlanActions(callbacks: PlanActionsCallbacks): UsePlanActionsR
         wrap(async () => {
           const db = await getDb();
           await updatePlanBlockProgress({ db, ...input, occurredAt: getNow() });
+        }),
+      [wrap],
+    ),
+
+    markForReview: useCallback(
+      (blockId) =>
+        wrap(async () => {
+          const db = await getDb();
+          const { markBlockForReview } = await getReviewUseCases();
+          await markBlockForReview(db, blockId, getNow());
+        }),
+      [wrap],
+    ),
+
+    unmarkForReview: useCallback(
+      (blockId) =>
+        wrap(async () => {
+          const db = await getDb();
+          const { unmarkBlockForReview } = await getReviewUseCases();
+          await unmarkBlockForReview(db, blockId, getNow());
         }),
       [wrap],
     ),

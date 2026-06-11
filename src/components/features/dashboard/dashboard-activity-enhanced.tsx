@@ -26,7 +26,7 @@ export function DashboardActivityEnhanced({ activity }: Props) {
     <section aria-labelledby="activity-heading">
       <Card>
         <CardHeader className="pb-1">
-          <CardTitle className="text-sm font-medium text-muted-foreground" id="activity-heading">
+          <CardTitle className="text-muted-foreground text-sm font-medium" id="activity-heading">
             Atividade
           </CardTitle>
         </CardHeader>
@@ -35,10 +35,10 @@ export function DashboardActivityEnhanced({ activity }: Props) {
             <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
               <div className="flex gap-0.5">
                 {Array.from({ length: 7 }).map((_, i) => (
-                  <div key={i} className="h-3 w-3 rounded-[2px] bg-muted" aria-hidden />
+                  <div key={i} className="bg-muted h-3 w-3 rounded-[2px]" aria-hidden />
                 ))}
               </div>
-              <p className="text-muted-foreground text-xs max-w-xs">
+              <p className="text-muted-foreground max-w-xs text-xs">
                 Conclua blocos para visualizar sua consistência.
               </p>
             </div>
@@ -50,10 +50,10 @@ export function DashboardActivityEnhanced({ activity }: Props) {
                 role="img"
               >
                 {/* Day row labels */}
-                <div className="flex flex-col gap-0.5 pr-1 shrink-0">
+                <div className="flex shrink-0 flex-col gap-0.5 pr-1">
                   {DAY_LABELS.map((label, i) => (
                     <div key={i} className="flex h-3 items-center">
-                      <span className="text-[9px] text-muted-foreground w-5 leading-none">
+                      <span className="text-muted-foreground w-5 text-[9px] leading-none">
                         {i % 2 === 0 ? label : ""}
                       </span>
                     </div>
@@ -61,7 +61,7 @@ export function DashboardActivityEnhanced({ activity }: Props) {
                 </div>
 
                 {weeks.map((week) => (
-                  <div key={week.weekStart} className="flex flex-col gap-0.5 shrink-0">
+                  <div key={week.weekStart} className="flex shrink-0 flex-col gap-0.5">
                     {week.days.map((day) => (
                       <div
                         key={day.date}
@@ -81,7 +81,7 @@ export function DashboardActivityEnhanced({ activity }: Props) {
               </div>
 
               {/* Legend */}
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground border-t pt-2">
+              <div className="text-muted-foreground flex items-center justify-between border-t pt-2 text-[10px]">
                 <div className="flex items-center gap-1.5">
                   <span>Menos</span>
                   {([0, 1, 2, 3] as const).map((level) => (
@@ -97,7 +97,7 @@ export function DashboardActivityEnhanced({ activity }: Props) {
                   {totalCompletedDays} {totalCompletedDays === 1 ? "dia" : "dias"} com atividade
                 </span>
               </div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-muted-foreground text-[10px]">
                 Cada célula representa a quantidade de blocos concluídos naquele dia.
               </p>
             </>

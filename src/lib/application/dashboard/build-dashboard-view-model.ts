@@ -29,7 +29,11 @@ import type {
   ActivityDayViewModel,
 } from "@/lib/presentation/dashboard/dashboard-view-model";
 import type { ActivityDay, DashboardStreak } from "./get-dashboard-data";
-import { formatMinutes, formatCalendarDate, formatWeekdayLabel } from "@/components/features/plan/plan-utils";
+import {
+  formatMinutes,
+  formatCalendarDate,
+  formatWeekdayLabel,
+} from "@/components/features/plan/plan-utils";
 
 const WEEKDAY_SHORT: Record<string, string> = {
   monday: "Seg",
@@ -88,12 +92,11 @@ function buildFocus(
   const todayBlocksCompleted = todayItems.filter((i) => i.executionStatus === "completed").length;
   const todayBlocksTotal = todayItems.length;
 
-  const nextStudyDay =
-    isRestDay
-      ? effectiveSchedule
-          .filter((d) => !d.isRestDay && d.date > today && d.items.length > 0)
-          .find(Boolean) ?? null
-      : null;
+  const nextStudyDay = isRestDay
+    ? (effectiveSchedule
+        .filter((d) => !d.isRestDay && d.date > today && d.items.length > 0)
+        .find(Boolean) ?? null)
+    : null;
 
   const nextStudyDayFormatted = nextStudyDay
     ? `${formatWeekdayLabel(nextStudyDay.weekday)}, ${formatCalendarDate(nextStudyDay.date, "long")}`
@@ -162,7 +165,11 @@ function buildWeekQuickSummary(
   };
 }
 
-function buildPriorities(state: CurrentStudyState, summary: PlanCompletionSummary): DashboardPriorityViewModel[] {
+function buildPriorities(
+  state: CurrentStudyState,
+  summary: PlanCompletionSummary,
+  dueReviewCount: number,
+): DashboardPriorityViewModel[] {
   const priorities: DashboardPriorityViewModel[] = [];
 
   if (state.isPlanCompleted) {
@@ -192,7 +199,22 @@ function buildPriorities(state: CurrentStudyState, summary: PlanCompletionSummar
     });
   }
 
-  if (summary.stuck > 0) {
+  if (dueReviewCount > 0 && priorities.length < 3) {
+    const n = dueReviewCount;
+    priorities.push({
+      id: "reviews_due",
+      title: `${n} ${n === 1 ? "revisão devida" : "revisões devidas"}`,
+      description:
+        n === 1
+          ? "Há um conteúdo para revisar hoje."
+          : `${n} conteúdos para revisar. Revise antes de avançar no plano.`,
+      actionLabel: "Revisar agora",
+      actionHref: "/revisar",
+      severity: "high",
+    });
+  }
+
+  if (summary.stuck > 0 && priorities.length < 3) {
     const n = summary.stuck;
     priorities.push({
       id: "stuck",
@@ -326,12 +348,11 @@ function buildActivity(
     weekStart: week.weekStart,
     days: week.days.map((d): ActivityDayViewModel => {
       if (d.completedCount > 0) totalCompletedDays++;
-      const label =
-        d.isRestDay
-          ? `${formatCalendarDate(d.date, "long")} — descanso`
-          : d.completedCount === 0
-            ? `${formatCalendarDate(d.date, "long")} — sem atividade`
-            : `${formatCalendarDate(d.date, "long")} — ${d.completedCount} bloco${d.completedCount !== 1 ? "s" : ""} concluído${d.completedCount !== 1 ? "s" : ""}`;
+      const label = d.isRestDay
+        ? `${formatCalendarDate(d.date, "long")} — descanso`
+        : d.completedCount === 0
+          ? `${formatCalendarDate(d.date, "long")} — sem atividade`
+          : `${formatCalendarDate(d.date, "long")} — ${d.completedCount} bloco${d.completedCount !== 1 ? "s" : ""} concluído${d.completedCount !== 1 ? "s" : ""}`;
       return {
         date: d.date,
         completedCount: d.completedCount,
@@ -383,6 +404,7 @@ export type BuildDashboardViewModelInput = {
   weeks: ScheduledWeek[];
   activityDays: ActivityDay[];
   streak: DashboardStreak;
+  dueReviewCount?: number;
 };
 
 export function buildDashboardViewModel(input: BuildDashboardViewModelInput): DashboardViewModel {
@@ -395,6 +417,7 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     weeks,
     activityDays,
     streak,
+    dueReviewCount = 0,
   } = input;
 
   const planEnd = effectiveSchedule.at(-1)?.date ?? startDate;
@@ -403,7 +426,7 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
   const header = buildHeader(today, weeks, startDate, planEnd);
   const focus = buildFocus(currentStudyState, today, effectiveSchedule);
   const weekQuickSummary = buildWeekQuickSummary(weekDayInfos, effectiveSchedule, weeks, today);
-  const priorities = buildPriorities(currentStudyState, completionSummary);
+  const priorities = buildPriorities(currentStudyState, completionSummary, dueReviewCount);
 
   const progress: DashboardProgressViewModel = {
     completed: completionSummary.completed,

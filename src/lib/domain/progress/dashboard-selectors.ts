@@ -20,9 +20,7 @@ export type CategoryProgress = {
   skipped: number;
 };
 
-export function getPlanProgressByCategory(
-  schedule: EffectiveScheduledDay[],
-): CategoryProgress[] {
+export function getPlanProgressByCategory(schedule: EffectiveScheduledDay[]): CategoryProgress[] {
   const map = new Map<string, CategoryProgress>();
 
   for (const day of schedule) {
@@ -80,9 +78,7 @@ export function getCurrentWeekDays(
   const weekStart = getCalendarWeekStart(today);
   const weekEnd = getCalendarWeekEnd(today);
 
-  const dayMap = new Map<CalendarDate, EffectiveScheduledDay>(
-    schedule.map((d) => [d.date, d]),
-  );
+  const dayMap = new Map<CalendarDate, EffectiveScheduledDay>(schedule.map((d) => [d.date, d]));
 
   const result: WeekDayInfo[] = [];
 
@@ -211,9 +207,7 @@ export function getActivityWeeks(
     }
   }
 
-  const restDates = new Set<CalendarDate>(
-    schedule.filter((d) => d.isRestDay).map((d) => d.date),
-  );
+  const restDates = new Set<CalendarDate>(schedule.filter((d) => d.isRestDay).map((d) => d.date));
 
   // Determine date range: plan start to today (at most maxWeeks)
   const planStart = schedule[0]?.date ?? today;

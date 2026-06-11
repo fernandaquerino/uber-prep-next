@@ -157,7 +157,10 @@ test.describe("E2E 06.5 — Botão de atualizar funciona", () => {
     await expect(heading).toBeVisible({ timeout: 5000 });
 
     // No crash/error
-    const hasError = await page.locator("text=Internal Server Error").isVisible().catch(() => false);
+    const hasError = await page
+      .locator("text=Internal Server Error")
+      .isVisible()
+      .catch(() => false);
     expect(hasError).toBe(false);
   });
 });

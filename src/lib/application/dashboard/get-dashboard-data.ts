@@ -139,6 +139,17 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
   const activityDays = buildActivityDays(effectiveSchedule);
   const streak = computeStreak(activityDays, today);
 
+  // Count due reviews for dashboard priorities
+  let dueReviewCount = 0;
+  try {
+    const { buildReviewQueue } = await import("@/lib/domain/reviews/review-queue");
+    const allReviews = await db.reviews.toArray();
+    const queue = buildReviewQueue({ reviews: allReviews, effectiveSchedule, today });
+    dueReviewCount = queue.length;
+  } catch {
+    // Non-fatal: if reviews module fails, dashboard still loads
+  }
+
   const viewModel = buildDashboardViewModel({
     today,
     startDate,
@@ -148,6 +159,7 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     weeks,
     activityDays,
     streak,
+    dueReviewCount,
   });
 
   return { kind: "ready", viewModel };

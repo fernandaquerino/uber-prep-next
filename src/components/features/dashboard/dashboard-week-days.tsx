@@ -3,7 +3,10 @@
 import { CheckCircle2, Clock, Moon, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { DashboardCurrentWeekViewModel, WeekDayStatus } from "@/lib/presentation/dashboard/dashboard-view-model";
+import type {
+  DashboardCurrentWeekViewModel,
+  WeekDayStatus,
+} from "@/lib/presentation/dashboard/dashboard-view-model";
 
 type Props = {
   currentWeek: DashboardCurrentWeekViewModel;
@@ -32,7 +35,8 @@ const STATUS_BG: Record<WeekDayStatus, string> = {
 
 function DayIcon({ status }: { status: WeekDayStatus }) {
   if (status === "rest") return <Moon className="h-3.5 w-3.5 text-slate-400" aria-hidden />;
-  if (status === "completed") return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" aria-hidden />;
+  if (status === "completed")
+    return <CheckCircle2 className="h-3.5 w-3.5 text-green-600" aria-hidden />;
   if (status === "overdue") return <AlertCircle className="h-3.5 w-3.5 text-red-500" aria-hidden />;
   if (status === "today") return <Clock className="h-3.5 w-3.5 text-blue-500" aria-hidden />;
   return null;
@@ -42,7 +46,7 @@ export function DashboardWeekDays({ currentWeek, weekLabel }: Props) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-muted-foreground text-sm font-medium">
           Semana atual — {weekLabel}
         </CardTitle>
       </CardHeader>
@@ -61,15 +65,25 @@ export function DashboardWeekDays({ currentWeek, weekLabel }: Props) {
                 day.isToday && "font-semibold",
               )}
             >
-              <span className={cn("text-[10px] font-medium", day.isToday ? "text-blue-700 dark:text-blue-300" : "text-muted-foreground")}>
+              <span
+                className={cn(
+                  "text-[10px] font-medium",
+                  day.isToday ? "text-blue-700 dark:text-blue-300" : "text-muted-foreground",
+                )}
+              >
                 {day.weekdayShort}
               </span>
-              <span className={cn("text-sm tabular-nums", day.isToday ? "text-blue-700 dark:text-blue-300 font-bold" : "text-foreground")}>
+              <span
+                className={cn(
+                  "text-sm tabular-nums",
+                  day.isToday ? "font-bold text-blue-700 dark:text-blue-300" : "text-foreground",
+                )}
+              >
                 {day.dayNumber}
               </span>
               <DayIcon status={day.status} />
               {!day.isRestDay && day.total > 0 && (
-                <span className="text-[9px] text-muted-foreground tabular-nums leading-none">
+                <span className="text-muted-foreground text-[9px] leading-none tabular-nums">
                   {day.completed}/{day.total}
                 </span>
               )}

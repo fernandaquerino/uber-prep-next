@@ -73,24 +73,34 @@ export const scheduleOverrideRecordSchema = z.object({
 });
 
 export const reviewHistoryEntrySchema = z.object({
+  id: z.string().optional(),
   date: z.string(),
-  result: z.enum(["good", "again", "hard"]).optional(),
+  result: z.enum(["good", "again", "hard", "easy"]).optional(),
+  previousCycleIndex: z.number().optional(),
+  nextCycleIndex: z.number().optional(),
+  nextReviewAt: z.string().optional(),
+  response: z.string().optional(),
 });
 
 export const reviewRecordSchema = z.object({
   id: z.string(),
   sourceType: z.enum(["plan", "flashcard", "quiz", "mock", "manual"]),
   sourceId: z.string(),
-  status: z.enum(["scheduled", "due", "completed", "dismissed", "rescheduled"]),
+  status: z.enum(["scheduled", "due", "completed", "dismissed", "rescheduled", "cancelled"]),
   scheduledFor: z.string(),
+  originalScheduledFor: z.string().optional(),
   cycleIndex: z.number(),
   reason: z.string().optional(),
-  lastRating: z.enum(["good", "again", "hard"]).optional(),
+  lastResult: z.enum(["good", "again", "hard", "easy"]).optional(),
+  lastRating: z.enum(["good", "again", "hard", "easy"]).optional(),
   history: z.array(reviewHistoryEntrySchema),
   legacyBlockKey: z.string().optional(),
   legacyBlockLabel: z.string().optional(),
   legacyLeetcode: z.string().nullable().optional(),
   doneAt: z.string().optional(),
+  markedAt: z.string().optional(),
+  cancelledAt: z.string().optional(),
+  dismissedAt: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

@@ -2,17 +2,17 @@
 
 ## Problemas anteriores corrigidos
 
-| Problema | Solução |
-|----------|---------|
-| Cards largos com pouco conteúdo | Layout 2-colunas no desktop, cards com densidade adequada |
-| Recomendações ocupavam espaço demais | Substituídas por prioridades compactas (max 3 itens) |
-| Estado positivo em card grande | Banner inline de 1 linha |
-| Calendário de atividade pequeno | Componente dedicado com rows de dias |
-| Falta de progresso por categoria | Seção com barra por categoria usando cores reais |
-| Falta de resumo semanal | Widget de 7 dias + quick summary na coluna lateral |
-| Falta de identidade visual | Bordas coloridas por categoria, indicadores por status |
-| Sem período do plano no cabeçalho | Header com data, semana e período |
-| Refresh sem feedback | Botão com `Loader2` animado e `isRefreshing` state |
+| Problema                             | Solução                                                   |
+| ------------------------------------ | --------------------------------------------------------- |
+| Cards largos com pouco conteúdo      | Layout 2-colunas no desktop, cards com densidade adequada |
+| Recomendações ocupavam espaço demais | Substituídas por prioridades compactas (max 3 itens)      |
+| Estado positivo em card grande       | Banner inline de 1 linha                                  |
+| Calendário de atividade pequeno      | Componente dedicado com rows de dias                      |
+| Falta de progresso por categoria     | Seção com barra por categoria usando cores reais          |
+| Falta de resumo semanal              | Widget de 7 dias + quick summary na coluna lateral        |
+| Falta de identidade visual           | Bordas coloridas por categoria, indicadores por status    |
+| Sem período do plano no cabeçalho    | Header com data, semana e período                         |
+| Refresh sem feedback                 | Botão com `Loader2` animado e `isRefreshing` state        |
 
 ## Nova hierarquia do Dashboard
 
@@ -28,15 +28,15 @@
 
 ## Componentes criados
 
-| Arquivo | Responsabilidade |
-|---------|-----------------|
-| `dashboard-focus.tsx` | Estudo atual (2-col: foco + week quick summary) |
-| `dashboard-priorities.tsx` | Prioridades compactas (max 3) |
-| `dashboard-progress-section.tsx` | Progresso geral + por área (2 colunas) |
-| `dashboard-week-days.tsx` | Vista dos 7 dias da semana atual |
-| `dashboard-upcoming-enhanced.tsx` | Próximos estudos com mais contexto |
-| `dashboard-activity-enhanced.tsx` | Calendário de atividade com legenda clara |
-| `dashboard-consistency.tsx` | Consistência em grid compacto (4 métricas) |
+| Arquivo                           | Responsabilidade                                |
+| --------------------------------- | ----------------------------------------------- |
+| `dashboard-focus.tsx`             | Estudo atual (2-col: foco + week quick summary) |
+| `dashboard-priorities.tsx`        | Prioridades compactas (max 3)                   |
+| `dashboard-progress-section.tsx`  | Progresso geral + por área (2 colunas)          |
+| `dashboard-week-days.tsx`         | Vista dos 7 dias da semana atual                |
+| `dashboard-upcoming-enhanced.tsx` | Próximos estudos com mais contexto              |
+| `dashboard-activity-enhanced.tsx` | Calendário de atividade com legenda clara       |
+| `dashboard-consistency.tsx`       | Consistência em grid compacto (4 métricas)      |
 
 ## Componentes removidos
 
@@ -101,6 +101,7 @@ Substituem as antigas "recomendações". Máximo de 3 itens. Estado positivo vir
 ## Refresh sem flicker
 
 O hook `useDashboard` segue o mesmo padrão stale-while-revalidate da Entrega 05.3:
+
 - `refresh()` define `isRefreshing=true` e incrementa `rev`
 - O efeito busca novos dados sem tocar no estado `loading`
 - Dados existentes permanecem visíveis durante o re-fetch
