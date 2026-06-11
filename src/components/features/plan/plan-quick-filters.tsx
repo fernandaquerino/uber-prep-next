@@ -41,7 +41,7 @@ export function PlanQuickFilters({ active, counts, onChange }: PlanQuickFiltersP
               <span
                 className={cn(
                   "inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px] font-medium",
-                  isActive ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
+                  isActive ? "bg-white/90" : "bg-muted text-muted-foreground",
                 )}
                 aria-label={`(${count})`}
               >

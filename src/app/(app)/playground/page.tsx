@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/feedback/page-header";
-import { ComingSoonState } from "@/components/feedback/coming-soon-state";
+import Playground from "@/components/features/playground/playground";
 
 export const metadata: Metadata = {
   title: "Playground",
@@ -15,11 +15,7 @@ export default function PlaygroundPage() {
         title="Playground"
         description="Escreva e teste soluções de código com feedback imediato."
       />
-      <ComingSoonState
-        featureName="Playground"
-        delivery={12}
-        description="O playground incluirá editor Monaco, execução isolada via Web Worker e test runner. Será implementado na Entrega 12."
-      />
+      <Playground />
     </PageContainer>
   );
 }
