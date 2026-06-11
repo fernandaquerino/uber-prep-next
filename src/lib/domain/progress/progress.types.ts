@@ -55,6 +55,10 @@ export type PlanBlockProgress = {
   confidence?: number;
   notes?: string;
   patternUsed?: string;
+  solution?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  solutionNotes?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -100,6 +104,10 @@ export type EffectiveScheduledBlock = ScheduledStudyBlock & {
   confidence?: number;
   notes?: string;
   patternUsed?: string;
+  solution?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  solutionNotes?: string;
 };
 
 export type EffectiveScheduledDay = Omit<ScheduledStudyDay, "items"> & {

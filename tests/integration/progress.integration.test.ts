@@ -149,6 +149,7 @@ function createBaseSchedule() {
             title: `Block ${sequence}`,
             category: "algorithms",
             estimatedMinutes: 120,
+            type: "exercicio",
           },
         ],
       };

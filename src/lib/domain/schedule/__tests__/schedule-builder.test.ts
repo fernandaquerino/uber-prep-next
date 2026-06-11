@@ -158,8 +158,20 @@ describe("buildStudySchedule", () => {
         sequence: 1,
         title: "Day 1",
         blocks: [
-          { id: "same", title: "A", category: "algorithms", estimatedMinutes: 10 },
-          { id: "same", title: "B", category: "javascript", estimatedMinutes: 10 },
+          {
+            id: "same",
+            title: "A",
+            category: "algorithms",
+            estimatedMinutes: 10,
+            type: "exercicio",
+          },
+          {
+            id: "same",
+            title: "B",
+            category: "javascript",
+            estimatedMinutes: 10,
+            type: "exercicio",
+          },
         ],
       },
     ]);
@@ -213,7 +225,13 @@ describe("buildStudySchedule", () => {
           {
             ...createPlanDays(1)[0],
             blocks: [
-              { id: "invalid", title: "Invalid", category: "x", estimatedMinutes: Number.NaN },
+              {
+                id: "invalid",
+                title: "Invalid",
+                category: "x",
+                estimatedMinutes: Number.NaN,
+                type: "exercicio",
+              },
             ],
           },
         ]),

@@ -42,12 +42,14 @@ export function createPlanDays(count: number, minutesPerDay = 120): StudyPlanDay
           title: `Block ${sequence} A`,
           category: "algorithms",
           estimatedMinutes: Math.floor(minutesPerDay / 2),
+          type: "exercicio",
         },
         {
           id: `block-${sequence}-b`,
           title: `Block ${sequence} B`,
           category: "javascript",
           estimatedMinutes: Math.ceil(minutesPerDay / 2),
+          type: "exercicio",
         },
       ],
     };

@@ -38,6 +38,7 @@ export function buildEffectiveSchedule(
   const baseItems = baseSchedule.flatMap((day) =>
     day.items.map((item) => createEffectiveItem(item, day.date, progress, blockDates, options)),
   );
+
   const dateSet = new Set<string>(baseSchedule.map((day) => day.date));
 
   for (const item of baseItems) {
@@ -143,5 +144,9 @@ function createEffectiveItem(
     confidence: record?.confidence,
     notes: record?.notes,
     patternUsed: record?.patternUsed,
+    solution: record?.solution,
+    timeComplexity: record?.timeComplexity,
+    spaceComplexity: record?.spaceComplexity,
+    solutionNotes: record?.solutionNotes,
   };
 }

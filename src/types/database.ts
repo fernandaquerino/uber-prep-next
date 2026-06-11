@@ -44,6 +44,10 @@ export type PlanProgressRecord = {
   skippedAt?: string;
   notes?: string;
   patternUsed?: string;
+  solution?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  solutionNotes?: string;
   difficulty?: number;
   confidence?: number;
   actualMinutes?: number;
