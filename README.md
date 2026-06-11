@@ -1,36 +1,169 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Uber Prep
 
-## Getting Started
+Plataforma de preparação para entrevistas de engenharia de software. Local-first, sem backend, sem conta.
 
-First, run the development server:
+> **Estado atual:** Entrega 01 concluída — fundação técnica.
+> A Entrega 01 contém apenas a estrutura base. As regras de calendário, plano, progresso e revisão ainda não foram implementadas.
+
+---
+
+## Stack
+
+| Camada           | Tecnologia                             |
+| ---------------- | -------------------------------------- |
+| Framework        | Next.js 16 + App Router                |
+| Linguagem        | TypeScript strict                      |
+| Estilo           | Tailwind CSS v4                        |
+| Componentes      | shadcn/ui + Radix UI                   |
+| Ícones           | Lucide React                           |
+| Tema             | next-themes                            |
+| Notificações     | Sonner                                 |
+| Testes unitários | Vitest + React Testing Library         |
+| Testes E2E       | Playwright                             |
+| Lint             | ESLint (next/core-web-vitals)          |
+| Formatação       | Prettier + prettier-plugin-tailwindcss |
+| Persistência     | IndexedDB via Dexie _(Entrega 02)_     |
+
+---
+
+## Requisitos
+
+- Node.js >= 20
+- npm >= 10
+
+---
+
+## Instalação
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Comandos
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev           # Servidor de desenvolvimento em http://localhost:3000
+npm run build         # Build de produção
+npm run start         # Inicia servidor de produção (requer build)
+npm run typecheck     # Verificação de tipos TypeScript
+npm run lint          # ESLint
+npm run format        # Formatar arquivos com Prettier
+npm run format:check  # Verificar formatação sem alterar
+npm run test          # Testes unitários (Vitest)
+npm run test:watch    # Testes unitários em modo watch
+npm run test:e2e      # Testes E2E (Playwright) — requer build
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Estrutura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+  app/
+    (app)/           <- Grupo de rotas do app shell
+      dashboard/
+      plano/
+      revisar/
+      flashcards/
+      quizzes/
+      mocks/
+      playground/
+      notas/
+      recursos/
+      relatorios/
+      configuracoes/
+      layout.tsx     <- Shell: sidebar + header
+    error.tsx
+    global-error.tsx
+    loading.tsx
+    not-found.tsx
+    layout.tsx       <- Root layout: fonts, providers, skip link
+    page.tsx         <- Redirect -> /dashboard
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+  components/
+    ui/              <- shadcn/ui primitivos (gerados)
+    layout/          <- Shell do app (AppSidebar, AppHeader, etc.)
+    feedback/        <- Estados compartilhados (EmptyState, ErrorState, etc.)
 
-## Deploy on Vercel
+  features/          <- Funcionalidades por domínio (Entregas 05-16)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  shared/
+    constants/       <- NAV_ITEMS
+    types/           <- Tipos globais
+    utils/           <- Utilitários puros
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  test/
+    setup.ts         <- Configuração do Vitest + mocks
+
+tests/
+  e2e/               <- Testes Playwright
+
+docs/
+  architecture/
+    decisions.md
+  delivery-01-foundation.md
+```
+
+---
+
+## Rotas
+
+| Rota             | Entrega |
+| ---------------- | ------- |
+| `/dashboard`     | 06      |
+| `/plano`         | 05      |
+| `/revisar`       | 07      |
+| `/flashcards`    | 08      |
+| `/quizzes`       | 09      |
+| `/mocks`         | 11      |
+| `/playground`    | 12      |
+| `/notas`         | 13      |
+| `/recursos`      | 13      |
+| `/relatorios`    | 15      |
+| `/configuracoes` | 16      |
+
+---
+
+## Convenções
+
+- Server Components por padrão. `"use client"` apenas para componentes com estado de browser.
+- Sem estilos inline. Todos os estilos via classes Tailwind.
+- Cores via CSS variables (`--background`, `--primary`, etc.) definidas em `globals.css`.
+- Imports via alias `@/*` (mapeia para `src/`).
+- Testes unitários em `__tests__/` próximos ao componente testado.
+- Testes E2E em `tests/e2e/`.
+
+---
+
+## Entregas
+
+| #   | Escopo                                         | Status    |
+| --- | ---------------------------------------------- | --------- |
+| 01  | Fundação: Next.js, layout, rotas, tema, testes | Concluída |
+| 02  | IndexedDB, schema, migration, repositories     | Pendente  |
+| 03  | Domínio de calendário                          | Pendente  |
+| 04  | Progresso, reviews, spaced repetition          | Pendente  |
+| 05  | Página Plano                                   | Pendente  |
+| 06  | Dashboard                                      | Pendente  |
+| 07  | Revisão Hoje                                   | Pendente  |
+| 08  | Flashcards                                     | Pendente  |
+| 09  | Quizzes                                        | Pendente  |
+| 10  | Timer                                          | Pendente  |
+| 11  | Mocks                                          | Pendente  |
+| 12  | Playground                                     | Pendente  |
+| 13  | Notas + Recursos                               | Pendente  |
+| 14  | Retention metrics, skill tree, gamification    | Pendente  |
+| 15  | Relatórios semanais                            | Pendente  |
+| 16  | Configurações, polishing, PWA                  | Pendente  |
+
+---
+
+## Limitações atuais
+
+- Nenhuma regra de negócio implementada.
+- Nenhum dado persistido.
+- Todas as páginas mostram estado "em construção" com a entrega planejada.
+- Nenhuma métrica, readiness ou progresso é exibido (não existem ainda).
