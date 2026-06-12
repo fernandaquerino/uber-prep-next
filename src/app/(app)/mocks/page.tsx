@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/feedback/page-header";
-import { ComingSoonState } from "@/components/feedback/coming-soon-state";
+import { MocksScreen } from "@/components/features/mocks/mocks-screen";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const metadata: Metadata = {
   title: "Mocks",
@@ -13,13 +15,23 @@ export default function MocksPage() {
     <PageContainer>
       <PageHeader
         title="Mock Interviews"
-        description="Grave e avalie entrevistas simuladas de coding, system design e behavioral."
+        description="Registros, STAR, System Design, Full Loop e checklist de preparação."
       />
-      <ComingSoonState
-        featureName="Mock Interviews"
-        delivery={11}
-        description="Os mocks incluirão rubrica de avaliação, framework STAR e templates de system design. Será implementado na Entrega 11."
-      />
+      <Suspense
+        fallback={
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 rounded-xl" />
+              ))}
+            </div>
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+        }
+      >
+        <MocksScreen />
+      </Suspense>
     </PageContainer>
   );
 }

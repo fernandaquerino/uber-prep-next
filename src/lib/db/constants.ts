@@ -1,5 +1,5 @@
 export const DATABASE_NAME = "uber-prep";
-export const DATABASE_VERSION = 6;
+export const DATABASE_VERSION = 7;
 
 export const SETTINGS_ID = "app-settings" as const;
 export const ACTIVE_TIMER_ID = "active-timer" as const;
@@ -15,6 +15,7 @@ export const SEED_ID_QUIZ_QUESTIONS = "seed:initial-quiz-questions:v1";
 export const SEED_ID_SETTINGS = "seed:default-settings:v1";
 export const SEED_ID_TIMER_SETTINGS = "seed:timer-settings:v1";
 export const SEED_ID_METADATA = "seed:metadata:v1";
+export const SEED_ID_CHECKLIST = "seed:default-checklist:v1";
 
 // Max audio size (in bytes) before refusing to migrate base64 → Blob inline
 export const AUDIO_MIGRATION_MAX_BYTES = 5 * 1024 * 1024; // 5 MB

@@ -1,4 +1,4 @@
-import type { MockRecord, MockAudioRecord } from "@/types/database";
+import type { MockRecord, MockAudioRecord, MockEvidence, MockStatus } from "@/types/database";
 import type { UberPrepDatabase } from "@/lib/db/schema";
 import { DatabaseError } from "@/lib/db/errors";
 
@@ -7,6 +7,8 @@ export interface MocksRepository {
   findById(id: string): Promise<MockRecord | undefined>;
   list(): Promise<MockRecord[]>;
   listByType(type: string): Promise<MockRecord[]>;
+  listByStatus(status: MockStatus): Promise<MockRecord[]>;
+  listCompleted(): Promise<MockRecord[]>;
   upsert(record: MockRecord): Promise<void>;
   bulkUpsert(records: MockRecord[]): Promise<void>;
   delete(id: string): Promise<void>;
@@ -14,14 +16,22 @@ export interface MocksRepository {
   count(): Promise<number>;
 
   // Audio
+  findAudioById(id: string): Promise<MockAudioRecord | undefined>;
   findAudioByMockId(mockId: string): Promise<MockAudioRecord | undefined>;
   saveAudio(record: MockAudioRecord): Promise<void>;
   deleteAudio(id: string): Promise<void>;
   deleteAudioByMockId(mockId: string): Promise<void>;
   clearAudio(): Promise<void>;
+
+  // Evidence
+  listEvidenceByMockId(mockId: string): Promise<MockEvidence[]>;
+  saveEvidence(evidence: MockEvidence[]): Promise<void>;
+  deleteEvidenceByMockId(mockId: string): Promise<void>;
 }
 
 export function createMocksRepository(db: UberPrepDatabase): MocksRepository {
+  // ─── Mock Records ─────────────────────────────────────────────────────────────
+
   async function findById(id: string): Promise<MockRecord | undefined> {
     try {
       return await db.mocks.get(id);
@@ -43,6 +53,22 @@ export function createMocksRepository(db: UberPrepDatabase): MocksRepository {
       return await db.mocks.where("type").equals(type).toArray();
     } catch (err) {
       throw new DatabaseError(`Failed to list mocks by type ${type}`, err);
+    }
+  }
+
+  async function listByStatus(status: MockStatus): Promise<MockRecord[]> {
+    try {
+      return await db.mocks.where("status").equals(status).toArray();
+    } catch (err) {
+      throw new DatabaseError(`Failed to list mocks by status ${status}`, err);
+    }
+  }
+
+  async function listCompleted(): Promise<MockRecord[]> {
+    try {
+      return await db.mocks.where("status").equals("completed").toArray();
+    } catch (err) {
+      throw new DatabaseError("Failed to list completed mocks", err);
     }
   }
 
@@ -86,6 +112,16 @@ export function createMocksRepository(db: UberPrepDatabase): MocksRepository {
     }
   }
 
+  // ─── Audio ────────────────────────────────────────────────────────────────────
+
+  async function findAudioById(id: string): Promise<MockAudioRecord | undefined> {
+    try {
+      return await db.mockAudio.get(id);
+    } catch (err) {
+      throw new DatabaseError(`Failed to get audio ${id}`, err);
+    }
+  }
+
   async function findAudioByMockId(mockId: string): Promise<MockAudioRecord | undefined> {
     try {
       return await db.mockAudio.where("mockId").equals(mockId).first();
@@ -126,19 +162,51 @@ export function createMocksRepository(db: UberPrepDatabase): MocksRepository {
     }
   }
 
+  // ─── Evidence ─────────────────────────────────────────────────────────────────
+
+  async function listEvidenceByMockId(mockId: string): Promise<MockEvidence[]> {
+    try {
+      return await db.mockEvidence.where("mockId").equals(mockId).toArray();
+    } catch (err) {
+      throw new DatabaseError(`Failed to list evidence for mock ${mockId}`, err);
+    }
+  }
+
+  async function saveEvidence(evidence: MockEvidence[]): Promise<void> {
+    try {
+      await db.mockEvidence.bulkPut(evidence);
+    } catch (err) {
+      throw new DatabaseError("Failed to save mock evidence", err);
+    }
+  }
+
+  async function deleteEvidenceByMockId(mockId: string): Promise<void> {
+    try {
+      await db.mockEvidence.where("mockId").equals(mockId).delete();
+    } catch (err) {
+      throw new DatabaseError(`Failed to delete evidence for mock ${mockId}`, err);
+    }
+  }
+
   return {
     findById,
     list,
     listByType,
+    listByStatus,
+    listCompleted,
     upsert,
     bulkUpsert,
     delete: delete_,
     clear,
     count,
+    findAudioById,
     findAudioByMockId,
     saveAudio,
     deleteAudio,
     deleteAudioByMockId,
     clearAudio,
+    listEvidenceByMockId,
+    saveEvidence,
+    deleteEvidenceByMockId,
   };
 }

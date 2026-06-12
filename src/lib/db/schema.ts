@@ -3,10 +3,14 @@ import { DATABASE_NAME, DATABASE_VERSION } from "./constants";
 import type {
   ActiveTimerRecord,
   ChecklistItemRecord,
+  ChecklistSession,
   FlashcardRecord,
+  FullInterviewSession,
+  FullInterviewStep,
   LearningJournalRecord,
   MetadataRecord,
   MockAudioRecord,
+  MockEvidence,
   MockRecord,
   NoteRecord,
   PlanProgressRecord,
@@ -21,6 +25,8 @@ import type {
   ReviewRecord,
   ScheduleOverrideRecord,
   SettingsRecord,
+  StarAnswer,
+  SystemDesignDraft,
   TimerSettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
@@ -44,6 +50,12 @@ export class UberPrepDatabase extends Dexie {
   timerSettings!: Table<TimerSettingsRecord, string>;
   mocks!: Table<MockRecord, string>;
   mockAudio!: Table<MockAudioRecord, string>;
+  mockEvidence!: Table<MockEvidence, string>;
+  starAnswers!: Table<StarAnswer, string>;
+  systemDesignDrafts!: Table<SystemDesignDraft, string>;
+  fullInterviewSessions!: Table<FullInterviewSession, string>;
+  fullInterviewSteps!: Table<FullInterviewStep, string>;
+  checklistSessions!: Table<ChecklistSession, string>;
   notes!: Table<NoteRecord, string>;
   weeklyReflections!: Table<WeeklyReflectionRecord, string>;
   learningJournal!: Table<LearningJournalRecord, string>;
@@ -85,7 +97,6 @@ export class UberPrepDatabase extends Dexie {
     this.version(4)
       .stores(storesV4)
       .upgrade((tx) => {
-        // Backfill lifecycleStatus for all existing flashcards
         return tx
           .table("flashcards")
           .toCollection()
@@ -114,45 +125,107 @@ export class UberPrepDatabase extends Dexie {
       timerSettings: "id",
     };
 
+    this.version(6).stores(storesV6).upgrade((tx) =>
+      tx
+        .table("timerSessions")
+        .toCollection()
+        .modify((session) => {
+          const legacy = session as TimerSessionRecord & {
+            durationSeconds?: number;
+            presetSeconds?: number;
+            completedAt?: string;
+            weekNumber?: number;
+          };
+
+          if (legacy.actualDurationSeconds !== undefined) return;
+
+          const endedAt = legacy.completedAt ?? legacy.endedAt ?? legacy.startedAt;
+          const actualDurationSeconds = Math.max(0, legacy.durationSeconds ?? 0);
+          const targetDurationSeconds =
+            legacy.presetSeconds && legacy.presetSeconds > 0 ? legacy.presetSeconds : undefined;
+          const now = new Date().toISOString();
+
+          legacy.sourceType = "general";
+          legacy.category = legacy.category || "general";
+          legacy.title = "Sessão de foco migrada";
+          legacy.mode = targetDurationSeconds ? "countdown" : "stopwatch";
+          legacy.status = legacy.status === "completed" ? "completed" : "stopped_early";
+          legacy.targetDurationSeconds = targetDurationSeconds;
+          legacy.actualDurationSeconds = actualDurationSeconds;
+          legacy.endedAt = endedAt;
+          legacy.date = legacy.date ?? endedAt.slice(0, 10);
+          legacy.createdAt = legacy.createdAt ?? legacy.startedAt ?? now;
+          legacy.updatedAt = legacy.updatedAt ?? endedAt;
+
+          delete legacy.durationSeconds;
+          delete legacy.presetSeconds;
+          delete legacy.completedAt;
+          delete legacy.weekNumber;
+        }),
+    );
+
+    // v7: new mock-related tables + backfill MockRecord fields
+    const storesV7 = {
+      ...storesV6,
+      mocks: "id, date, type, status, updatedAt",
+      mockEvidence: "id, mockId, area, kind, createdAt",
+      starAnswers: "id, questionId, createdAt, updatedAt",
+      systemDesignDrafts: "id, templateId, updatedAt",
+      fullInterviewSessions: "id, status, createdAt, updatedAt",
+      fullInterviewSteps: "id, sessionId, type, status",
+      checklistSessions: "id, createdAt, updatedAt",
+    };
+
     this.version(DATABASE_VERSION)
-      .stores(storesV6)
-      .upgrade((tx) =>
-        tx
-          .table("timerSessions")
+      .stores(storesV7)
+      .upgrade((tx) => {
+        const now = new Date().toISOString();
+        return tx
+          .table("mocks")
           .toCollection()
-          .modify((session) => {
-            const legacy = session as TimerSessionRecord & {
-              durationSeconds?: number;
-              presetSeconds?: number;
-              completedAt?: string;
-              weekNumber?: number;
+          .modify((record: MockRecord) => {
+            // Backfill status
+            if (!record.status) {
+              record.status = "completed";
+            }
+            // Backfill title from legacy question field
+            if (!record.title) {
+              const src = record.question ?? record.prompt ?? "";
+              record.title = src.slice(0, 80) || "Mock sem título";
+            }
+            // Backfill updatedAt
+            if (!record.updatedAt) {
+              record.updatedAt = record.createdAt ?? now;
+            }
+            // Backfill arrays from legacy string fields
+            if (!Array.isArray(record.strengths)) {
+              const s = (record as MockRecord & { strengths?: string }).strengths;
+              record.strengths = s && typeof s === "string" && s.trim() ? [s.trim()] : [];
+            }
+            if (!Array.isArray(record.weaknesses)) {
+              const w = (record as MockRecord & { weaknesses?: string }).weaknesses;
+              record.weaknesses = w && typeof w === "string" && w.trim() ? [w.trim()] : [];
+            }
+            if (!Array.isArray(record.nextSteps)) {
+              const n = (record as MockRecord & { nextSteps?: string }).nextSteps;
+              record.nextSteps = n && typeof n === "string" && n.trim() ? [n.trim()] : [];
+            }
+            // Preserve legacy score as legacyScore if rubricResult is not present
+            if (record.readinessScore !== undefined && record.legacyScore === undefined) {
+              record.legacyScore = record.readinessScore;
+            }
+            // Normalize legacy mock type
+            const legacyTypeMap: Record<string, MockRecord["type"]> = {
+              Coding: "coding",
+              "Frontend Coding": "frontend_coding",
+              "System Design": "system_design",
+              Behavioral: "behavioral",
+              "Full Loop": "full_loop",
             };
-
-            if (legacy.actualDurationSeconds !== undefined) return;
-
-            const endedAt = legacy.completedAt ?? legacy.endedAt ?? legacy.startedAt;
-            const actualDurationSeconds = Math.max(0, legacy.durationSeconds ?? 0);
-            const targetDurationSeconds =
-              legacy.presetSeconds && legacy.presetSeconds > 0 ? legacy.presetSeconds : undefined;
-            const now = new Date().toISOString();
-
-            legacy.sourceType = "general";
-            legacy.category = legacy.category || "general";
-            legacy.title = "Sessão de foco migrada";
-            legacy.mode = targetDurationSeconds ? "countdown" : "stopwatch";
-            legacy.status = legacy.status === "completed" ? "completed" : "stopped_early";
-            legacy.targetDurationSeconds = targetDurationSeconds;
-            legacy.actualDurationSeconds = actualDurationSeconds;
-            legacy.endedAt = endedAt;
-            legacy.date = legacy.date ?? endedAt.slice(0, 10);
-            legacy.createdAt = legacy.createdAt ?? legacy.startedAt ?? now;
-            legacy.updatedAt = legacy.updatedAt ?? endedAt;
-
-            delete legacy.durationSeconds;
-            delete legacy.presetSeconds;
-            delete legacy.completedAt;
-            delete legacy.weekNumber;
-          }),
-      );
+            if (legacyTypeMap[record.type as string]) {
+              record.type = legacyTypeMap[record.type as string]!;
+            }
+          });
+      });
   }
 }

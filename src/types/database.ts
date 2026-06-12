@@ -385,32 +385,210 @@ export type TimerSettingsRecord = {
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
-export type MockType = "Coding" | "System Design" | "Behavioral" | "Full Loop";
+/** Legacy type values are preserved for migration compatibility */
+export type MockType =
+  | "coding"
+  | "frontend_coding"
+  | "system_design"
+  | "behavioral"
+  | "full_loop"
+  // Legacy values (kept for migration compat)
+  | "Coding"
+  | "Frontend Coding"
+  | "System Design"
+  | "Behavioral"
+  | "Full Loop";
+
+export type MockStatus = "draft" | "in_progress" | "completed" | "cancelled";
+
+export type MockSourceType =
+  | "manual"
+  | "star_question"
+  | "system_design_template"
+  | "full_interview"
+  | "plan";
+
+/** Rubric rating scale: 0 = not evaluated, 1-5 = quality */
+export type RubricRating = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type MockRubricCriterion = {
+  id: string;
+  label: string;
+  description?: string;
+  rating: RubricRating;
+};
+
+export type MockRubricResult = {
+  rubricDefinitionId: string;
+  version: number;
+  criteria: MockRubricCriterion[];
+  score: number | null;
+};
 
 export type MockRecord = {
   id: string;
   date: string;
   type: MockType;
-  question: string;
+  status: MockStatus;
+  title: string;
+
+  // Content
+  prompt?: string;
+  response?: string;
   solution?: string;
+
+  // Assessment
   feedback?: string;
-  strengths?: string;
-  weaknesses?: string;
-  nextSteps?: string;
+  strengths: string[];
+  weaknesses: string[];
+  nextSteps: string[];
+
+  // Rubric (new structured form)
+  rubricDefinitionId?: string;
+  rubricVersion?: number;
+  rubricResult?: MockRubricResult;
+  score?: number | null;
+
+  // Legacy fields kept for migration
+  question?: string;
   rubric?: Record<string, number>;
   readinessScore?: number;
+  legacyScore?: number;
+
+  // Links
+  sourceType?: MockSourceType;
+  sourceId?: string;
+  linkedPlanBlockId?: string;
+  linkedTimerSessionIds?: string[];
+  audioRecordingId?: string;
+
+  // Timestamps
   hasAudio: boolean;
+  durationSeconds?: number;
+  completedAt?: string;
   createdAt: string;
+  updatedAt: string;
 };
 
 export type MockAudioRecord = {
   id: string;
-  mockId: string;
+  mockId?: string;
   blob: Blob;
   mimeType: string;
   sizeBytes: number;
-  durationSeconds?: number;
+  durationSeconds: number;
   createdAt: string;
+};
+
+// ─── Mock Evidence ────────────────────────────────────────────────────────────
+
+export type MockEvidenceKind = "strength" | "gap";
+
+export type MockEvidence = {
+  id: string;
+  mockId: string;
+  area: string;
+  criterionId?: string;
+  kind: MockEvidenceKind;
+  description: string;
+  confidence: number;
+  createdAt: string;
+};
+
+// ─── STAR Answers ─────────────────────────────────────────────────────────────
+
+export type StarAnswer = {
+  id: string;
+  questionId: string;
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+  learning?: string;
+  conciseVersion?: string;
+  englishVersion?: string;
+  durationSeconds?: number;
+  audioRecordingId?: string;
+  selfRating?: RubricRating;
+  linkedMockId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─── System Design ────────────────────────────────────────────────────────────
+
+export type SystemDesignDraft = {
+  id: string;
+  templateId: string;
+  templateVersion: number;
+  answers: Record<string, string>;
+  checklistState: Record<string, boolean>;
+  linkedMockId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─── Full Interview ───────────────────────────────────────────────────────────
+
+export type FullInterviewStepType =
+  | "coding"
+  | "frontend_coding"
+  | "system_design"
+  | "behavioral"
+  | "reflection";
+
+export type FullInterviewStepStatus = "pending" | "in_progress" | "completed" | "skipped";
+
+export type FullInterviewStep = {
+  id: string;
+  sessionId: string;
+  type: FullInterviewStepType;
+  order: number;
+  sourceId?: string;
+  prompt?: string;
+  response?: string;
+  rubricResult?: MockRubricResult;
+  audioRecordingId?: string;
+  status: FullInterviewStepStatus;
+  durationSeconds?: number;
+  notes?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FullInterviewSession = {
+  id: string;
+  title: string;
+  status: MockStatus;
+  stepIds: string[];
+  currentStepIndex: number;
+  linkedMockIds?: string[];
+  startedAt?: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─── Checklist Sessions ───────────────────────────────────────────────────────
+
+export type ChecklistSessionItem = {
+  id: string;
+  group: string;
+  text: string;
+  isCustom: boolean;
+  checked: boolean;
+  checkedAt?: string;
+};
+
+export type ChecklistSession = {
+  id: string;
+  label?: string;
+  items: ChecklistSessionItem[];
+  completedCount: number;
+  totalCount: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // ─── Notes ────────────────────────────────────────────────────────────────────

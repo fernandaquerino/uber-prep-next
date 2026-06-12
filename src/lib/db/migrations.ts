@@ -10,6 +10,7 @@ import {
   legacyThemeSchema,
 } from "@/lib/validation/legacy.schemas";
 import { LEGACY_STORAGE_KEYS, MOCK_AUDIO_KEY_PREFIX } from "@/types/legacy";
+import { getMockTypeLabel } from "@/lib/domain/mocks/mock.types";
 import type {
   ChecklistItemRecord,
   FlashcardRecord,
@@ -105,6 +106,7 @@ async function migrateAudioForMock(
       blob,
       mimeType: mime,
       sizeBytes: blob.size,
+      durationSeconds: 0,
       createdAt: nowIso(),
     };
     await db.mockAudio.put(audioRecord);
@@ -249,16 +251,19 @@ async function migrateProgress(
       id,
       date: m.date,
       type,
+      status: "completed",
+      title: m.question ?? getMockTypeLabel(type),
       question: m.question,
       solution: m.solution,
       feedback: m.feedback,
-      strengths: m.strengths,
-      weaknesses: m.weaknesses,
-      nextSteps: m.nextSteps,
+      strengths: Array.isArray(m.strengths) ? m.strengths : [],
+      weaknesses: Array.isArray(m.weaknesses) ? m.weaknesses : [],
+      nextSteps: Array.isArray(m.nextSteps) ? m.nextSteps : [],
       rubric: m.rubric,
       readinessScore: m.readinessScore,
       hasAudio: m.hasAudio,
       createdAt,
+      updatedAt: createdAt,
     };
     await db.mocks.put(record);
     imported["mocks"] = (imported["mocks"] ?? 0) + 1;
