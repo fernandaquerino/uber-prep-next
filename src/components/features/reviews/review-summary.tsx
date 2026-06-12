@@ -9,7 +9,7 @@ export function ReviewSummary({ summary }: Props) {
   const { dueToday, overdue, completedToday, upcoming, durationFormatted } = summary;
 
   return (
-    <dl className="grid grid-cols-2 gap-2 lg:grid-cols-4" aria-label="Resumo de revisões">
+    <dl className="flex gap-2" aria-label="Resumo de revisões">
       <MetricCard
         icon={<BookOpen className="h-4 w-4" aria-hidden />}
         label="Devidas hoje"
@@ -60,7 +60,7 @@ function MetricCard({
   color: string;
 }) {
   return (
-    <div className="bg-card flex min-h-16 items-center gap-2 rounded-lg border px-3 py-2.5">
+    <div className="bg-card flex min-h-16 flex-1 items-center gap-2 rounded-lg border px-3 py-2.5">
       <span className={color}>{icon}</span>
       <div className="min-w-0">
         <dd className="text-foreground text-sm font-semibold">{value}</dd>

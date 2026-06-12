@@ -108,6 +108,8 @@ export function normalizeLegacyQuizQuestion(
   const group = question.group ?? "algorithms";
   const topic = question.topic ?? group;
 
+  console.log({ question });
+
   return {
     id: question.id,
     prompt: question.prompt.trim(),
