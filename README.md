@@ -2,8 +2,8 @@
 
 Plataforma de preparação para entrevistas de engenharia de software. Local-first, sem backend, sem conta.
 
-> **Estado atual:** Entrega 09 em implementação — Quizzes completos e integrados ao sistema de revisão.
-> As Entregas 01–09 têm implementação funcional no app local-first. Relatórios avançados, Timer e Mocks ainda não fazem parte deste recorte.
+> **Estado atual:** Entrega 10 concluída — Timer global, sessões de foco e histórico oficial de tempo.
+> As Entregas 01–10 têm implementação funcional no app local-first. Relatórios avançados e Mocks ainda não fazem parte deste recorte.
 
 ---
 
@@ -71,6 +71,7 @@ src/
       revisar/
       flashcards/
       quizzes/
+      timer/
       mocks/
       playground/
       notas/
@@ -101,8 +102,10 @@ src/
     domain/
       schedule/      <- Datas civis, disponibilidade semanal e scheduler puro
       progress/      <- Progresso do plano, agenda efetiva, shift e undo
+      timer/         <- Timer, duração, transições e agregações
     application/
       progress/      <- Casos de uso transacionais de progresso
+      timer/         <- Casos de uso transacionais do timer
     db/              <- Dexie schema, seed, migrations, constants, errors
     repositories/    <- 12 repositórios tipados
     data/            <- Dados iniciais (40 flashcards)
@@ -154,8 +157,9 @@ docs/
 | `/revisar`       | 07      |
 | `/flashcards`    | 08      |
 | `/quizzes`       | 09      |
-| `/mocks`         | 11      |
-| `/playground`    | 12      |
+| `/timer`         | 10      |
+| `/playground`    | 11      |
+| `/mocks`         | 12      |
 | `/notas`         | 13      |
 | `/recursos`      | 13      |
 | `/relatorios`    | 15      |
@@ -187,9 +191,9 @@ docs/
 | 07  | Revisão Hoje                                   | Concluída |
 | 08  | Flashcards                                     | Concluída |
 | 09  | Quizzes                                        | Concluída |
-| 10  | Timer                                          | Pendente  |
-| 11  | Mocks                                          | Pendente  |
-| 12  | Playground                                     | Pendente  |
+| 10  | Timer                                          | Concluída |
+| 11  | Playground                                     | Parcial   |
+| 12  | Mocks                                          | Pendente  |
 | 13  | Notas + Recursos                               | Pendente  |
 | 14  | Retention metrics, skill tree, gamification    | Pendente  |
 | 15  | Relatórios semanais                            | Pendente  |
@@ -217,11 +221,20 @@ docs/
 - Skip, restore e undo foram implementados no domínio e na camada de aplicação.
 - Persistência usa IndexedDB com tabelas de progresso, eventos e overrides.
 
+## Timer
+
+- Existe um timer global acessível pelo header e pela rota `/timer`.
+- Modos suportados: countdown e cronômetro.
+- Presets oficiais: 25, 45, 60 e 90 minutos.
+- O tempo oficial é salvo em `timerSessions` somente ao concluir ou encerrar uma sessão.
+- A sessão ativa fica separada em `activeTimer` e é restaurada após reload.
+- Sessões longas restauradas são pausadas para confirmação.
+- Plano, Revisar Hoje, Flashcards, Quizzes e Playground podem iniciar sessões de foco associadas.
+- Dashboard mostra sessão ativa e totais de hoje/semana.
+
 ## Limitações atuais
 
-- Revisões e repetição espaçada ainda não usam a agenda.
-- Dashboard, Plano e Revisar Hoje ainda não estão integrados ao scheduler.
-- A página Plano final ainda não foi implementada.
-- As páginas mostram estado "em construção" — o banco existe mas não há UI funcional ainda.
-- Nenhuma métrica, readiness ou progresso é exibido.
+- Configurações completas de timer ainda não aparecem em `/configuracoes`.
+- Mocks ainda não possuem fluxo real rastreável.
+- Readiness, relatórios avançados e tópicos de risco ainda não consomem todos os módulos.
 - Áudio de mocks não é incluído no backup JSON (apenas metadados).

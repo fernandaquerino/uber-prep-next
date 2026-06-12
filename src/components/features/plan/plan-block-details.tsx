@@ -13,11 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ExternalLinkIcon } from "lucide-react";
+import { Clock3, ExternalLinkIcon } from "lucide-react";
 import { PlanBlockForm } from "./plan-block-form";
 import { formatCalendarDate, formatMinutes, getStatusLabel } from "./plan-utils";
 import { getCategoryVisual, getBlockTypeLabel } from "@/lib/presentation/category-visuals";
 import type { UsePlanActionsResult } from "@/hooks/use-plan-actions";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 import { cn } from "@/lib/utils";
 
 type PlanBlockDetailsProps = {
@@ -267,12 +268,24 @@ function StatusTab({
   onMarkForReview,
   onUnmarkForReview,
 }: StatusTabProps) {
+  const timerActions = useTimerActions();
   const isCompleted = block.executionStatus === "completed";
   const isSkipped = block.executionStatus === "skipped";
   const isInProgress = block.executionStatus === "in_progress";
   const isStuck = block.executionStatus === "stuck";
   const isPending = block.executionStatus === "pending";
   const isReviewable = block.type !== "pausa";
+
+  function startFocus() {
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "plan_block",
+      sourceId: block.blockId,
+      category: block.category,
+      title: block.title,
+      targetDurationSeconds: Math.max(60, block.estimatedMinutes * 60),
+    });
+  }
 
   return (
     <div id="tab-panel-status" role="tabpanel" aria-label="Status" className="flex flex-col gap-4">
@@ -334,6 +347,13 @@ function StatusTab({
             }
           >
             {hasActiveReview ? "Remover da revisão" : "Marcar para revisar"}
+          </Button>
+        )}
+
+        {!isCompleted && !isSkipped && (
+          <Button size="sm" variant="ghost" onClick={startFocus} disabled={loading}>
+            <Clock3 className="h-3.5 w-3.5" aria-hidden />
+            Foco
           </Button>
         )}
 

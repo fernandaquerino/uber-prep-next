@@ -318,18 +318,69 @@ export type QuizReviewRecord = {
 
 // ─── Timer ────────────────────────────────────────────────────────────────────
 
-export type TimerSessionStatus = "completed" | "interrupted";
+export type TimerMode = "countdown" | "stopwatch";
+export type ActiveTimerStatus = "running" | "paused";
+export type TimerSourceType =
+  | "plan_block"
+  | "review"
+  | "flashcard_session"
+  | "quiz_session"
+  | "playground_solution"
+  | "mock"
+  | "manual"
+  | "general";
+
+export type TimerSessionStatus = "completed" | "stopped_early" | "cancelled";
+
+export type ActiveTimerRecord = {
+  id: "active-timer";
+  mode: TimerMode;
+  status: ActiveTimerStatus;
+  sourceType: TimerSourceType;
+  sourceId?: string;
+  category: string;
+  title: string;
+  targetDurationSeconds?: number;
+  startedAt: string;
+  lastResumedAt: string;
+  pausedAt?: string;
+  accumulatedSeconds: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type TimerSessionRecord = {
   id: string;
+  sourceType: TimerSourceType;
+  sourceId?: string;
   category: string;
-  durationSeconds: number;
-  presetSeconds: number;
-  startedAt: string;
-  completedAt: string;
-  date: string;
-  weekNumber?: number;
+  title: string;
+  mode: TimerMode;
   status: TimerSessionStatus;
+  targetDurationSeconds?: number;
+  actualDurationSeconds: number;
+  startedAt: string;
+  endedAt: string;
+  date: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TimerDefaultMode = TimerMode;
+
+export type TimerSettingsRecord = {
+  id: "timer-settings";
+  defaultMode: TimerDefaultMode;
+  defaultPresetSeconds: number;
+  soundEnabled: boolean;
+  notificationsEnabled: boolean;
+  confirmBeforeCancel: boolean;
+  showCompactTimer: boolean;
+  longSessionThresholdSeconds: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────

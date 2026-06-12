@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Loader2, RefreshCw } from "lucide-react";
+import { CalendarDays, Clock3, Loader2, RefreshCw } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +10,8 @@ import { ErrorState } from "@/components/feedback/error-state";
 import { PageContainer } from "@/components/layout/page-container";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { formatTimerDuration } from "@/lib/domain/timer";
+import { getCategoryVisual } from "@/lib/presentation/category-visuals";
 import { useDashboard } from "@/hooks/use-dashboard";
 import type { DashboardViewModel } from "@/lib/presentation/dashboard/dashboard-view-model";
 import { DashboardFocus } from "./dashboard-focus";
@@ -103,6 +105,67 @@ function DashboardHeader({
   );
 }
 
+function DashboardTimerSummary({ timer }: { timer: DashboardViewModel["timer"] }) {
+  const visual = timer.activeCategory ? getCategoryVisual(timer.activeCategory) : null;
+  const hasAnyTimerData = timer.activeTitle || timer.todaySeconds > 0 || timer.weekSeconds > 0;
+
+  return (
+    <section className="border-border bg-card/60 rounded-xl border p-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+            <Clock3 className="h-4 w-4" aria-hidden />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-sm font-semibold">Timer de foco</h2>
+            {timer.activeTitle ? (
+              <p className="text-muted-foreground text-sm">
+                <span
+                  className={`mr-2 inline-block h-2 w-2 rounded-full ${
+                    visual?.dot ?? "bg-muted-foreground"
+                  }`}
+                  aria-hidden
+                />
+                {timer.activeStatus === "paused" ? "Pausado" : "Em andamento"}: {timer.activeTitle}
+              </p>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                {hasAnyTimerData
+                  ? "Tempo oficial registrado pelas sessões de foco."
+                  : "Inicie uma sessão para registrar tempo real de estudo."}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-24">
+            <p className="text-muted-foreground text-xs">Hoje</p>
+            <p className="font-mono text-sm font-semibold">
+              {formatTimerDuration(timer.todaySeconds)}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {timer.todaySessionCount} sessão{timer.todaySessionCount === 1 ? "" : "ões"}
+            </p>
+          </div>
+          <div className="min-w-24">
+            <p className="text-muted-foreground text-xs">Semana</p>
+            <p className="font-mono text-sm font-semibold">
+              {formatTimerDuration(timer.weekSeconds)}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {timer.weekSessionCount} sessão{timer.weekSessionCount === 1 ? "" : "ões"}
+            </p>
+          </div>
+          <Link href="/timer" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+            Abrir timer
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Main content ─────────────────────────────────────────────────────────────
 
 function DashboardContent({ vm }: { vm: DashboardViewModel }) {
@@ -114,19 +177,22 @@ function DashboardContent({ vm }: { vm: DashboardViewModel }) {
       {/* 2. Prioridades compactas */}
       <DashboardPriorities priorities={vm.priorities} />
 
-      {/* 3. Progresso geral + por área */}
+      {/* 3. Timer de foco */}
+      <DashboardTimerSummary timer={vm.timer} />
+
+      {/* 4. Progresso geral + por área */}
       <DashboardProgressSection progress={vm.progress} categoryProgress={vm.categoryProgress} />
 
-      {/* 4. Semana atual — 7 dias */}
+      {/* 5. Semana atual — 7 dias */}
       <DashboardWeekDays currentWeek={vm.currentWeek} weekLabel={vm.weekQuickSummary.weekLabel} />
 
-      {/* 5. Próximos estudos + Atividade */}
+      {/* 6. Próximos estudos + Atividade */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardUpcomingEnhanced upcoming={vm.upcoming} />
         <DashboardActivityEnhanced activity={vm.activity} />
       </div>
 
-      {/* 6. Consistência */}
+      {/* 7. Consistência */}
       <DashboardConsistency consistency={vm.consistency} />
     </div>
   );

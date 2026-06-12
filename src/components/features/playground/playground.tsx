@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Clock3 } from "lucide-react";
 import FrontEndDrills from "./front-end-drills";
 import PlaygroundEditor from "./playground-editor";
 import PlaygroundSaved from "./playground-saved";
@@ -9,6 +10,7 @@ import { createPlaygroundRepository } from "@/lib/repositories/playground.reposi
 import type { PlaygroundSolutionRecord } from "@/types/database";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 import {
   createSolutionId,
   normalizeStoredTestCases,
@@ -85,6 +87,7 @@ export type SaveMeta = {
 };
 
 export default function Playground() {
+  const timerActions = useTimerActions();
   const [activeTab, setActiveTab] = useState<ActiveTab>("editor");
   const [code, setCode] = useState(DEFAULT_CODE);
   const [output, setOutput] = useState<string[]>([]);
@@ -207,6 +210,19 @@ export default function Playground() {
     setTestResults([]);
     setSavePanel(false);
     setActiveTab("editor");
+  }
+
+  function startPlaygroundFocus() {
+    const title = saveMeta.name.trim() || "Playground";
+
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "playground_solution",
+      sourceId: editingId ?? undefined,
+      category: saveMeta.topic.trim() || "fe_coding",
+      title: `Playground: ${title}`,
+      targetDurationSeconds: 45 * 60,
+    });
   }
 
   async function handleSave() {
@@ -393,6 +409,10 @@ export default function Playground() {
         <div className="flex-1" />
         {activeTab === "editor" && (
           <>
+            <Button variant="outline" onClick={startPlaygroundFocus}>
+              <Clock3 className="h-4 w-4" aria-hidden />
+              Foco
+            </Button>
             <Button variant="outline" onClick={newSolution}>
               Nova
             </Button>

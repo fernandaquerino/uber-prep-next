@@ -2,7 +2,8 @@
 
 import type { EffectiveScheduledBlock, PlanBlockExecutionStatus } from "@/lib/domain/progress";
 import { Button } from "@/components/ui/button";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, Clock3 } from "lucide-react";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 import { formatMinutes, formatCalendarDate } from "./plan-utils";
 import { getBlockTypeLabel, getCategoryVisual } from "@/lib/presentation/category-visuals";
 import { getBlockActions } from "@/lib/presentation/plan-view-models";
@@ -42,6 +43,7 @@ export function PlanBlockCard({
   onReschedule,
   onOpen,
 }: PlanBlockCardProps) {
+  const timerActions = useTimerActions();
   const { executionStatus, isOverdue, isRescheduled } = block;
   const isCompleted = executionStatus === "completed";
   const isSkipped = executionStatus === "skipped";
@@ -77,6 +79,17 @@ export function PlanBlockCard({
         onReturnToPending();
         break;
     }
+  }
+
+  function startFocus() {
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "plan_block",
+      sourceId: block.blockId,
+      category: block.category,
+      title: block.title,
+      targetDurationSeconds: Math.max(60, block.estimatedMinutes * 60),
+    });
   }
 
   return (
@@ -177,6 +190,21 @@ export function PlanBlockCard({
             <CheckIcon className="h-3 w-3 text-green-600 dark:text-green-400" aria-hidden />
             Concluído
           </span>
+        )}
+
+        {!isCompleted && !isSkipped && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-6 px-2 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              startFocus();
+            }}
+          >
+            <Clock3 className="mr-1 h-3 w-3" aria-hidden />
+            Foco
+          </Button>
         )}
 
         <span className="flex-1" />

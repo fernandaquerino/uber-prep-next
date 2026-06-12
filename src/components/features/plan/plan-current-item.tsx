@@ -2,10 +2,11 @@
 
 import type { CurrentStudyState } from "@/lib/domain/progress";
 import { Button } from "@/components/ui/button";
-import { PlayIcon, AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
+import { PlayIcon, AlertTriangleIcon, CheckCircle2Icon, Clock3 } from "lucide-react";
 import { formatMinutes } from "./plan-utils";
 import { getCategoryVisual } from "@/lib/presentation/category-visuals";
 import { cn } from "@/lib/utils";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 
 type PlanCurrentItemProps = {
   currentStudyState: CurrentStudyState;
@@ -18,6 +19,7 @@ export function PlanCurrentItem({
   onStartBlock,
   onOpenBlock,
 }: PlanCurrentItemProps) {
+  const timerActions = useTimerActions();
   const { currentItem, overdueItems, isPlanCompleted } = currentStudyState;
 
   if (isPlanCompleted) {
@@ -41,9 +43,21 @@ export function PlanCurrentItem({
 
   if (!currentItem) return null;
 
-  const isOverdue = currentItem.isOverdue;
-  const isInProgress = currentItem.executionStatus === "in_progress";
-  const visual = getCategoryVisual(currentItem.category);
+  const item = currentItem;
+  const isOverdue = item.isOverdue;
+  const isInProgress = item.executionStatus === "in_progress";
+  const visual = getCategoryVisual(item.category);
+
+  function startFocus() {
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "plan_block",
+      sourceId: item.blockId,
+      category: item.category,
+      title: item.title,
+      targetDurationSeconds: Math.max(60, item.estimatedMinutes * 60),
+    });
+  }
 
   return (
     <div className="rounded-lg border p-4">
@@ -91,25 +105,31 @@ export function PlanCurrentItem({
           </div>
         </div>
 
-        {!isInProgress && currentItem.executionStatus === "pending" && (
-          <Button
-            size="sm"
-            onClick={() => onStartBlock(currentItem.blockId)}
-            aria-label={`Iniciar bloco: ${currentItem.title}`}
-          >
-            <PlayIcon className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-            Iniciar
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={startFocus}>
+            <Clock3 className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+            Foco
           </Button>
-        )}
-        {isInProgress && (
-          <Button
-            size="sm"
-            onClick={() => onOpenBlock(currentItem.blockId)}
-            aria-label={`Continuar bloco: ${currentItem.title}`}
-          >
-            Continuar
-          </Button>
-        )}
+          {!isInProgress && currentItem.executionStatus === "pending" && (
+            <Button
+              size="sm"
+              onClick={() => onStartBlock(currentItem.blockId)}
+              aria-label={`Iniciar bloco: ${currentItem.title}`}
+            >
+              <PlayIcon className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+              Iniciar
+            </Button>
+          )}
+          {isInProgress && (
+            <Button
+              size="sm"
+              onClick={() => onOpenBlock(currentItem.blockId)}
+              aria-label={`Continuar bloco: ${currentItem.title}`}
+            >
+              Continuar
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

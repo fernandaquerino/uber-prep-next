@@ -150,6 +150,41 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     // Non-fatal: if reviews module fails, dashboard still loads
   }
 
+  const timer = await (async () => {
+    try {
+      const [{ getTimerDailySummary, getTimerWeeklySummary }, { getWeekRange }] = await Promise.all(
+        [import("@/lib/domain/timer"), import("@/lib/application/timer")],
+      );
+      const [sessions, activeTimer] = await Promise.all([
+        db.timerSessions.toArray(),
+        db.activeTimer.toCollection().first(),
+      ]);
+      const weekRange = getWeekRange(today);
+      const todaySummary = getTimerDailySummary(sessions, today);
+      const weekSummary = getTimerWeeklySummary(sessions, weekRange.start, weekRange.end);
+
+      return {
+        activeTitle: activeTimer?.title ?? null,
+        activeStatus: activeTimer?.status ?? null,
+        activeCategory: activeTimer?.category ?? null,
+        todaySeconds: todaySummary.totalSeconds,
+        todaySessionCount: todaySummary.sessionCount,
+        weekSeconds: weekSummary.totalSeconds,
+        weekSessionCount: weekSummary.sessionCount,
+      };
+    } catch {
+      return {
+        activeTitle: null,
+        activeStatus: null,
+        activeCategory: null,
+        todaySeconds: 0,
+        todaySessionCount: 0,
+        weekSeconds: 0,
+        weekSessionCount: 0,
+      };
+    }
+  })();
+
   const viewModel = buildDashboardViewModel({
     today,
     startDate,
@@ -160,6 +195,7 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     activityDays,
     streak,
     dueReviewCount,
+    timer,
   });
 
   return { kind: "ready", viewModel };

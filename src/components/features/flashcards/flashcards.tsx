@@ -31,6 +31,7 @@ import { FlashcardSummaryCards } from "@/components/features/flashcards/flashcar
 import { useFlashcardActions } from "@/hooks/use-flashcard-actions";
 import { useFlashcardStudySession } from "@/hooks/use-flashcard-study-session";
 import { useFlashcards } from "@/hooks/use-flashcards";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 import {
   applyFlashcardFilters,
   findPotentialDuplicateFlashcards,
@@ -115,6 +116,7 @@ async function getDb() {
 }
 
 export default function FlashCards() {
+  const timerActions = useTimerActions();
   const { data, isLoading, isRefreshing, error, refresh } = useFlashcards();
   const actions = useFlashcardActions(refresh);
   const studySession = useFlashcardStudySession(actions.answerFlashcard);
@@ -379,6 +381,21 @@ export default function FlashCards() {
     studySession.answer(currentStudyCard.flashcardId, result);
   }
 
+  function startFlashcardFocus() {
+    if (!studySession.session) return;
+    const category =
+      currentStudyCard?.category ?? studySession.session.cards[0]?.category ?? "general";
+
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "flashcard_session",
+      sourceId: studySession.session.sessionId,
+      category,
+      title: "Sessão de flashcards",
+      targetDurationSeconds: 25 * 60,
+    });
+  }
+
   if (isLoading) {
     return <FlashcardsSkeleton />;
   }
@@ -496,6 +513,9 @@ export default function FlashCards() {
               <p className="text-muted-foreground text-sm">{studyProgress}</p>
             </div>
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={startFlashcardFocus}>
+                Iniciar foco
+              </Button>
               {!currentStudyCard && (
                 <Button onClick={studySession.endSession}>Finalizar sessão</Button>
               )}

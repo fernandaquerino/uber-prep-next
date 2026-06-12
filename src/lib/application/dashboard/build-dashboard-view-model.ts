@@ -25,6 +25,7 @@ import type {
   DashboardUpcomingItemViewModel,
   DashboardActivityViewModel,
   DashboardConsistencyViewModel,
+  DashboardTimerViewModel,
   WeekDayStatus,
   ActivityDayViewModel,
 } from "@/lib/presentation/dashboard/dashboard-view-model";
@@ -405,6 +406,7 @@ export type BuildDashboardViewModelInput = {
   activityDays: ActivityDay[];
   streak: DashboardStreak;
   dueReviewCount?: number;
+  timer: DashboardTimerViewModel;
 };
 
 export function buildDashboardViewModel(input: BuildDashboardViewModelInput): DashboardViewModel {
@@ -418,6 +420,7 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     activityDays,
     streak,
     dueReviewCount = 0,
+    timer,
   } = input;
 
   const planEnd = effectiveSchedule.at(-1)?.date ?? startDate;
@@ -456,5 +459,6 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     upcoming,
     activity,
     consistency,
+    timer,
   };
 }

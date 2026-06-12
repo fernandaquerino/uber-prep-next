@@ -2,46 +2,53 @@
 
 Banco de dados local: **IndexedDB** via **Dexie 4**  
 Nome: `uber-prep`  
-Versão: `1`
+Versão: `6`
 
 ## Tabelas
 
-| Tabela                | Chave primária | Índices secundários                                                         |
-| --------------------- | -------------- | --------------------------------------------------------------------------- |
-| `settings`            | `id`           | —                                                                           |
-| `planProgress`        | `id`           | `blockId`, `status`, `scheduledDate`, `planDayId`, `planDaySequence`        |
-| `progressEvents`      | `id`           | `blockId`, `type`, `occurredAt`, `actionGroupId`                            |
-| `scheduleOverrides`   | `id`           | `blockId`, `type`, `fromDate`, `toDate`, `actionGroupId`                    |
-| `reviews`             | `id`           | `sourceType`, `sourceId`, `scheduledFor`, `status`, `[status+scheduledFor]` |
-| `flashcards`          | `id`           | `category`, `*tags` (multi), `status`, `nextReview`                         |
-| `quizAttempts`        | `id`           | `mode`, `dailyDate`, `createdAt`                                            |
-| `quizReviews`         | `id`           | `questionId`, `nextReview`, `cycleIndex`                                    |
-| `timerSessions`       | `id`           | `startedAt`, `category`                                                     |
-| `mocks`               | `id`           | `date`, `type`                                                              |
-| `mockAudio`           | `id`           | `mockId`, `createdAt`                                                       |
-| `notes`               | `id`           | `type`, `category`, `topicId`, `updatedAt`                                  |
-| `weeklyReflections`   | `id`           | `weekNumber`                                                                |
-| `learningJournal`     | `id`           | `date`                                                                      |
-| `playgroundSolutions` | `id`           | `language`, `updatedAt`                                                     |
-| `checklistItems`      | `id`           | `phase`                                                                     |
-| `metadata`            | `id`           | —                                                                           |
+| Tabela                | Chave primária | Índices secundários                                                                    |
+| --------------------- | -------------- | -------------------------------------------------------------------------------------- |
+| `settings`            | `id`           | —                                                                                      |
+| `planProgress`        | `id`           | `blockId`, `status`, `scheduledDate`, `planDayId`, `planDaySequence`                   |
+| `progressEvents`      | `id`           | `blockId`, `type`, `occurredAt`, `actionGroupId`                                       |
+| `scheduleOverrides`   | `id`           | `blockId`, `type`, `fromDate`, `toDate`, `actionGroupId`                               |
+| `reviews`             | `id`           | `sourceType`, `sourceId`, `scheduledFor`, `status`, `[status+scheduledFor]`            |
+| `flashcards`          | `id`           | `category`, `*tags` (multi), `status`, `nextReview`                                    |
+| `quizAttempts`        | `id`           | `mode`, `dailyDate`, `createdAt`                                                       |
+| `quizReviews`         | `id`           | `questionId`, `nextReview`, `cycleIndex`                                               |
+| `activeTimer`         | `id`           | `status`, `sourceType`, `sourceId`, `category`, `updatedAt`                            |
+| `timerSessions`       | `id`           | `date`, `startedAt`, `endedAt`, `category`, `sourceType`, `sourceId`, `status`, `mode` |
+| `timerSettings`       | `id`           | —                                                                                      |
+| `mocks`               | `id`           | `date`, `type`                                                                         |
+| `mockAudio`           | `id`           | `mockId`, `createdAt`                                                                  |
+| `notes`               | `id`           | `type`, `category`, `topicId`, `updatedAt`                                             |
+| `weeklyReflections`   | `id`           | `weekNumber`                                                                           |
+| `learningJournal`     | `id`           | `date`                                                                                 |
+| `playgroundSolutions` | `id`           | `language`, `updatedAt`                                                                |
+| `checklistItems`      | `id`           | `phase`                                                                                |
+| `metadata`            | `id`           | —                                                                                      |
 
 ## Registros singleton
 
 - `settings` — sempre `id = "app-settings"`
 - `metadata` — sempre `id = "app-metadata"`
+- `activeTimer` — quando existir, sempre `id = "active-timer"`
+- `timerSettings` — sempre `id = "timer-settings"`
 
 ## Constantes
 
 ```ts
 DATABASE_NAME = "uber-prep";
-DATABASE_VERSION = 2;
+DATABASE_VERSION = 6;
 SETTINGS_ID = "app-settings";
 METADATA_ID = "app-metadata";
+ACTIVE_TIMER_ID = "active-timer";
+TIMER_SETTINGS_ID = "timer-settings";
 AUDIO_MIGRATION_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 SEED_ID_FLASHCARDS = "seed:initial-flashcards:v1";
 SEED_ID_SETTINGS = "seed:default-settings:v1";
 SEED_ID_METADATA = "seed:metadata:v1";
+SEED_ID_TIMER_SETTINGS = "seed:timer-settings:v1";
 ```
 
 ## SSR Safety

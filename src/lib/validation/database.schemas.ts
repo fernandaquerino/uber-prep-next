@@ -127,6 +127,73 @@ export const flashcardRecordSchema = z.object({
   updatedAt: z.string(),
 });
 
+export const activeTimerRecordSchema = z.object({
+  id: z.literal("active-timer"),
+  mode: z.enum(["countdown", "stopwatch"]),
+  status: z.enum(["running", "paused"]),
+  sourceType: z.enum([
+    "plan_block",
+    "review",
+    "flashcard_session",
+    "quiz_session",
+    "playground_solution",
+    "mock",
+    "manual",
+    "general",
+  ]),
+  sourceId: z.string().optional(),
+  category: z.string(),
+  title: z.string(),
+  targetDurationSeconds: z.number().optional(),
+  startedAt: z.string(),
+  lastResumedAt: z.string(),
+  pausedAt: z.string().optional(),
+  accumulatedSeconds: z.number(),
+  notes: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const timerSessionRecordSchema = z.object({
+  id: z.string(),
+  sourceType: z.enum([
+    "plan_block",
+    "review",
+    "flashcard_session",
+    "quiz_session",
+    "playground_solution",
+    "mock",
+    "manual",
+    "general",
+  ]),
+  sourceId: z.string().optional(),
+  category: z.string(),
+  title: z.string(),
+  mode: z.enum(["countdown", "stopwatch"]),
+  status: z.enum(["completed", "stopped_early", "cancelled"]),
+  targetDurationSeconds: z.number().optional(),
+  actualDurationSeconds: z.number(),
+  startedAt: z.string(),
+  endedAt: z.string(),
+  date: z.string(),
+  notes: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export const timerSettingsRecordSchema = z.object({
+  id: z.literal("timer-settings"),
+  defaultMode: z.enum(["countdown", "stopwatch"]),
+  defaultPresetSeconds: z.number(),
+  soundEnabled: z.boolean(),
+  notificationsEnabled: z.boolean(),
+  confirmBeforeCancel: z.boolean(),
+  showCompactTimer: z.boolean(),
+  longSessionThresholdSeconds: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
 export const metadataRecordSchema = z.object({
   id: z.literal("app-metadata"),
   schemaVersion: z.number(),

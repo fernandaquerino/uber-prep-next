@@ -168,6 +168,18 @@ export type DashboardConsistencyViewModel = {
   streakDescription: string;
 };
 
+// ─── Timer ───────────────────────────────────────────────────────────────────
+
+export type DashboardTimerViewModel = {
+  activeTitle: string | null;
+  activeStatus: "running" | "paused" | null;
+  activeCategory: string | null;
+  todaySeconds: number;
+  todaySessionCount: number;
+  weekSeconds: number;
+  weekSessionCount: number;
+};
+
 // ─── Full view model ─────────────────────────────────────────────────────────
 
 export type DashboardViewModel = {
@@ -181,6 +193,7 @@ export type DashboardViewModel = {
   upcoming: DashboardUpcomingItemViewModel[];
   activity: DashboardActivityViewModel;
   consistency: DashboardConsistencyViewModel;
+  timer: DashboardTimerViewModel;
 };
 
 // ─── Page states ─────────────────────────────────────────────────────────────

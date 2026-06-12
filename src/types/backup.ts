@@ -1,4 +1,5 @@
 import type {
+  ActiveTimerRecord,
   ChecklistItemRecord,
   FlashcardRecord,
   LearningJournalRecord,
@@ -14,6 +15,7 @@ import type {
   ReviewRecord,
   ScheduleOverrideRecord,
   SettingsRecord,
+  TimerSettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
 } from "./database";
@@ -32,7 +34,9 @@ export type BackupData = {
   flashcards: FlashcardRecord[];
   quizAttempts: QuizAttemptRecord[];
   quizReviews: QuizReviewRecord[];
+  activeTimer: ActiveTimerRecord[];
   timerSessions: TimerSessionRecord[];
+  timerSettings: TimerSettingsRecord[];
   mocks: MockRecord[];
   notes: NoteRecord[];
   weeklyReflections: WeeklyReflectionRecord[];

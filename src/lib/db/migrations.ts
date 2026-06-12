@@ -1,6 +1,7 @@
 import type { UberPrepDatabase } from "./schema";
-import { AUDIO_MIGRATION_MAX_BYTES, METADATA_ID, SETTINGS_ID } from "./constants";
+import { ACTIVE_TIMER_ID, AUDIO_MIGRATION_MAX_BYTES, METADATA_ID, SETTINGS_ID } from "./constants";
 import {
+  legacyActiveTimerSchema,
   legacyChecklistDataSchema,
   legacyFlashcardsDataSchema,
   legacyProgressDataSchema,
@@ -37,6 +38,11 @@ import { DATABASE_VERSION } from "./constants";
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function normalizeTimerCategory(category: string | undefined): string {
+  if (!category || category === "geral") return "general";
+  return category;
 }
 
 function safeId(value: string | number | undefined, fallback: string): string {
@@ -534,18 +540,77 @@ async function migrateTimerSessions(
 
     const record: TimerSessionRecord = {
       id,
-      category: s.category,
-      durationSeconds: s.duration ?? 0,
-      presetSeconds: s.preset ?? 0,
+      sourceType: "general",
+      category: normalizeTimerCategory(s.category),
+      title: "Sessão de foco migrada",
+      mode: s.preset ? "countdown" : "stopwatch",
+      targetDurationSeconds: s.preset && s.preset > 0 ? s.preset : undefined,
+      actualDurationSeconds: Math.max(0, s.duration ?? 0),
       startedAt: s.completedAt ?? now,
-      completedAt: s.completedAt ?? now,
+      endedAt: s.completedAt ?? now,
       date: s.date ?? (s.completedAt ? s.completedAt.slice(0, 10) : now.slice(0, 10)),
-      weekNumber: s.weekNumber,
       status: "completed",
+      createdAt: s.completedAt ?? now,
+      updatedAt: now,
     };
     await db.timerSessions.put(record);
     imported["timerSessions"] = (imported["timerSessions"] ?? 0) + 1;
   }
+}
+
+async function migrateActiveTimer(
+  db: UberPrepDatabase,
+  imported: Record<string, number>,
+  skipped: Record<string, number>,
+  conflicts: MigrationIssue[],
+  invalidRecords: MigrationIssue[],
+): Promise<void> {
+  const raw = parseJson(readLocalStorage(LEGACY_STORAGE_KEYS.activeTimer));
+  if (!raw) return;
+
+  const result = legacyActiveTimerSchema.safeParse(raw);
+  if (!result.success) {
+    invalidRecords.push({ source: "activeTimer", reason: "Top-level parse failed" });
+    return;
+  }
+
+  const existing = await db.activeTimer.get(ACTIVE_TIMER_ID);
+  if (existing) {
+    conflicts.push({
+      source: "activeTimer",
+      id: ACTIVE_TIMER_ID,
+      reason: "existing DB record kept",
+    });
+    skipped["activeTimer"] = (skipped["activeTimer"] ?? 0) + 1;
+    return;
+  }
+
+  const timer = result.data;
+  const totalSeconds = timer.total ?? timer.preset;
+  const inferredElapsed =
+    timer.savedElapsed ??
+    (typeof timer.total === "number" && typeof timer.remaining === "number"
+      ? timer.total - timer.remaining
+      : 0);
+  const now = nowIso();
+
+  await db.activeTimer.put({
+    id: ACTIVE_TIMER_ID,
+    mode: totalSeconds && totalSeconds > 0 ? "countdown" : "stopwatch",
+    status: "paused",
+    sourceType: "general",
+    category: normalizeTimerCategory(timer.category),
+    title: "Timer antigo restaurado",
+    targetDurationSeconds: totalSeconds && totalSeconds > 0 ? totalSeconds : undefined,
+    startedAt: timer.updatedAt ? new Date(timer.updatedAt).toISOString() : now,
+    lastResumedAt: now,
+    pausedAt: now,
+    accumulatedSeconds: Math.max(0, inferredElapsed),
+    notes: "Timer ativo legado migrado pausado para confirmação.",
+    createdAt: now,
+    updatedAt: now,
+  });
+  imported["activeTimer"] = (imported["activeTimer"] ?? 0) + 1;
 }
 
 async function migrateChecklist(
@@ -609,6 +674,7 @@ export async function runLegacyMigration(db: UberPrepDatabase): Promise<Migratio
   if (readLocalStorage(LEGACY_STORAGE_KEYS.flashcards)) sourcesFound.push("flashcards");
   if (readLocalStorage(LEGACY_STORAGE_KEYS.quizzes)) sourcesFound.push("quizzes");
   if (readLocalStorage(LEGACY_STORAGE_KEYS.timerSessions)) sourcesFound.push("timerSessions");
+  if (readLocalStorage(LEGACY_STORAGE_KEYS.activeTimer)) sourcesFound.push("activeTimer");
   if (readLocalStorage(LEGACY_STORAGE_KEYS.checklist)) sourcesFound.push("checklist");
 
   if (sourcesFound.length === 0) {
@@ -630,6 +696,7 @@ export async function runLegacyMigration(db: UberPrepDatabase): Promise<Migratio
     await migrateFlashcards(db, imported, skipped, conflicts, invalidRecords);
     await migrateQuizzes(db, imported, skipped, conflicts, invalidRecords);
     await migrateTimerSessions(db, imported, skipped, conflicts, invalidRecords);
+    await migrateActiveTimer(db, imported, skipped, conflicts, invalidRecords);
     await migrateChecklist(db, imported, skipped, conflicts, invalidRecords);
 
     const hasProblems = invalidRecords.length > 0 || audioFailures.length > 0;

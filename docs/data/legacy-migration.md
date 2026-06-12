@@ -10,6 +10,7 @@ Migração one-time e idempotente do `localStorage` para o IndexedDB.
 | `uber-prep-flashcards`      | `flashcards`                                                                                                                         |
 | `uber-prep-quizzes`         | `quizAttempts`, `quizReviews`                                                                                                        |
 | `uber-prep-timer-sessions`  | `timerSessions`                                                                                                                      |
+| `uber-prep-active-timer`    | `activeTimer`                                                                                                                        |
 | `uber-prep-checklist`       | `checklistItems`                                                                                                                     |
 | `uber-prep-theme`           | `settings.theme`                                                                                                                     |
 | `uber-prep-mock-audio-{id}` | `mockAudio` (Blob)                                                                                                                   |
@@ -19,8 +20,9 @@ Migração one-time e idempotente do `localStorage` para o IndexedDB.
 1. **Idempotência**: Verifica `metadata.migrationStatus === "completed"` antes de iniciar. Segunda execução retorna o relatório já salvo.
 2. **Conflitos**: Registros já existentes no IndexedDB têm prioridade. O registro legado é descartado com log em `conflicts`.
 3. **Validação tolerante**: Schemas Zod com `.strip()`, `.catch()` e `.default()`. Registros individuais inválidos são descartados sem abortar a migração.
-4. **Áudio**: Base64 → Blob. Arquivos > 5MB são ignorados com log em `audioFailures`. Falhas individuais não abortam a migração.
-5. **Status de resultado**: `"completed"` (sem problemas), `"partial"` (registros inválidos ou áudio com falha), `"failed"` (erro inesperado).
+4. **Timer ativo**: um timer legado em andamento é restaurado pausado em `activeTimer`, sem criar sessão histórica automaticamente.
+5. **Áudio**: Base64 → Blob. Arquivos > 5MB são ignorados com log em `audioFailures`. Falhas individuais não abortam a migração.
+6. **Status de resultado**: `"completed"` (sem problemas), `"partial"` (registros inválidos ou áudio com falha), `"failed"` (erro inesperado).
 
 ## Mapeamento de status
 

@@ -1,4 +1,4 @@
-import { Flag } from "lucide-react";
+import { Clock3, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,7 @@ import type {
 } from "@/types/database";
 import { QuizCategoryBadge, QuizDifficultyBadge, QuizTypeBadge } from "./quiz-badges";
 import { formatSeconds, QUIZ_TYPE_LABELS } from "./quiz-labels";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 
 export function QuizSessionView(props: {
   session: QuizSessionRecord;
@@ -32,6 +33,7 @@ export function QuizSessionView(props: {
   isMarked: boolean;
   onToggleMarked: () => void;
 }) {
+  const timerActions = useTimerActions();
   const {
     session,
     questions,
@@ -53,6 +55,17 @@ export function QuizSessionView(props: {
   const hasAnswer = isTextQuestion ? draft.trim().length > 0 : selectedAnswer !== null;
   const isLastQuestion = session.currentIndex === questions.length - 1;
 
+  function startQuizFocus() {
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "quiz_session",
+      sourceId: session.id,
+      category: question.category,
+      title: `Quiz: ${question.prompt.slice(0, 60)}`,
+      targetDurationSeconds: 25 * 60,
+    });
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
       <header className="space-y-4">
@@ -61,13 +74,19 @@ export function QuizSessionView(props: {
             Voltar para quizzes
           </Button>
 
-          <div className="text-muted-foreground flex flex-wrap items-center gap-3 font-mono text-xs">
-            <span>
-              {session.currentIndex + 1}/{questions.length}
-            </span>
-            <span>{QUIZ_TYPE_LABELS[question.type]}</span>
-            <span>Total {formatSeconds(sessionElapsed)}</span>
-            <span>Questão {formatSeconds(questionElapsed)}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" size="sm" onClick={startQuizFocus}>
+              <Clock3 className="h-3.5 w-3.5" aria-hidden />
+              Foco
+            </Button>
+            <div className="text-muted-foreground flex flex-wrap items-center gap-3 font-mono text-xs">
+              <span>
+                {session.currentIndex + 1}/{questions.length}
+              </span>
+              <span>{QUIZ_TYPE_LABELS[question.type]}</span>
+              <span>Total {formatSeconds(sessionElapsed)}</span>
+              <span>Questão {formatSeconds(questionElapsed)}</span>
+            </div>
           </div>
         </div>
 

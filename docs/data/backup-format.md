@@ -19,7 +19,9 @@ Exportação e importação de dados em JSON.
     "flashcards": [...],
     "quizAttempts": [...],
     "quizReviews": [...],
+    "activeTimer": [...],
     "timerSessions": [...],
+    "timerSettings": [...],
     "mocks": [...],
     "notes": [...],
     "weeklyReflections": [...],
@@ -42,13 +44,14 @@ BACKUP_VERSION = 1;
 
 - **Áudio não incluído**: Blobs de áudio (`mockAudio`) são excluídos do backup. O campo `audioCount` indica quantos arquivos existiam.
 - **Metadata preservada**: O array `metadata` é exportado mas nunca importado para evitar sobrescrever o estado do banco atual.
+- **Timer separado**: `activeTimer` guarda a sessão em andamento, `timerSessions` guarda histórico oficial e `timerSettings` guarda preferências.
 
 ## Modos de importação
 
 | Modo      | Comportamento                                                                                                      |
 | --------- | ------------------------------------------------------------------------------------------------------------------ |
 | `merge`   | Registros já existentes são mantidos. Apenas novos IDs são inseridos. Conflitos são logados em `result.conflicts`. |
-| `replace` | Todas as tabelas (exceto `metadata` e `mockAudio`) são limpas antes da importação.                                 |
+| `replace` | Todas as tabelas (exceto `metadata` e `mockAudio`) são limpas antes da importação, incluindo timer.                |
 
 ## API
 
@@ -76,3 +79,4 @@ O schema `backupFileSchema` (em `src/lib/validation/backup.schemas.ts`) verifica
 - `backupVersion === 1`
 - Campos obrigatórios presentes e com tipos corretos
 - Tabelas de progresso, eventos e overrides presentes no backup
+- Tabelas `activeTimer`, `timerSessions` e `timerSettings` presentes ou normalizadas com defaults compatíveis

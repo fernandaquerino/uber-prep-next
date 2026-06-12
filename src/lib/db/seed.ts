@@ -5,17 +5,20 @@ import {
   SEED_ID_METADATA,
   SEED_ID_QUIZ_QUESTIONS,
   SEED_ID_SETTINGS,
+  SEED_ID_TIMER_SETTINGS,
   SETTINGS_ID,
+  TIMER_SETTINGS_ID,
 } from "./constants";
 import { DATABASE_VERSION } from "./constants";
 import { INITIAL_FLASHCARDS } from "@/lib/data/initial-flashcards";
 import { INITIAL_QUIZ_QUESTIONS } from "@/lib/data/quizzes";
 import { normalizeLegacyQuizQuestion, validateQuizQuestion } from "@/lib/domain/quizzes";
-import type { MetadataRecord, SettingsRecord } from "@/types/database";
+import type { MetadataRecord, SettingsRecord, TimerSettingsRecord } from "@/types/database";
 
 export async function runSeeds(db: UberPrepDatabase): Promise<void> {
   await seedMetadata(db);
   await seedSettings(db);
+  await seedTimerSettings(db);
   await seedFlashcards(db);
   await seedQuizQuestions(db);
 }
@@ -80,6 +83,32 @@ async function seedSettings(db: UberPrepDatabase): Promise<void> {
   await markSeedRun(db, SEED_ID_SETTINGS);
 }
 
+async function seedTimerSettings(db: UberPrepDatabase): Promise<void> {
+  if (await hasSeedRun(db, SEED_ID_TIMER_SETTINGS)) return;
+
+  const existing = await db.timerSettings.get(TIMER_SETTINGS_ID);
+  if (existing) {
+    await markSeedRun(db, SEED_ID_TIMER_SETTINGS);
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const record: TimerSettingsRecord = {
+    id: TIMER_SETTINGS_ID,
+    defaultMode: "countdown",
+    defaultPresetSeconds: 45 * 60,
+    soundEnabled: true,
+    notificationsEnabled: false,
+    confirmBeforeCancel: true,
+    showCompactTimer: true,
+    longSessionThresholdSeconds: 4 * 60 * 60,
+    createdAt: now,
+    updatedAt: now,
+  };
+  await db.timerSettings.put(record);
+  await markSeedRun(db, SEED_ID_TIMER_SETTINGS);
+}
+
 async function seedFlashcards(db: UberPrepDatabase): Promise<void> {
   if (await hasSeedRun(db, SEED_ID_FLASHCARDS)) return;
 
@@ -102,7 +131,7 @@ async function seedFlashcards(db: UberPrepDatabase): Promise<void> {
     updatedAt: now,
   }));
   await db.transaction("rw", db.flashcards, async () => {
-    await db.flashcards.bulkAdd(seeded);
+    await db.flashcards.bulkPut(seeded);
   });
   await markSeedRun(db, SEED_ID_FLASHCARDS);
 }

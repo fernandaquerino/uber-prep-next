@@ -4,7 +4,8 @@ import { CategoryBadge } from "@/components/features/plan/category-badge";
 import { Button } from "@/components/ui/button";
 import type { ReviewQueueItemViewModel } from "@/lib/presentation/reviews/review-view-model";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, Clock } from "lucide-react";
+import { AlertTriangle, Clock, Timer } from "lucide-react";
+import { useTimerActions } from "@/hooks/use-timer-actions";
 
 const PRIORITY_COLORS = {
   critical: "border-l-destructive",
@@ -19,7 +20,19 @@ type Props = {
 };
 
 export function ReviewQueueItem({ item, onOpen }: Props) {
+  const timerActions = useTimerActions();
   const colorClass = PRIORITY_COLORS[item.priority];
+
+  function startFocus() {
+    void timerActions.start({
+      mode: "countdown",
+      sourceType: "review",
+      sourceId: item.reviewId,
+      category: item.category ?? "general",
+      title: `Revisar: ${item.title}`,
+      targetDurationSeconds: Math.max(60, (item.estimatedMinutes ?? 10) * 60),
+    });
+  }
 
   return (
     <li
@@ -69,15 +82,25 @@ export function ReviewQueueItem({ item, onOpen }: Props) {
         </div>
       </div>
 
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => onOpen(item)}
-        aria-label={`Revisar ${item.title}`}
-        className="shrink-0"
-      >
-        Revisar
-      </Button>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={startFocus}
+          aria-label={`Iniciar foco para ${item.title}`}
+        >
+          <Timer className="h-3.5 w-3.5" aria-hidden />
+          Foco
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onOpen(item)}
+          aria-label={`Revisar ${item.title}`}
+        >
+          Revisar
+        </Button>
+      </div>
     </li>
   );
 }

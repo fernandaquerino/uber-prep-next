@@ -1,5 +1,6 @@
 import { ThemeToggle } from "./theme-toggle";
 import { MobileNavigation } from "./mobile-navigation";
+import { TimerCompact } from "@/components/features/timer/timer-compact";
 
 export function AppHeader() {
   return (
@@ -12,6 +13,7 @@ export function AppHeader() {
       </div>
 
       <div className="flex items-center gap-1">
+        <TimerCompact />
         <ThemeToggle />
       </div>
     </header>
