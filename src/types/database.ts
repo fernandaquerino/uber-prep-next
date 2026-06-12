@@ -327,6 +327,7 @@ export type TimerSourceType =
   | "quiz_session"
   | "playground_solution"
   | "mock"
+  | "note"
   | "manual"
   | "general";
 
@@ -598,11 +599,41 @@ export type NoteType = "category" | "topic";
 export type NoteRecord = {
   id: string;
   type: NoteType;
+  title: string;
   category?: string;
   topicId?: string;
+  tags: string[];
   content: string;
+  lifecycleStatus: "active" | "archived";
+  isPrimary: boolean;
   createdAt: string;
   updatedAt: string;
+};
+
+export type NoteVersionReason = "manual" | "before_template" | "before_restore" | "restore";
+
+export type NoteVersion = {
+  id: string;
+  noteId: string;
+  title: string;
+  content: string;
+  reason: NoteVersionReason;
+  createdAt: string;
+};
+
+export type NoteLinkTargetType =
+  | "plan_block"
+  | "flashcard"
+  | "quiz_question"
+  | "mock"
+  | "review";
+
+export type NoteLink = {
+  id: string;
+  noteId: string;
+  targetType: NoteLinkTargetType;
+  targetId: string;
+  createdAt: string;
 };
 
 // ─── Weekly Reflections ───────────────────────────────────────────────────────

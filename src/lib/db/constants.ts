@@ -1,5 +1,5 @@
 export const DATABASE_NAME = "uber-prep";
-export const DATABASE_VERSION = 7;
+export const DATABASE_VERSION = 8;
 
 export const SETTINGS_ID = "app-settings" as const;
 export const ACTIVE_TIMER_ID = "active-timer" as const;

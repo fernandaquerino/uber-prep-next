@@ -363,8 +363,12 @@ async function migrateProgress(
     const record: NoteRecord = {
       id,
       type: "topic",
+      title: topicId ?? "Nota migrada",
       topicId,
+      tags: [],
       content,
+      lifecycleStatus: "active",
+      isPrimary: true,
       createdAt: now,
       updatedAt: typeof raw === "object" && raw.updatedAt ? raw.updatedAt : now,
     };

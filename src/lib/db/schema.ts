@@ -12,7 +12,9 @@ import type {
   MockAudioRecord,
   MockEvidence,
   MockRecord,
+  NoteLink,
   NoteRecord,
+  NoteVersion,
   PlanProgressRecord,
   ProgressEventRecord,
   PlaygroundSolutionRecord,
@@ -57,6 +59,8 @@ export class UberPrepDatabase extends Dexie {
   fullInterviewSteps!: Table<FullInterviewStep, string>;
   checklistSessions!: Table<ChecklistSession, string>;
   notes!: Table<NoteRecord, string>;
+  noteVersions!: Table<NoteVersion, string>;
+  noteLinks!: Table<NoteLink, string>;
   weeklyReflections!: Table<WeeklyReflectionRecord, string>;
   learningJournal!: Table<LearningJournalRecord, string>;
   playgroundSolutions!: Table<PlaygroundSolutionRecord, string>;
@@ -176,7 +180,7 @@ export class UberPrepDatabase extends Dexie {
       checklistSessions: "id, createdAt, updatedAt",
     };
 
-    this.version(DATABASE_VERSION)
+    this.version(7)
       .stores(storesV7)
       .upgrade((tx) => {
         const now = new Date().toISOString();
@@ -227,5 +231,35 @@ export class UberPrepDatabase extends Dexie {
             }
           });
       });
+
+    // v8: extended notes schema + new noteVersions and noteLinks tables
+    const storesV8 = {
+      ...storesV7,
+      notes: "id, type, title, *tags, category, topicId, lifecycleStatus, updatedAt",
+      noteVersions: "id, noteId, createdAt",
+      noteLinks: "id, noteId, targetType, targetId",
+    };
+
+    this.version(DATABASE_VERSION)
+      .stores(storesV8)
+      .upgrade((tx) =>
+        tx
+          .table("notes")
+          .toCollection()
+          .modify((note: NoteRecord) => {
+            if (!note.title) {
+              note.title = note.topicId ?? note.category ?? "Nota sem título";
+            }
+            if (!Array.isArray(note.tags)) {
+              note.tags = [];
+            }
+            if (!note.lifecycleStatus) {
+              note.lifecycleStatus = "active";
+            }
+            if (note.isPrimary === undefined) {
+              note.isPrimary = true;
+            }
+          }),
+      );
   }
 }

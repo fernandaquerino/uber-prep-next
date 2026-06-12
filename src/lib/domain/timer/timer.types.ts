@@ -26,6 +26,7 @@ export const TIMER_SOURCE_LABELS: Record<TimerSourceType, string> = {
   quiz_session: "Quiz",
   playground_solution: "Playground",
   mock: "Mock",
+  note: "Notas",
   manual: "Manual",
   general: "Geral",
 };

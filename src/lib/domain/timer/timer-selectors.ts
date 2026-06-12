@@ -45,6 +45,7 @@ export function getStudySecondsBySource(
       quiz_session: 0,
       playground_solution: 0,
       mock: 0,
+      note: 0,
       manual: 0,
       general: 0,
     },
