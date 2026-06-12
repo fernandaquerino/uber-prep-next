@@ -102,7 +102,10 @@ export const DEFAULT_REVIEW_AUTO_CREATE: ReviewAutoCreateSettings = {
 
 export const DEFAULT_REVIEW_INTERVALS: number[] = [1, 3, 7, 14, 30];
 
-export const SETTINGS_DEFAULTS: Omit<SettingsRecord, "id" | "startDate" | "createdAt" | "updatedAt"> = {
+export const SETTINGS_DEFAULTS: Omit<
+  SettingsRecord,
+  "id" | "startDate" | "createdAt" | "updatedAt"
+> = {
   dateFormat: "dd/MM/yyyy",
   planDurationWeeks: 6,
   lostDayPolicy: "shift",
@@ -183,13 +186,23 @@ export const WEEKDAY_SHORT_LABELS: Record<keyof SettingsWeekdayAvailability, str
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Apply defaults to a partially-filled or legacy settings record */
-export function withSettingsDefaults(partial: Partial<SettingsRecord> & { id: "app-settings" }): SettingsRecord {
+export function withSettingsDefaults(
+  partial: Partial<SettingsRecord> & { id: "app-settings" },
+): SettingsRecord {
+  const weekdayAvailability = Object.fromEntries(
+    Object.entries(DEFAULT_WEEKDAY_AVAILABILITY).map(([weekday, defaults]) => {
+      const existing = partial.weekdayAvailability?.[weekday as keyof SettingsWeekdayAvailability];
+      return [weekday, { ...defaults, ...existing }];
+    }),
+  ) as SettingsWeekdayAvailability;
+
   return {
     ...SETTINGS_DEFAULTS,
     startDate: null,
     createdAt: partial.createdAt ?? new Date().toISOString(),
     updatedAt: partial.updatedAt ?? new Date().toISOString(),
     ...partial,
+    weekdayAvailability,
   } as SettingsRecord;
 }
 

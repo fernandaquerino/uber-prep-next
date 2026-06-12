@@ -150,7 +150,10 @@ async function migrateProgress(
     const settingsRecord: SettingsRecord = withSettingsDefaults({
       id: SETTINGS_ID,
       startDate: data.startDate ?? null,
-      timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "America/Sao_Paulo",
+      timezone:
+        typeof window !== "undefined"
+          ? Intl.DateTimeFormat().resolvedOptions().timeZone
+          : "America/Sao_Paulo",
       theme,
       createdAt: now,
       updatedAt: now,

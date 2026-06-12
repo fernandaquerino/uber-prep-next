@@ -16,7 +16,10 @@ import { ErrorState } from "@/components/feedback/error-state";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { useTechnicalEnglish } from "@/hooks/use-technical-english";
 import { useTechnicalEnglishActions } from "@/hooks/use-technical-english-actions";
-import { filterTechnicalEnglish, TECH_ENGLISH_SCENARIO_LABELS } from "@/lib/domain/technical-english";
+import {
+  filterTechnicalEnglish,
+  TECH_ENGLISH_SCENARIO_LABELS,
+} from "@/lib/domain/technical-english";
 import type { TechnicalEnglishFilters } from "@/lib/domain/technical-english";
 import type { TechnicalEnglishRecord } from "@/types/database";
 import { TechnicalEnglishCard } from "./technical-english-card";
@@ -60,20 +63,20 @@ export function TechnicalEnglishTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {stats.total} itens · {stats.practiced} praticados · {stats.favorites} favoritos
         </p>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 flex-wrap items-center">
-        <div className="relative flex-1 min-w-40">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-40 flex-1">
+          <Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
           <Input
             placeholder="Buscar frase, template..."
             value={filters.query ?? ""}
             onChange={(e) => setFilters((f) => ({ ...f, query: e.target.value || undefined }))}
-            className="pl-8 h-9 text-sm"
+            className="h-9 pl-8 text-sm"
           />
         </div>
 
@@ -83,9 +86,14 @@ export function TechnicalEnglishTab() {
             setFilters((f) => ({ ...f, scenario: v === "_all" ? undefined : (v as never) }))
           }
         >
-          <SelectTrigger className="h-9 text-sm w-44">
+          <SelectTrigger className="h-9 w-44 text-sm">
             <SelectValue>
-              {(v) => (!v || v === "_all" ? "Cenário" : (TECH_ENGLISH_SCENARIO_LABELS[v as keyof typeof TECH_ENGLISH_SCENARIO_LABELS] ?? String(v)))}
+              {(v) =>
+                !v || v === "_all"
+                  ? "Cenário"
+                  : (TECH_ENGLISH_SCENARIO_LABELS[v as keyof typeof TECH_ENGLISH_SCENARIO_LABELS] ??
+                    String(v))
+              }
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -99,12 +107,10 @@ export function TechnicalEnglishTab() {
         </Select>
 
         <button
-          onClick={() =>
-            setFilters((f) => ({ ...f, isFavorite: f.isFavorite ? undefined : true }))
-          }
-          className={`text-xs px-2 py-1.5 rounded border transition-colors ${
+          onClick={() => setFilters((f) => ({ ...f, isFavorite: f.isFavorite ? undefined : true }))}
+          className={`rounded border px-2 py-1.5 text-xs transition-colors ${
             filters.isFavorite
-              ? "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300"
+              ? "border-amber-300 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
               : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
           }`}
         >
@@ -113,14 +119,14 @@ export function TechnicalEnglishTab() {
       </div>
 
       {/* Scenario chips */}
-      <div className="flex gap-1.5 flex-wrap">
+      <div className="flex flex-wrap gap-1.5">
         {SCENARIOS.map((s) => (
           <button
             key={s}
             onClick={() =>
               setFilters((f) => ({ ...f, scenario: f.scenario === s ? undefined : s }))
             }
-            className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+            className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
               filters.scenario === s
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
@@ -137,7 +143,7 @@ export function TechnicalEnglishTab() {
           description="Tente ajustar os filtros ou adicione uma nova frase."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {filtered.map((item) => (
             <TechnicalEnglishCard
               key={item.id}

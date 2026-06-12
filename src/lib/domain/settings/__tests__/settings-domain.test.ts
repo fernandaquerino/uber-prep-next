@@ -12,7 +12,11 @@ import type { SettingsRecord } from "@/types/database";
 
 describe("withSettingsDefaults", () => {
   it("fills all missing fields from a minimal record", () => {
-    const minimal = { id: "app-settings" as const, createdAt: "2025-01-01T00:00:00Z", updatedAt: "2025-01-01T00:00:00Z" };
+    const minimal = {
+      id: "app-settings" as const,
+      createdAt: "2025-01-01T00:00:00Z",
+      updatedAt: "2025-01-01T00:00:00Z",
+    };
     const result = withSettingsDefaults(minimal);
 
     expect(result.id).toBe("app-settings");
@@ -61,6 +65,36 @@ describe("withSettingsDefaults", () => {
     const result = withSettingsDefaults(record);
     expect(result.weekdayAvailability.saturday.enabled).toBe(false);
   });
+
+  it("repairs missing weekday availability from a legacy record", () => {
+    const result = withSettingsDefaults({
+      id: "app-settings",
+      startDate: "2026-06-12",
+      createdAt: "2025-01-01T00:00:00Z",
+      updatedAt: "2025-01-01T00:00:00Z",
+      weekdayAvailability: undefined,
+    });
+
+    expect(result.weekdayAvailability.monday).toEqual({
+      enabled: true,
+      availableMinutes: 480,
+    });
+    expect(result.weekdayAvailability.sunday.enabled).toBe(false);
+  });
+
+  it("fills missing days without overwriting existing day settings", () => {
+    const result = withSettingsDefaults({
+      id: "app-settings",
+      createdAt: "2025-01-01T00:00:00Z",
+      updatedAt: "2025-01-01T00:00:00Z",
+      weekdayAvailability: {
+        monday: { enabled: true, availableMinutes: 90 },
+      } as SettingsRecord["weekdayAvailability"],
+    });
+
+    expect(result.weekdayAvailability.monday.availableMinutes).toBe(90);
+    expect(result.weekdayAvailability.tuesday.availableMinutes).toBe(480);
+  });
 });
 
 describe("getTotalWeeklyMinutes", () => {
@@ -72,7 +106,10 @@ describe("getTotalWeeklyMinutes", () => {
 
   it("returns 0 when all days disabled", () => {
     const allDisabled = Object.fromEntries(
-      Object.keys(DEFAULT_WEEKDAY_AVAILABILITY).map((k) => [k, { enabled: false, availableMinutes: 60 }]),
+      Object.keys(DEFAULT_WEEKDAY_AVAILABILITY).map((k) => [
+        k,
+        { enabled: false, availableMinutes: 60 },
+      ]),
     ) as typeof DEFAULT_WEEKDAY_AVAILABILITY;
 
     expect(getTotalWeeklyMinutes(allDisabled)).toBe(0);

@@ -1,7 +1,10 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import { createTestDatabase } from "@/test/indexed-db";
 import type { UberPrepDatabase } from "@/lib/db/db";
-import { createResourcesRepository, createResourceProgressRepository } from "../resources.repository";
+import {
+  createResourcesRepository,
+  createResourceProgressRepository,
+} from "../resources.repository";
 import type { ResourceRecord } from "@/types/database";
 
 function makeResource(id: string): ResourceRecord {

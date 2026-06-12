@@ -104,28 +104,24 @@ export function AudioRecorder({ value, onChange }: Props) {
             <Square className="h-3.5 w-3.5 fill-current" />
             Parar
           </Button>
-          <span className="font-mono text-sm tabular-nums text-red-500">
+          <span className="font-mono text-sm text-red-500 tabular-nums">
             {formatSeconds(elapsed)}
           </span>
-          <span className="text-xs text-muted-foreground animate-pulse">Gravando…</span>
+          <span className="text-muted-foreground animate-pulse text-xs">Gravando…</span>
         </>
       )}
 
       {value.status === "done" && (
         <>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {formatSeconds(value.durationSeconds)} gravados
           </span>
-          <audio
-            src={URL.createObjectURL(value.blob)}
-            controls
-            className="h-8 max-w-[200px]"
-          />
+          <audio src={URL.createObjectURL(value.blob)} controls className="h-8 max-w-[200px]" />
           <Button
             type="button"
             size="icon"
             variant="ghost"
-            className="h-7 w-7 text-muted-foreground"
+            className="text-muted-foreground h-7 w-7"
             onClick={clearRecording}
             title="Remover gravação"
           >
@@ -135,7 +131,7 @@ export function AudioRecorder({ value, onChange }: Props) {
       )}
 
       {value.status === "error" && (
-        <span className="text-xs text-destructive">{value.message}</span>
+        <span className="text-destructive text-xs">{value.message}</span>
       )}
     </div>
   );

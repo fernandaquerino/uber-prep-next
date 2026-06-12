@@ -75,8 +75,8 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Disponibilidade semanal</h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        <h3 className="mb-1 text-sm font-medium">Disponibilidade semanal</h3>
+        <p className="text-muted-foreground mb-4 text-xs">
           Configure quais dias você estuda e quantos minutos por dia.
         </p>
 
@@ -86,7 +86,7 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
             return (
               <div
                 key={day}
-                className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+                className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
                   config.enabled ? "border-border bg-background" : "border-border/50 bg-muted/30"
                 }`}
               >
@@ -95,7 +95,7 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
                   role="checkbox"
                   aria-checked={config.enabled}
                   onClick={() => toggleDay(day)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
                     config.enabled
                       ? "bg-primary border-primary text-primary-foreground"
                       : "border-muted-foreground/40"
@@ -116,12 +116,12 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
                 </button>
 
                 <span
-                  className={`text-sm font-medium w-32 ${config.enabled ? "" : "text-muted-foreground"}`}
+                  className={`w-32 text-sm font-medium ${config.enabled ? "" : "text-muted-foreground"}`}
                 >
                   {WEEKDAY_LABELS[day]}
                 </span>
 
-                <div className="flex items-center gap-2 flex-1">
+                <div className="flex flex-1 items-center gap-2">
                   <Input
                     type="number"
                     min={0}
@@ -133,7 +133,7 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
                     className="h-8 w-24 text-sm"
                     aria-label={`Minutos para ${WEEKDAY_LABELS[day]}`}
                   />
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {config.enabled ? formatMinutes(config.availableMinutes) : "Descanso"}
                   </span>
                 </div>
@@ -143,7 +143,7 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 text-sm">
+      <div className="bg-muted/50 flex items-center justify-between rounded-lg p-3 text-sm">
         <div className="flex gap-4">
           <span>
             <span className="font-medium">{enabledDays}</span>
@@ -155,11 +155,11 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
           </span>
         </div>
 
-        <div className="hidden sm:flex gap-1">
+        <div className="hidden gap-1 sm:flex">
           {WEEKDAY_ORDER.map((day) => (
             <span
               key={day}
-              className={`text-xs px-1.5 py-0.5 rounded ${
+              className={`rounded px-1.5 py-0.5 text-xs ${
                 availability[day].enabled
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground"

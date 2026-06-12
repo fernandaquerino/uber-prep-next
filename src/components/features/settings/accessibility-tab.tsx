@@ -68,16 +68,20 @@ export function AccessibilityTab({ settings, onUpdate }: AccessibilityTabProps) 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Tamanho de fonte</h3>
+        <h3 className="mb-1 text-sm font-medium">Tamanho de fonte</h3>
         <div className="space-y-1.5">
           <Label>Tamanho base do texto</Label>
           <Select
             value={fontSize}
-            onValueChange={(v) => { if (v) setFontSize(v as FontSizePreference); }}
+            onValueChange={(v) => {
+              if (v) setFontSize(v as FontSizePreference);
+            }}
           >
             <SelectTrigger className="w-48">
               <SelectValue>
-                {(v) => (v ? (FONT_SIZE_LABELS[v as FontSizePreference] ?? String(v)) : "Selecionar")}
+                {(v) =>
+                  v ? (FONT_SIZE_LABELS[v as FontSizePreference] ?? String(v)) : "Selecionar"
+                }
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -94,13 +98,13 @@ export function AccessibilityTab({ settings, onUpdate }: AccessibilityTabProps) 
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Preferências visuais e sonoras</h3>
+        <h3 className="mb-3 text-sm font-medium">Preferências visuais e sonoras</h3>
         <div className="space-y-2">
           {(Object.entries(BOOL_META) as [BoolKey, { label: string; description: string }][]).map(
             ([key, meta]) => (
               <label
                 key={key}
-                className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                className="hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors"
               >
                 <input
                   type="checkbox"
@@ -110,7 +114,7 @@ export function AccessibilityTab({ settings, onUpdate }: AccessibilityTabProps) 
                 />
                 <div>
                   <p className="text-sm font-medium">{meta.label}</p>
-                  <p className="text-xs text-muted-foreground">{meta.description}</p>
+                  <p className="text-muted-foreground text-xs">{meta.description}</p>
                 </div>
               </label>
             ),
@@ -118,13 +122,13 @@ export function AccessibilityTab({ settings, onUpdate }: AccessibilityTabProps) 
         </div>
       </div>
 
-      <div className="p-3 rounded-lg bg-muted/50 text-xs text-muted-foreground space-y-1">
-        <p className="font-medium text-foreground">Atalhos de teclado</p>
+      <div className="bg-muted/50 text-muted-foreground space-y-1 rounded-lg p-3 text-xs">
+        <p className="text-foreground font-medium">Atalhos de teclado</p>
         <p>O aplicativo suporta navegação completa por teclado.</p>
         <p>
-          Use <kbd className="px-1 py-0.5 rounded bg-muted border text-xs">Tab</kbd> para
-          navegar e <kbd className="px-1 py-0.5 rounded bg-muted border text-xs">Enter</kbd> para
-          ativar elementos.
+          Use <kbd className="bg-muted rounded border px-1 py-0.5 text-xs">Tab</kbd> para navegar e{" "}
+          <kbd className="bg-muted rounded border px-1 py-0.5 text-xs">Enter</kbd> para ativar
+          elementos.
         </p>
       </div>
 

@@ -131,6 +131,28 @@
   }
 }
 
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .no-print,
+  aside,
+  nav {
+    display: none !important;
+  }
+
+  .weekly-report {
+    width: 100% !important;
+  }
+
+  .report-section {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+}
+
 /* ─── Note Prose Styles ───────────────────────────────────────────────────── */
 .note-prose {
   @apply text-foreground leading-relaxed;
@@ -141,34 +163,48 @@
 .note-prose h2,
 .note-prose h3,
 .note-prose h4 {
-  @apply font-semibold text-foreground mt-5 mb-2;
+  @apply text-foreground mt-5 mb-2 font-semibold;
 }
-.note-prose h1 { @apply text-xl; }
-.note-prose h2 { @apply text-lg; }
-.note-prose h3 { @apply text-base; }
+.note-prose h1 {
+  @apply text-xl;
+}
+.note-prose h2 {
+  @apply text-lg;
+}
+.note-prose h3 {
+  @apply text-base;
+}
 
-.note-prose p { @apply my-3; }
+.note-prose p {
+  @apply my-3;
+}
 
 .note-prose ul,
 .note-prose ol {
   @apply my-3 pl-5;
 }
-.note-prose ul { @apply list-disc; }
-.note-prose ol { @apply list-decimal; }
-.note-prose li { @apply my-1; }
+.note-prose ul {
+  @apply list-disc;
+}
+.note-prose ol {
+  @apply list-decimal;
+}
+.note-prose li {
+  @apply my-1;
+}
 
 .note-prose code {
-  @apply bg-muted text-foreground font-mono text-sm px-1.5 py-0.5 rounded;
+  @apply bg-muted text-foreground rounded px-1.5 py-0.5 font-mono text-sm;
 }
 .note-prose pre {
-  @apply bg-muted rounded-md p-4 overflow-x-auto my-4;
+  @apply bg-muted my-4 overflow-x-auto rounded-md p-4;
 }
 .note-prose pre code {
   @apply bg-transparent p-0 text-sm;
 }
 
 .note-prose blockquote {
-  @apply border-l-4 border-border pl-4 my-4 text-muted-foreground italic;
+  @apply border-border text-muted-foreground my-4 border-l-4 pl-4 italic;
 }
 
 .note-prose a {
@@ -180,15 +216,19 @@
 }
 
 .note-prose table {
-  @apply w-full border-collapse my-4 text-sm;
+  @apply my-4 w-full border-collapse text-sm;
 }
 .note-prose th,
 .note-prose td {
-  @apply border border-border px-3 py-2 text-left;
+  @apply border-border border px-3 py-2 text-left;
 }
 .note-prose th {
   @apply bg-muted font-semibold;
 }
 
-.note-prose strong { @apply font-semibold; }
-.note-prose em { @apply italic; }
+.note-prose strong {
+  @apply font-semibold;
+}
+.note-prose em {
+  @apply italic;
+}

@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -61,13 +67,22 @@ function answerToForm(a: StarAnswer): StarAnswerForm {
 }
 
 const CATEGORIES = [
-  "Leadership", "Conflict", "Ownership", "Failure",
-  "Mentoring", "Ambiguity", "Impact", "Technical English",
+  "Leadership",
+  "Conflict",
+  "Ownership",
+  "Failure",
+  "Mentoring",
+  "Ambiguity",
+  "Impact",
+  "Technical English",
 ];
 
 export function StarTab({ onRefresh }: { onRefresh: () => void }) {
   const { questions, answers, isLoading, error, refresh } = useStar();
-  const { saveStarAnswer, isLoading: saving } = useStarActions(() => { refresh(); onRefresh(); });
+  const { saveStarAnswer, isLoading: saving } = useStarActions(() => {
+    refresh();
+    onRefresh();
+  });
 
   const [categoryFilter, setCategoryFilter] = useState<string>("Todos");
   const [practicingId, setPracticingId] = useState<string | null>(null);
@@ -95,14 +110,13 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
     setPracticingId(null);
   }, [practicingId, form, saveStarAnswer]);
 
-  const filtered = categoryFilter === "Todos"
-    ? questions
-    : questions.filter((q) => q.category === categoryFilter);
+  const filtered =
+    categoryFilter === "Todos" ? questions : questions.filter((q) => q.category === categoryFilter);
 
   const answeredCount = questions.filter((q) => answers.has(q.id)).length;
 
-  if (isLoading) return <div className="text-sm text-muted-foreground p-4">Carregando...</div>;
-  if (error) return <div className="text-sm text-destructive p-4">{error}</div>;
+  if (isLoading) return <div className="text-muted-foreground p-4 text-sm">Carregando...</div>;
+  if (error) return <div className="text-destructive p-4 text-sm">{error}</div>;
 
   // Inline practice form
   if (practicingId) {
@@ -111,29 +125,42 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
       <div className="space-y-5">
         <div>
           <button
-            className="text-xs text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1"
+            className="text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1 text-xs"
             onClick={() => setPracticingId(null)}
           >
             ← Voltar ao banco STAR
           </button>
-          <p className={cn("text-xs font-semibold uppercase tracking-wide mb-1", CATEGORY_COLORS[q.category])}>
+          <p
+            className={cn(
+              "mb-1 text-xs font-semibold tracking-wide uppercase",
+              CATEGORY_COLORS[q.category],
+            )}
+          >
             {q.category}
           </p>
           <h3 className="font-medium">{q.question}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{q.focus}</p>
+          <p className="text-muted-foreground mt-0.5 text-xs">{q.focus}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 text-sm">
+        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Sinais fortes</div>
-            <ul className="space-y-0.5 text-muted-foreground">
-              {q.strongSignals.map((s, i) => <li key={i}>• {s}</li>)}
+            <div className="text-muted-foreground mb-1 text-xs font-semibold tracking-wide uppercase">
+              Sinais fortes
+            </div>
+            <ul className="text-muted-foreground space-y-0.5">
+              {q.strongSignals.map((s, i) => (
+                <li key={i}>• {s}</li>
+              ))}
             </ul>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Evitar</div>
-            <ul className="space-y-0.5 text-muted-foreground">
-              {q.pitfalls.map((p, i) => <li key={i}>• {p}</li>)}
+            <div className="text-muted-foreground mb-1 text-xs font-semibold tracking-wide uppercase">
+              Evitar
+            </div>
+            <ul className="text-muted-foreground space-y-0.5">
+              {q.pitfalls.map((p, i) => (
+                <li key={i}>• {p}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -141,8 +168,14 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
         <div className="space-y-3">
           {(["situation", "task", "action", "result"] as const).map((field) => (
             <div key={field} className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-                {field === "situation" ? "Situation" : field === "task" ? "Task" : field === "action" ? "Action" : "Result"}
+              <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+                {field === "situation"
+                  ? "Situation"
+                  : field === "task"
+                    ? "Task"
+                    : field === "action"
+                      ? "Action"
+                      : "Result"}
                 <span className="text-destructive ml-0.5">*</span>
               </Label>
               <Textarea
@@ -154,31 +187,62 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
           ))}
 
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Aprendizado (opcional)</Label>
-            <Textarea rows={2} value={form.learning} onChange={(e) => setForm((f) => ({ ...f, learning: e.target.value }))} />
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+              Aprendizado (opcional)
+            </Label>
+            <Textarea
+              rows={2}
+              value={form.learning}
+              onChange={(e) => setForm((f) => ({ ...f, learning: e.target.value }))}
+            />
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Versão concisa (opcional)</Label>
-            <Textarea rows={2} value={form.conciseVersion} onChange={(e) => setForm((f) => ({ ...f, conciseVersion: e.target.value }))} />
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+              Versão concisa (opcional)
+            </Label>
+            <Textarea
+              rows={2}
+              value={form.conciseVersion}
+              onChange={(e) => setForm((f) => ({ ...f, conciseVersion: e.target.value }))}
+            />
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Versão em inglês (opcional)</Label>
-            <Textarea rows={4} value={form.englishVersion} onChange={(e) => setForm((f) => ({ ...f, englishVersion: e.target.value }))} />
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+              Versão em inglês (opcional)
+            </Label>
+            <Textarea
+              rows={4}
+              value={form.englishVersion}
+              onChange={(e) => setForm((f) => ({ ...f, englishVersion: e.target.value }))}
+            />
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Avaliação pessoal</Label>
-            <Select value={String(form.selfRating)} onValueChange={(v) => setForm((f) => ({ ...f, selfRating: Number(v) as RubricRating }))}>
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
+              Avaliação pessoal
+            </Label>
+            <Select
+              value={String(form.selfRating)}
+              onValueChange={(v) =>
+                setForm((f) => ({ ...f, selfRating: Number(v) as RubricRating }))
+              }
+            >
               <SelectTrigger className="max-w-xs">
                 <SelectValue>
-                  {(v) => v != null ? `${v} — ${RUBRIC_RATING_LABELS[Number(v) as RubricRating] ?? String(v)}` : "Selecionar"}
+                  {(v) =>
+                    v != null
+                      ? `${v} — ${RUBRIC_RATING_LABELS[Number(v) as RubricRating] ?? String(v)}`
+                      : "Selecionar"
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {([0, 1, 2, 3, 4, 5] as RubricRating[]).map((r) => (
-                  <SelectItem key={r} value={String(r)}>{r} — {RUBRIC_RATING_LABELS[r]}</SelectItem>
+                  <SelectItem key={r} value={String(r)}>
+                    {r} — {RUBRIC_RATING_LABELS[r]}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -186,8 +250,12 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button onClick={handleSave} disabled={saving}>Salvar</Button>
-          <Button variant="ghost" onClick={() => setPracticingId(null)}>Cancelar</Button>
+          <Button onClick={handleSave} disabled={saving}>
+            Salvar
+          </Button>
+          <Button variant="ghost" onClick={() => setPracticingId(null)}>
+            Cancelar
+          </Button>
         </div>
       </div>
     );
@@ -196,13 +264,13 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
   return (
     <div className="space-y-4">
       {/* Filter chips */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         {["Todos", ...CATEGORIES].map((cat) => (
           <button
             key={cat}
             onClick={() => setCategoryFilter(cat)}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+              "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
               categoryFilter === cat
                 ? "bg-primary text-primary-foreground border-primary"
                 : "border-border hover:bg-accent",
@@ -213,7 +281,7 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
         ))}
       </div>
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         {answeredCount} de {questions.length} perguntas respondidas
       </p>
 
@@ -224,28 +292,37 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
           const isExpanded = expandedAnswerId === q.id;
 
           return (
-            <div key={q.id} className="rounded-lg border bg-card p-4 space-y-3">
+            <div key={q.id} className="bg-card space-y-3 rounded-lg border p-4">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className={cn("text-xs font-semibold uppercase tracking-wide mb-1", CATEGORY_COLORS[q.category])}>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={cn(
+                      "mb-1 text-xs font-semibold tracking-wide uppercase",
+                      CATEGORY_COLORS[q.category],
+                    )}
+                  >
                     {q.category}
                   </p>
-                  <p className="font-medium text-sm">{q.question}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{q.focus}</p>
+                  <p className="text-sm font-medium">{q.question}</p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">{q.focus}</p>
                 </div>
-                <div className="flex gap-2 shrink-0 items-start">
+                <div className="flex shrink-0 items-start gap-2">
                   {answer && (
                     <button
                       onClick={() => setExpandedAnswerId(isExpanded ? null : q.id)}
-                      className="text-xs text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground hover:text-foreground text-xs"
                       aria-expanded={isExpanded}
                     >
-                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {isExpanded ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </button>
                   )}
                   <Button
                     size="sm"
-                    className="text-xs h-7 bg-primary hover:bg-primary/90"
+                    className="bg-primary hover:bg-primary/90 h-7 text-xs"
                     onClick={() => openPractice(q, answer)}
                   >
                     {answer ? "Editar" : "Praticar"}
@@ -254,23 +331,29 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
               </div>
 
               {/* Signals / pitfalls */}
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 text-xs">
+              <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
                 <div>
-                  <div className="font-semibold uppercase tracking-wide text-muted-foreground mb-1">Sinais fortes</div>
-                  <p className="text-muted-foreground leading-relaxed">{q.strongSignals.join(" · ")}</p>
+                  <div className="text-muted-foreground mb-1 font-semibold tracking-wide uppercase">
+                    Sinais fortes
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {q.strongSignals.join(" · ")}
+                  </p>
                 </div>
                 <div>
-                  <div className="font-semibold uppercase tracking-wide text-muted-foreground mb-1">Evitar</div>
+                  <div className="text-muted-foreground mb-1 font-semibold tracking-wide uppercase">
+                    Evitar
+                  </div>
                   <p className="text-muted-foreground leading-relaxed">{q.pitfalls.join(" · ")}</p>
                 </div>
               </div>
 
               {/* Expanded answer */}
               {isExpanded && answer && (
-                <div className="border-t pt-3 space-y-2 text-sm">
+                <div className="space-y-2 border-t pt-3 text-sm">
                   {(["situation", "task", "action", "result"] as const).map((field) => (
                     <div key={field}>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">
+                      <div className="text-muted-foreground mb-0.5 text-xs font-semibold tracking-wide uppercase">
                         {field.charAt(0).toUpperCase() + field.slice(1)}
                       </div>
                       <p className="text-muted-foreground whitespace-pre-wrap">{answer[field]}</p>
@@ -278,7 +361,9 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
                   ))}
                   {answer.learning && (
                     <div>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">Aprendizado</div>
+                      <div className="text-muted-foreground mb-0.5 text-xs font-semibold tracking-wide uppercase">
+                        Aprendizado
+                      </div>
                       <p className="text-muted-foreground whitespace-pre-wrap">{answer.learning}</p>
                     </div>
                   )}

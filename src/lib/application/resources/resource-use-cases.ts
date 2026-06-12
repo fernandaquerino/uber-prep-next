@@ -1,7 +1,10 @@
-
 import type { UberPrepDatabase } from "@/lib/db/schema";
 import type { ResourceRecord, ResourceProgressRecord, ResourceStatus } from "@/types/database";
-import type { CreateResourceInput, UpdateResourceInput, ResourcePageData } from "@/lib/domain/resources";
+import type {
+  CreateResourceInput,
+  UpdateResourceInput,
+  ResourcePageData,
+} from "@/lib/domain/resources";
 import {
   mergeResourceProgress,
   collectResourceMeta,
@@ -77,7 +80,7 @@ export async function updateResource(
   const updated: ResourceRecord = {
     ...existing,
     ...input,
-    url: input.url !== undefined ? (input.url || undefined) : existing.url,
+    url: input.url !== undefined ? input.url || undefined : existing.url,
     updatedAt: nowIso(),
   };
   await repo.upsert(updated);
@@ -132,8 +135,7 @@ export async function updateResourceStatus(
       resourceId,
       status,
       progressPercent: status === "completed" ? 100 : 0,
-      startedAt:
-        status === "in_progress" || status === "completed" ? now : undefined,
+      startedAt: status === "in_progress" || status === "completed" ? now : undefined,
       completedAt: status === "completed" ? now : undefined,
       createdAt: now,
       updatedAt: now,

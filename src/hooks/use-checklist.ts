@@ -11,11 +11,13 @@ export type UseChecklistResult = {
   refresh: () => void;
 };
 
-async function loadChecklistData(): Promise<{ session: ChecklistSession | null; history: ChecklistSession[] }> {
+async function loadChecklistData(): Promise<{
+  session: ChecklistSession | null;
+  history: ChecklistSession[];
+}> {
   const { getDb } = await import("@/lib/db/db");
-  const { getLatestChecklistSession, listChecklistSessions } = await import(
-    "@/lib/application/checklist/checklist-use-cases"
-  );
+  const { getLatestChecklistSession, listChecklistSessions } =
+    await import("@/lib/application/checklist/checklist-use-cases");
   const db = getDb();
   const [session, history] = await Promise.all([
     getLatestChecklistSession(db),
@@ -43,13 +45,16 @@ export function useChecklist(): UseChecklistResult {
         }
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar checklist.");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "Erro ao carregar checklist.");
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [rev]);
 
   const refresh = useCallback(() => setRev((v) => v + 1), []);
@@ -83,9 +88,8 @@ export function useChecklistActions(onSuccess?: () => void) {
     (label?: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { createChecklistSession } = await import(
-          "@/lib/application/checklist/checklist-use-cases"
-        );
+        const { createChecklistSession } =
+          await import("@/lib/application/checklist/checklist-use-cases");
         return createChecklistSession(getDb(), label);
       }),
     [wrap],
@@ -95,9 +99,8 @@ export function useChecklistActions(onSuccess?: () => void) {
     (sessionId: string, itemId: string, checked: boolean) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { toggleChecklistItem } = await import(
-          "@/lib/application/checklist/checklist-use-cases"
-        );
+        const { toggleChecklistItem } =
+          await import("@/lib/application/checklist/checklist-use-cases");
         await toggleChecklistItem(getDb(), sessionId, itemId, checked);
       }),
     [wrap],
@@ -107,9 +110,8 @@ export function useChecklistActions(onSuccess?: () => void) {
     (sessionId: string, group: string, text: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { addCustomChecklistItem } = await import(
-          "@/lib/application/checklist/checklist-use-cases"
-        );
+        const { addCustomChecklistItem } =
+          await import("@/lib/application/checklist/checklist-use-cases");
         await addCustomChecklistItem(getDb(), sessionId, group, text);
       }),
     [wrap],
@@ -119,9 +121,8 @@ export function useChecklistActions(onSuccess?: () => void) {
     (sessionId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { resetChecklistSession } = await import(
-          "@/lib/application/checklist/checklist-use-cases"
-        );
+        const { resetChecklistSession } =
+          await import("@/lib/application/checklist/checklist-use-cases");
         await resetChecklistSession(getDb(), sessionId);
       }),
     [wrap],
@@ -131,9 +132,8 @@ export function useChecklistActions(onSuccess?: () => void) {
     (sessionId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { deleteChecklistSession } = await import(
-          "@/lib/application/checklist/checklist-use-cases"
-        );
+        const { deleteChecklistSession } =
+          await import("@/lib/application/checklist/checklist-use-cases");
         await deleteChecklistSession(getDb(), sessionId);
       }),
     [wrap],

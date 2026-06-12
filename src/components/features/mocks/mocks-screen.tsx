@@ -42,9 +42,7 @@ export function MocksScreen() {
   };
 
   const summaryVM =
-    data && !isLoading
-      ? buildMocksSummaryVM(data.mocks, data.recentEvidence)
-      : null;
+    data && !isLoading ? buildMocksSummaryVM(data.mocks, data.recentEvidence) : null;
 
   if (isLoading) {
     return (
@@ -62,7 +60,7 @@ export function MocksScreen() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+      <div className="border-destructive/50 bg-destructive/10 text-destructive rounded-lg border p-4 text-sm">
         Erro ao carregar mocks: {error}
       </div>
     );
@@ -73,12 +71,12 @@ export function MocksScreen() {
       {summaryVM && <MockSummaryCards summary={summaryVM} />}
 
       <Tabs value={activeTab} onValueChange={handleTabChange}>
-        <TabsList className="flex overflow-x-auto w-full h-auto gap-0.5 p-0.5">
+        <TabsList className="flex h-auto w-full gap-0.5 overflow-x-auto p-0.5">
           {TAB_LIST.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              className="text-xs sm:text-sm whitespace-nowrap"
+              className="text-xs whitespace-nowrap sm:text-sm"
             >
               {tab.label}
             </TabsTrigger>

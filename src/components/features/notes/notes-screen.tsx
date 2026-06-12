@@ -142,8 +142,8 @@ export function NotesScreen() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6 text-center">
-        <p className="text-sm text-destructive">{error}</p>
+      <div className="border-destructive/50 bg-destructive/10 rounded-lg border p-6 text-center">
+        <p className="text-destructive text-sm">{error}</p>
         <Button variant="outline" size="sm" className="mt-3" onClick={refresh}>
           Tentar novamente
         </Button>
@@ -167,18 +167,13 @@ export function NotesScreen() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold">Notas</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Anotações de estudo em markdown por área e tópico.
           </p>
         </div>
         <div className="flex items-center gap-2">
           {selectedNote && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportNote}
-              className="gap-1.5"
-            >
+            <Button variant="outline" size="sm" onClick={handleExportNote} className="gap-1.5">
               <Download className="h-3.5 w-3.5" />
               Exportar
             </Button>
@@ -192,7 +187,7 @@ export function NotesScreen() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
         <Input
           placeholder="Buscar em todas as notas..."
           value={search}
@@ -232,23 +227,26 @@ export function NotesScreen() {
           <Skeleton className="h-64 w-full" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
           {/* Note list sidebar */}
           <div className="space-y-1">
             {!hasContext && !search.trim() && navMode === "topics" && !selectedTopicId ? (
-              <p className="text-sm text-muted-foreground py-4 text-center">
+              <p className="text-muted-foreground py-4 text-center text-sm">
                 Selecione um tópico para ver as notas.
               </p>
             ) : contextNotes.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-8 text-center">
-                <FileText className="h-8 w-8 text-muted-foreground opacity-40" />
-                <p className="text-sm text-muted-foreground">
-                  {search.trim()
-                    ? "Nenhuma nota corresponde à busca."
-                    : "Nenhuma nota aqui ainda."}
+                <FileText className="text-muted-foreground h-8 w-8 opacity-40" />
+                <p className="text-muted-foreground text-sm">
+                  {search.trim() ? "Nenhuma nota corresponde à busca." : "Nenhuma nota aqui ainda."}
                 </p>
                 {!search.trim() && hasContext && (
-                  <Button size="sm" variant="outline" onClick={handleCreateNote} className="gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCreateNote}
+                    className="gap-1.5"
+                  >
                     <Plus className="h-3.5 w-3.5" />
                     Criar nota
                   </Button>
@@ -265,19 +263,17 @@ export function NotesScreen() {
                       onClick={() => setSelectedNoteId(isSelected ? null : note.id)}
                       className={cn(
                         "w-full rounded-md border px-3 py-2.5 text-left transition-colors",
-                        isSelected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:bg-muted",
+                        isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-muted",
                       )}
                       aria-pressed={isSelected}
                     >
-                      <p className="text-sm font-medium truncate">{note.title}</p>
+                      <p className="truncate text-sm font-medium">{note.title}</p>
                       {note.excerpt && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
                           {note.excerpt}
                         </p>
                       )}
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-muted-foreground mt-1 text-xs">
                         {formatRelativeDate(note.updatedAt)}
                       </p>
                     </button>
@@ -288,7 +284,7 @@ export function NotesScreen() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-full mt-1 gap-1.5 text-muted-foreground"
+                    className="text-muted-foreground mt-1 w-full gap-1.5"
                     onClick={handleCreateNote}
                   >
                     <Plus className="h-3.5 w-3.5" />

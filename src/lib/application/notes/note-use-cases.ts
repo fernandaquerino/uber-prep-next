@@ -1,14 +1,15 @@
 import type { UberPrepDatabase } from "@/lib/db/schema";
 import type { NoteRecord, NoteVersion } from "@/types/database";
-import type { CreateNoteInput, UpdateNoteInput, NotesPageData } from "@/lib/domain/notes/note.types";
+import type {
+  CreateNoteInput,
+  UpdateNoteInput,
+  NotesPageData,
+} from "@/lib/domain/notes/note.types";
 import { toNoteListItem } from "@/lib/domain/notes/note.types";
 
 // ─── Create ───────────────────────────────────────────────────────────────────
 
-export async function createNote(
-  db: UberPrepDatabase,
-  input: CreateNoteInput,
-): Promise<string> {
+export async function createNote(db: UberPrepDatabase, input: CreateNoteInput): Promise<string> {
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
 
@@ -102,10 +103,7 @@ export async function restoreNoteVersion(
   noteId: string,
   versionId: string,
 ): Promise<void> {
-  const [note, version] = await Promise.all([
-    db.notes.get(noteId),
-    db.noteVersions.get(versionId),
-  ]);
+  const [note, version] = await Promise.all([db.notes.get(noteId), db.noteVersions.get(versionId)]);
 
   if (!note || !version) return;
 

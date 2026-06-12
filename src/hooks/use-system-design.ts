@@ -41,7 +41,9 @@ export function useSystemDesign(): UseSystemDesignResult {
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [rev]);
 
   const refresh = useCallback(() => setRev((v) => v + 1), []);
@@ -74,12 +76,15 @@ export function useSystemDesignActions(onSuccess?: () => void) {
   );
 
   const saveDraft = useCallback(
-    (templateId: string, answers: Record<string, string>, checklistState: Record<string, boolean>) =>
+    (
+      templateId: string,
+      answers: Record<string, string>,
+      checklistState: Record<string, boolean>,
+    ) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { saveSystemDesignDraft } = await import(
-          "@/lib/application/system-design/system-design-use-cases"
-        );
+        const { saveSystemDesignDraft } =
+          await import("@/lib/application/system-design/system-design-use-cases");
         return saveSystemDesignDraft(getDb(), templateId, answers, checklistState);
       }),
     [wrap],
@@ -89,9 +94,8 @@ export function useSystemDesignActions(onSuccess?: () => void) {
     (templateId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { resetSystemDesignDraft } = await import(
-          "@/lib/application/system-design/system-design-use-cases"
-        );
+        const { resetSystemDesignDraft } =
+          await import("@/lib/application/system-design/system-design-use-cases");
         await resetSystemDesignDraft(getDb(), templateId);
       }),
     [wrap],
@@ -103,9 +107,8 @@ export function useSystemDesignActions(onSuccess?: () => void) {
         const { getDb } = await import("@/lib/db/db");
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-        const { registerDraftAsMock } = await import(
-          "@/lib/application/system-design/system-design-use-cases"
-        );
+        const { registerDraftAsMock } =
+          await import("@/lib/application/system-design/system-design-use-cases");
         return registerDraftAsMock(getDb(), templateId, today);
       }),
     [wrap],

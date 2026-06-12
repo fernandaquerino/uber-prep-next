@@ -78,25 +78,25 @@ export function ResourceCard({
 
   return (
     <Card className={`border-l-4 ${categoryVisual.border} transition-shadow hover:shadow-md`}>
-      <CardHeader className="pb-2 pt-3 px-4">
+      <CardHeader className="px-4 pt-3 pb-2">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 flex-wrap mb-1">
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-1.5">
               <span className={`text-xs font-medium ${categoryVisual.text}`}>
                 {categoryVisual.label}
               </span>
               <ResourceTypeBadge type={resource.type} />
               <ResourceDifficultyBadge difficulty={resource.difficulty} />
             </div>
-            <h3 className="font-medium text-sm leading-snug truncate" title={resource.title}>
+            <h3 className="truncate text-sm leading-snug font-medium" title={resource.title}>
               {resource.title}
             </h3>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex shrink-0 items-center gap-1">
             <button
               aria-label={resource.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-              className="text-muted-foreground hover:text-amber-500 transition-colors p-1 rounded"
+              className="text-muted-foreground rounded p-1 transition-colors hover:text-amber-500"
               onClick={() => withBusy(() => onToggleFavorite(resource.id))}
             >
               <Star
@@ -108,7 +108,10 @@ export function ResourceCard({
             </button>
 
             <DropdownMenu>
-              <DropdownMenuTrigger aria-label="Mais opções" className="inline-flex items-center justify-center size-7 rounded-md hover:bg-accent transition-colors">
+              <DropdownMenuTrigger
+                aria-label="Mais opções"
+                className="hover:bg-accent inline-flex size-7 items-center justify-center rounded-md transition-colors"
+              >
                 <MoreHorizontal className="size-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -134,10 +137,10 @@ export function ResourceCard({
 
       <CardContent className="px-4 pb-3">
         {resource.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{resource.description}</p>
+          <p className="text-muted-foreground mb-2 line-clamp-2 text-xs">{resource.description}</p>
         )}
 
-        <div className="flex items-center justify-between gap-2 mt-2">
+        <div className="mt-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Select
               value={progress?.status ?? "not_started"}
@@ -145,9 +148,14 @@ export function ResourceCard({
                 withBusy(() => onUpdateStatus(resource.id, val as ResourceStatus))
               }
             >
-              <SelectTrigger className="h-7 text-xs w-36">
+              <SelectTrigger className="h-7 w-36 text-xs">
                 <SelectValue>
-                  {(v) => (v ? (RESOURCE_STATUS_LABELS[v as keyof typeof RESOURCE_STATUS_LABELS] ?? String(v)) : "Status")}
+                  {(v) =>
+                    v
+                      ? (RESOURCE_STATUS_LABELS[v as keyof typeof RESOURCE_STATUS_LABELS] ??
+                        String(v))
+                      : "Status"
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -160,7 +168,7 @@ export function ResourceCard({
             </Select>
 
             {resource.estimatedMinutes && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
+              <span className="text-muted-foreground text-xs whitespace-nowrap">
                 ~{resource.estimatedMinutes}min
               </span>
             )}
@@ -170,7 +178,7 @@ export function ResourceCard({
             <Button
               variant="outline"
               size="sm"
-              className="h-7 text-xs gap-1"
+              className="h-7 gap-1 text-xs"
               onClick={handleOpenLink}
             >
               <ExternalLink className="size-3" />
@@ -180,11 +188,11 @@ export function ResourceCard({
         </div>
 
         {resource.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="mt-2 flex flex-wrap gap-1">
             {resource.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-muted text-muted-foreground"
+                className="bg-muted text-muted-foreground inline-flex items-center rounded px-1.5 py-0.5 text-[10px]"
               >
                 #{tag}
               </span>

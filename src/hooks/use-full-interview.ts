@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { FullInterviewSession, FullInterviewStep, FullInterviewStepType } from "@/types/database";
+import type {
+  FullInterviewSession,
+  FullInterviewStep,
+  FullInterviewStepType,
+} from "@/types/database";
 
 export type UseFullInterviewResult = {
   sessions: FullInterviewSession[];
@@ -39,7 +43,9 @@ export function useFullInterview(): UseFullInterviewResult {
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [rev]);
 
   const refresh = useCallback(() => setRev((v) => v + 1), []);
@@ -69,24 +75,30 @@ export function useFullInterviewSession(sessionId: string | null): UseFullInterv
 
     let cancelled = false;
 
-    import("@/lib/db/db").then(({ getDb }) => {
-      const db = getDb();
-      return import("@/lib/application/full-interview/full-interview-use-cases").then(
-        ({ getFullInterviewSession }) => getFullInterviewSession(db, sessionId),
-      );
-    }).then((result) => {
-      if (!cancelled) {
-        setSession(result?.session ?? null);
-        setSteps(result?.steps ?? []);
-        setError(null);
-      }
-    }).catch((err) => {
-      if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar sessão.");
-    }).finally(() => {
-      if (!cancelled) setIsLoading(false);
-    });
+    import("@/lib/db/db")
+      .then(({ getDb }) => {
+        const db = getDb();
+        return import("@/lib/application/full-interview/full-interview-use-cases").then(
+          ({ getFullInterviewSession }) => getFullInterviewSession(db, sessionId),
+        );
+      })
+      .then((result) => {
+        if (!cancelled) {
+          setSession(result?.session ?? null);
+          setSteps(result?.steps ?? []);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar sessão.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [sessionId, rev]);
 
   const refresh = useCallback(() => setRev((v) => v + 1), []);
@@ -120,9 +132,8 @@ export function useFullInterviewActions(onSuccess?: () => void) {
     (title: string, stepTypes?: FullInterviewStepType[]) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { createFullInterviewSession } = await import(
-          "@/lib/application/full-interview/full-interview-use-cases"
-        );
+        const { createFullInterviewSession } =
+          await import("@/lib/application/full-interview/full-interview-use-cases");
         return createFullInterviewSession(getDb(), title, stepTypes);
       }),
     [wrap],
@@ -132,9 +143,8 @@ export function useFullInterviewActions(onSuccess?: () => void) {
     (sessionId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { startFullInterviewSession } = await import(
-          "@/lib/application/full-interview/full-interview-use-cases"
-        );
+        const { startFullInterviewSession } =
+          await import("@/lib/application/full-interview/full-interview-use-cases");
         await startFullInterviewSession(getDb(), sessionId);
       }),
     [wrap],
@@ -149,9 +159,8 @@ export function useFullInterviewActions(onSuccess?: () => void) {
     ) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { updateFullInterviewStep } = await import(
-          "@/lib/application/full-interview/full-interview-use-cases"
-        );
+        const { updateFullInterviewStep } =
+          await import("@/lib/application/full-interview/full-interview-use-cases");
         await updateFullInterviewStep(getDb(), stepId, updates);
       }),
     [wrap],
@@ -161,9 +170,8 @@ export function useFullInterviewActions(onSuccess?: () => void) {
     (sessionId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { advanceFullInterviewSession } = await import(
-          "@/lib/application/full-interview/full-interview-use-cases"
-        );
+        const { advanceFullInterviewSession } =
+          await import("@/lib/application/full-interview/full-interview-use-cases");
         await advanceFullInterviewSession(getDb(), sessionId);
       }),
     [wrap],
@@ -173,9 +181,8 @@ export function useFullInterviewActions(onSuccess?: () => void) {
     (sessionId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { completeFullInterviewSession } = await import(
-          "@/lib/application/full-interview/full-interview-use-cases"
-        );
+        const { completeFullInterviewSession } =
+          await import("@/lib/application/full-interview/full-interview-use-cases");
         await completeFullInterviewSession(getDb(), sessionId);
       }),
     [wrap],
@@ -185,9 +192,8 @@ export function useFullInterviewActions(onSuccess?: () => void) {
     (sessionId: string) =>
       wrap(async () => {
         const { getDb } = await import("@/lib/db/db");
-        const { deleteFullInterviewSession } = await import(
-          "@/lib/application/full-interview/full-interview-use-cases"
-        );
+        const { deleteFullInterviewSession } =
+          await import("@/lib/application/full-interview/full-interview-use-cases");
         await deleteFullInterviewSession(getDb(), sessionId);
       }),
     [wrap],

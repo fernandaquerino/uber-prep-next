@@ -54,9 +54,7 @@ export async function getLatestChecklistSession(
   }
 }
 
-export async function listChecklistSessions(
-  db: UberPrepDatabase,
-): Promise<ChecklistSession[]> {
+export async function listChecklistSessions(db: UberPrepDatabase): Promise<ChecklistSession[]> {
   try {
     return db.checklistSessions.orderBy("createdAt").reverse().toArray();
   } catch (err) {
@@ -75,9 +73,7 @@ export async function toggleChecklistItem(
 
   const now = new Date().toISOString();
   const items = session.items.map((item) =>
-    item.id === itemId
-      ? { ...item, checked, checkedAt: checked ? now : undefined }
-      : item,
+    item.id === itemId ? { ...item, checked, checkedAt: checked ? now : undefined } : item,
   );
 
   const completedCount = items.filter((i) => i.checked).length;

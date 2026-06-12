@@ -43,13 +43,7 @@ marked.setOptions({
   breaks: false,
 });
 
-export function NoteMarkdown({
-  content,
-  className,
-}: {
-  content: string;
-  className?: string;
-}) {
+export function NoteMarkdown({ content, className }: { content: string; className?: string }) {
   const html = useMemo(() => {
     if (!content.trim()) return "";
     const raw = marked.parse(content, { async: false }) as string;
@@ -64,10 +58,5 @@ export function NoteMarkdown({
     );
   }
 
-  return (
-    <div
-      className={cn("note-prose", className)}
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
+  return <div className={cn("note-prose", className)} dangerouslySetInnerHTML={{ __html: html }} />;
 }

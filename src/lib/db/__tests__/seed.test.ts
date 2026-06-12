@@ -68,7 +68,16 @@ describe("runSeeds", () => {
       createdAt: now,
       updatedAt: now,
     });
-    await db.settings.put(withSettingsDefaults({ id: SETTINGS_ID, startDate: "2025-01-01", timezone: "America/Sao_Paulo", theme: "dark", createdAt: now, updatedAt: now }));
+    await db.settings.put(
+      withSettingsDefaults({
+        id: SETTINGS_ID,
+        startDate: "2025-01-01",
+        timezone: "America/Sao_Paulo",
+        theme: "dark",
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
     await runSeeds(db);
     const settings = await db.settings.get(SETTINGS_ID);
     expect(settings?.startDate).toBe("2025-01-01");

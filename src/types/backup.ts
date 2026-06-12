@@ -1,27 +1,40 @@
 import type {
   ActiveTimerRecord,
   ChecklistItemRecord,
+  ChecklistSession,
   FlashcardRecord,
+  FullInterviewSession,
+  FullInterviewStep,
   LearningJournalRecord,
   MetadataRecord,
+  MockEvidence,
   MigrationReport,
   MockRecord,
+  NoteLink,
   NoteRecord,
+  NoteVersion,
   PlanProgressRecord,
   ProgressEventRecord,
   PlaygroundSolutionRecord,
+  QuizAnswerRecord,
   QuizAttemptRecord,
+  QuizMarkedQuestionRecord,
+  QuizQuestionRecord,
   QuizReviewRecord,
+  QuizSessionRecord,
   ResourceProgressRecord,
   ResourceRecord,
   ReviewRecord,
   ScheduleOverrideRecord,
   SettingsRecord,
+  StarAnswer,
+  SystemDesignDraft,
   TechnicalEnglishPracticeRecord,
   TechnicalEnglishRecord,
   TimerSettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
+  WeeklyReportSnapshotRecord,
 } from "./database";
 
 export const BACKUP_APP_ID = "uber-prep" as const;
@@ -36,14 +49,27 @@ export type BackupData = {
   scheduleOverrides: ScheduleOverrideRecord[];
   reviews: ReviewRecord[];
   flashcards: FlashcardRecord[];
+  quizQuestions: QuizQuestionRecord[];
+  quizSessions: QuizSessionRecord[];
+  quizAnswers: QuizAnswerRecord[];
+  quizMarkedQuestions: QuizMarkedQuestionRecord[];
   quizAttempts: QuizAttemptRecord[];
   quizReviews: QuizReviewRecord[];
   activeTimer: ActiveTimerRecord[];
   timerSessions: TimerSessionRecord[];
   timerSettings: TimerSettingsRecord[];
   mocks: MockRecord[];
+  mockEvidence: MockEvidence[];
+  starAnswers: StarAnswer[];
+  systemDesignDrafts: SystemDesignDraft[];
+  fullInterviewSessions: FullInterviewSession[];
+  fullInterviewSteps: FullInterviewStep[];
+  checklistSessions: ChecklistSession[];
   notes: NoteRecord[];
+  noteVersions: NoteVersion[];
+  noteLinks: NoteLink[];
   weeklyReflections: WeeklyReflectionRecord[];
+  weeklyReportSnapshots: WeeklyReportSnapshotRecord[];
   learningJournal: LearningJournalRecord[];
   playgroundSolutions: PlaygroundSolutionRecord[];
   checklistItems: ChecklistItemRecord[];

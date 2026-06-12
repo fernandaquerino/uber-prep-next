@@ -59,7 +59,7 @@ export function PlanTab({ settings, onUpdate }: PlanTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Plano de estudos</h3>
+        <h3 className="mb-1 text-sm font-medium">Plano de estudos</h3>
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="start-date">Data inicial</Label>
@@ -72,18 +72,24 @@ export function PlanTab({ settings, onUpdate }: PlanTabProps) {
                 setShowImpact(false);
               }}
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Define o primeiro dia de estudo do plano.
             </p>
           </div>
 
           <div className="space-y-1.5">
             <Label>Duração do plano</Label>
-            <Select value={duration} onValueChange={(v) => { if (v) { setDuration(v); setShowImpact(false); } }}>
+            <Select
+              value={duration}
+              onValueChange={(v) => {
+                if (v) {
+                  setDuration(v);
+                  setShowImpact(false);
+                }
+              }}
+            >
               <SelectTrigger className="w-48">
-                <SelectValue>
-                  {(v) => (v ? `${v} semanas` : "Selecionar")}
-                </SelectValue>
+                <SelectValue>{(v) => (v ? `${v} semanas` : "Selecionar")}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {DURATION_OPTIONS.map((w) => (
@@ -98,12 +104,14 @@ export function PlanTab({ settings, onUpdate }: PlanTabProps) {
       </div>
 
       {showImpact && (startDateChanged || durationChanged) && (
-        <div className="flex gap-2 items-start p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-300">
-          <AlertTriangle className="size-4 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-800 dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           <div className="text-sm">
             <p className="font-medium">Impacto da alteração</p>
             {startDateChanged && (
-              <p className="mt-1">Alterar a data inicial recalculará todas as datas futuras do plano.</p>
+              <p className="mt-1">
+                Alterar a data inicial recalculará todas as datas futuras do plano.
+              </p>
             )}
             {durationChanged && (
               <p className="mt-1">Alterar a duração pode adicionar ou remover semanas do plano.</p>
@@ -116,8 +124,8 @@ export function PlanTab({ settings, onUpdate }: PlanTabProps) {
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-1">Dias perdidos</h3>
-        <p className="text-xs text-muted-foreground mb-3">
+        <h3 className="mb-1 text-sm font-medium">Dias perdidos</h3>
+        <p className="text-muted-foreground mb-3 text-xs">
           O que fazer quando um dia de estudo passa sem atividade.
         </p>
 
@@ -125,7 +133,7 @@ export function PlanTab({ settings, onUpdate }: PlanTabProps) {
           {LOST_DAY_POLICIES.map((policy) => (
             <label
               key={policy}
-              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+              className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
                 lostDayPolicy === policy
                   ? "border-primary bg-primary/5"
                   : "border-border hover:bg-muted/50"
@@ -141,7 +149,7 @@ export function PlanTab({ settings, onUpdate }: PlanTabProps) {
               />
               <div>
                 <p className="text-sm font-medium">{LOST_DAY_POLICY_LABELS[policy]}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-muted-foreground mt-0.5 text-xs">
                   {LOST_DAY_POLICY_DESCRIPTIONS[policy]}
                 </p>
               </div>

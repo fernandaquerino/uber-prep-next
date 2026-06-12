@@ -75,17 +75,12 @@ function formatRelativeDate(dateStr: string): string {
 
 // ── Mock list item ────────────────────────────────────────────────────────────
 
-export function buildMockListItemVM(
-  mock: MockRecord,
-  evidence: MockEvidence[],
-): MockListItemVM {
+export function buildMockListItemVM(mock: MockRecord, evidence: MockEvidence[]): MockListItemVM {
   const mockEvidence = evidence.filter((e) => e.mockId === mock.id);
   const gapCount = mockEvidence.filter((e) => e.kind === "gap").length;
   const strengthCount = mockEvidence.filter((e) => e.kind === "strength").length;
 
-  const score = mock.score ?? mock.rubricResult
-    ? (mock.score ?? null)
-    : null;
+  const score = (mock.score ?? mock.rubricResult) ? (mock.score ?? null) : null;
 
   return {
     id: mock.id,
@@ -155,14 +150,16 @@ function buildMockRubricVM(mock: MockRecord): MockRubricVM | null {
     label: c.label,
     description: c.description ?? "",
     rating: c.rating,
-    ratingLabel: RUBRIC_RATING_LABELS[c.rating as keyof typeof RUBRIC_RATING_LABELS] ?? String(c.rating),
+    ratingLabel:
+      RUBRIC_RATING_LABELS[c.rating as keyof typeof RUBRIC_RATING_LABELS] ?? String(c.rating),
     isEvaluated: c.rating !== 0,
   }));
 
   const evaluated = criteria.filter((c) => c.isEvaluated);
-  const scorePercent = evaluated.length > 0
-    ? Math.round((evaluated.reduce((s, c) => s + c.rating, 0) / evaluated.length / 5) * 100)
-    : null;
+  const scorePercent =
+    evaluated.length > 0
+      ? Math.round((evaluated.reduce((s, c) => s + c.rating, 0) / evaluated.length / 5) * 100)
+      : null;
 
   return {
     definitionId: mock.rubricResult.rubricDefinitionId,
@@ -176,18 +173,12 @@ function buildMockRubricVM(mock: MockRecord): MockRubricVM | null {
 
 // ── Summary stats ─────────────────────────────────────────────────────────────
 
-export function buildMocksSummaryVM(
-  mocks: MockRecord[],
-  evidence: MockEvidence[],
-): MocksSummaryVM {
+export function buildMocksSummaryVM(mocks: MockRecord[], evidence: MockEvidence[]): MocksSummaryVM {
   const completed = mocks.filter((m) => m.status === "completed");
-  const scores = completed
-    .map((m) => m.score)
-    .filter((s): s is number => typeof s === "number");
+  const scores = completed.map((m) => m.score).filter((s): s is number => typeof s === "number");
 
-  const avgScore = scores.length > 0
-    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-    : null;
+  const avgScore =
+    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 
   const recentCutoff = new Date();
   recentCutoff.setDate(recentCutoff.getDate() - 14);
@@ -223,16 +214,13 @@ export function buildStarQuestionVM(
     hasAnswer: !!answer,
     selfRating: answer?.selfRating ?? null,
     selfRatingLabel: answer?.selfRating
-      ? RUBRIC_RATING_LABELS[answer.selfRating as keyof typeof RUBRIC_RATING_LABELS] ?? ""
+      ? (RUBRIC_RATING_LABELS[answer.selfRating as keyof typeof RUBRIC_RATING_LABELS] ?? "")
       : "Não avaliado",
     answeredAt: answer?.updatedAt ?? null,
   };
 }
 
-export function buildStarAnswerVM(
-  questionId: string,
-  answer: StarAnswer,
-): StarAnswerVM {
+export function buildStarAnswerVM(questionId: string, answer: StarAnswer): StarAnswerVM {
   return {
     id: answer.id,
     questionId,
@@ -245,7 +233,7 @@ export function buildStarAnswerVM(
     englishVersion: answer.englishVersion ?? "",
     selfRating: answer.selfRating ?? null,
     selfRatingLabel: answer.selfRating
-      ? RUBRIC_RATING_LABELS[answer.selfRating as keyof typeof RUBRIC_RATING_LABELS] ?? ""
+      ? (RUBRIC_RATING_LABELS[answer.selfRating as keyof typeof RUBRIC_RATING_LABELS] ?? "")
       : "Não avaliado",
     hasAudio: !!answer.audioRecordingId,
     audioRecordingId: answer.audioRecordingId ?? null,
@@ -260,12 +248,11 @@ export function buildSystemDesignTemplateVM(
   template: SystemDesignTemplateData,
   draft: SystemDesignDraft | null,
 ): SystemDesignTemplateVM {
-  const filledSections = template.sections.filter(
-    (s) => draft?.answers[s.id]?.trim(),
-  ).length;
-  const draftProgress = template.sections.length > 0
-    ? Math.round((filledSections / template.sections.length) * 100)
-    : 0;
+  const filledSections = template.sections.filter((s) => draft?.answers[s.id]?.trim()).length;
+  const draftProgress =
+    template.sections.length > 0
+      ? Math.round((filledSections / template.sections.length) * 100)
+      : 0;
 
   return {
     id: template.id,
@@ -295,22 +282,21 @@ export function buildFullInterviewSessionVM(
   steps: FullInterviewStep[],
 ): FullInterviewSessionVM {
   const completedSteps = steps.filter((s) => s.status === "completed").length;
-  const progressPercent = steps.length > 0
-    ? Math.round((completedSteps / steps.length) * 100)
-    : 0;
+  const progressPercent = steps.length > 0 ? Math.round((completedSteps / steps.length) * 100) : 0;
 
   const currentStep = steps.find((s) => s.order === session.currentStepIndex);
 
   return {
     id: session.id,
     title: session.title,
-    statusLabel: MOCK_STATUS_LABELS[session.status as keyof typeof MOCK_STATUS_LABELS] ?? session.status,
+    statusLabel:
+      MOCK_STATUS_LABELS[session.status as keyof typeof MOCK_STATUS_LABELS] ?? session.status,
     statusBadge: statusBadge(session.status as MockRecord["status"]),
     stepCount: steps.length,
     completedSteps,
     currentStepIndex: session.currentStepIndex,
     currentStepTypeLabel: currentStep
-      ? STEP_TYPE_LABELS[currentStep.type] ?? currentStep.type
+      ? (STEP_TYPE_LABELS[currentStep.type] ?? currentStep.type)
       : "",
     progressPercent,
     startedAt: session.startedAt ?? null,
@@ -364,9 +350,8 @@ export function buildChecklistSessionVM(session: ChecklistSession): ChecklistSes
     isComplete: g.totalCount > 0 && g.completedCount === g.totalCount,
   }));
 
-  const progressPercent = session.totalCount > 0
-    ? Math.round((session.completedCount / session.totalCount) * 100)
-    : 0;
+  const progressPercent =
+    session.totalCount > 0 ? Math.round((session.completedCount / session.totalCount) * 100) : 0;
 
   return {
     id: session.id,

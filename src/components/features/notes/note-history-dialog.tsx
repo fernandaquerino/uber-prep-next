@@ -42,12 +42,7 @@ function formatDateTime(iso: string): string {
   }
 }
 
-export function NoteHistoryDialog({
-  open,
-  versions,
-  onClose,
-  onRestore,
-}: NoteHistoryDialogProps) {
+export function NoteHistoryDialog({ open, versions, onClose, onRestore }: NoteHistoryDialogProps) {
   const [previewVersion, setPreviewVersion] = useState<NoteVersion | null>(null);
 
   const sorted = [...versions].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -60,7 +55,7 @@ export function NoteHistoryDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className="flex max-h-[80vh] max-w-2xl flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Clock className="h-4 w-4" />
@@ -73,11 +68,11 @@ export function NoteHistoryDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-1 gap-4 overflow-hidden min-h-0">
+        <div className="flex min-h-0 flex-1 gap-4 overflow-hidden">
           {/* Version list */}
-          <div className="w-64 shrink-0 overflow-y-auto border-r border-border pr-3 space-y-1">
+          <div className="border-border w-64 shrink-0 space-y-1 overflow-y-auto border-r pr-3">
             {sorted.length === 0 && (
-              <p className="text-sm text-muted-foreground py-4 text-center">
+              <p className="text-muted-foreground py-4 text-center text-sm">
                 Nenhuma versão ainda.
               </p>
             )}
@@ -86,7 +81,7 @@ export function NoteHistoryDialog({
               return (
                 <div
                   key={version.id}
-                  className={`rounded-md p-2 cursor-pointer transition-colors ${
+                  className={`cursor-pointer rounded-md p-2 transition-colors ${
                     isSelected ? "bg-muted" : "hover:bg-muted/50"
                   }`}
                   onClick={() => setPreviewVersion(version)}
@@ -95,11 +90,11 @@ export function NoteHistoryDialog({
                   onKeyDown={(e) => e.key === "Enter" && setPreviewVersion(version)}
                   aria-current={isSelected ? "true" : undefined}
                 >
-                  <p className="text-xs font-medium text-foreground truncate">{version.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
+                  <p className="text-foreground truncate text-xs font-medium">{version.title}</p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
                     {formatDateTime(version.createdAt)}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {REASON_LABELS[version.reason] ?? version.reason}
                   </p>
                 </div>
@@ -114,7 +109,7 @@ export function NoteHistoryDialog({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">{previewVersion.title}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {formatDateTime(previewVersion.createdAt)} ·{" "}
                       {REASON_LABELS[previewVersion.reason] ?? previewVersion.reason}
                     </p>
@@ -129,12 +124,12 @@ export function NoteHistoryDialog({
                     Restaurar
                   </Button>
                 </div>
-                <div className="rounded-md border border-border p-4 bg-muted/20 overflow-auto max-h-80">
+                <div className="border-border bg-muted/20 max-h-80 overflow-auto rounded-md border p-4">
                   <NoteMarkdown content={previewVersion.content} />
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-2">
+              <div className="text-muted-foreground flex h-full flex-col items-center justify-center gap-2">
                 <Eye className="h-8 w-8 opacity-30" />
                 <p className="text-sm">Selecione uma versão para visualizar</p>
               </div>

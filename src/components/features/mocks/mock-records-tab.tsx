@@ -4,7 +4,12 @@ import { useState, useCallback } from "react";
 import type { MockRecord, MockEvidence, RubricRating } from "@/types/database";
 import { useMockActions } from "@/hooks/use-mock-actions";
 import { RUBRIC_DEFINITIONS } from "@/lib/domain/mocks/mock-rubrics";
-import { RUBRIC_RATING_LABELS, getMockTypeLabel, MOCK_STATUS_LABELS, CANONICAL_MOCK_TYPES } from "@/lib/domain/mocks/mock.types";
+import {
+  RUBRIC_RATING_LABELS,
+  getMockTypeLabel,
+  MOCK_STATUS_LABELS,
+  CANONICAL_MOCK_TYPES,
+} from "@/lib/domain/mocks/mock.types";
 import type { CanonicalMockType } from "@/lib/domain/mocks/mock.types";
 import { buildMockListItemVM } from "@/lib/presentation/mocks/build-mock-view-model";
 import { AudioRecorder } from "./audio-recorder";
@@ -15,9 +20,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Mic, Trash2, Copy, ChevronDown, ChevronUp, AlertTriangle, Star, Check } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Mic,
+  Trash2,
+  Copy,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  Star,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -50,7 +79,18 @@ function makeEmptyForm(type: CanonicalMockType = "coding"): FormState {
   const rubricDef = RUBRIC_DEFINITIONS[type];
   const rubric: RubricState = {};
   for (const c of rubricDef.criteria) rubric[c.id] = 0;
-  return { date: todayStr(), type, title: "", prompt: "", response: "", strengths: "", weaknesses: "", feedback: "", nextSteps: "", rubric };
+  return {
+    date: todayStr(),
+    type,
+    title: "",
+    prompt: "",
+    response: "",
+    strengths: "",
+    weaknesses: "",
+    feedback: "",
+    nextSteps: "",
+    rubric,
+  };
 }
 
 function computeScoreFromRubric(rubric: RubricState): number | null {
@@ -78,8 +118,15 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const { createMock, updateMock, completeMock, deleteMock, duplicateMock, createReviewsFromGaps, isLoading } =
-    useMockActions(onRefresh);
+  const {
+    createMock,
+    updateMock,
+    completeMock,
+    deleteMock,
+    duplicateMock,
+    createReviewsFromGaps,
+    isLoading,
+  } = useMockActions(onRefresh);
 
   const openNew = useCallback(() => {
     setEditingId(null);
@@ -88,12 +135,15 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
     setShowForm(true);
   }, []);
 
-  const handleTypeChange = useCallback((type: CanonicalMockType) => {
-    const rubricDef = RUBRIC_DEFINITIONS[type];
-    const rubric: RubricState = {};
-    for (const c of rubricDef.criteria) rubric[c.id] = form.rubric[c.id] ?? 0;
-    setForm((f) => ({ ...f, type, rubric }));
-  }, [form.rubric]);
+  const handleTypeChange = useCallback(
+    (type: CanonicalMockType) => {
+      const rubricDef = RUBRIC_DEFINITIONS[type];
+      const rubric: RubricState = {};
+      for (const c of rubricDef.criteria) rubric[c.id] = form.rubric[c.id] ?? 0;
+      setForm((f) => ({ ...f, type, rubric }));
+    },
+    [form.rubric],
+  );
 
   const handleRubricChange = useCallback((criterionId: string, value: RubricRating) => {
     setForm((f) => ({ ...f, rubric: { ...f.rubric, [criterionId]: value } }));
@@ -108,9 +158,10 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
       rating: form.rubric[c.id] ?? 0,
     }));
     const evaluated = criteria.filter((c) => c.rating !== 0);
-    const score = evaluated.length > 0
-      ? Math.round((evaluated.reduce((s, c) => s + c.rating, 0) / evaluated.length / 5) * 100)
-      : null;
+    const score =
+      evaluated.length > 0
+        ? Math.round((evaluated.reduce((s, c) => s + c.rating, 0) / evaluated.length / 5) * 100)
+        : null;
     const rubricResult = {
       rubricDefinitionId: rubricDef.id,
       version: rubricDef.version,
@@ -181,7 +232,10 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
           {/* Date + Type */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
-              <Label htmlFor="mock-date" className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label
+                htmlFor="mock-date"
+                className="text-muted-foreground text-xs tracking-wide uppercase"
+              >
                 Data
               </Label>
               <Input
@@ -192,7 +246,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Tipo</Label>
+              <Label className="text-muted-foreground text-xs tracking-wide uppercase">Tipo</Label>
               <div className="flex flex-wrap gap-2">
                 {CANONICAL_MOCK_TYPES.map((t) => (
                   <button
@@ -200,7 +254,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
                     type="button"
                     onClick={() => handleTypeChange(t)}
                     className={cn(
-                      "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
+                      "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
                       form.type === t
                         ? "bg-primary text-primary-foreground border-primary"
                         : "border-border hover:bg-accent",
@@ -215,13 +269,13 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
 
           {/* Rubric */}
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
               Rubrica de entrevista
             </Label>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
               {rubricDef.criteria.map((c) => (
                 <div key={c.id} className="space-y-0.5">
-                  <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <div className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                     {c.label}
                   </div>
                   <Select
@@ -230,7 +284,11 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
                   >
                     <SelectTrigger className="h-8 text-xs">
                       <SelectValue>
-                        {(v) => v != null ? `${v} — ${RUBRIC_RATING_LABELS[Number(v) as RubricRating] ?? String(v)}` : "–"}
+                        {(v) =>
+                          v != null
+                            ? `${v} — ${RUBRIC_RATING_LABELS[Number(v) as RubricRating] ?? String(v)}`
+                            : "–"
+                        }
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
@@ -245,9 +303,14 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
               ))}
             </div>
             {previewScore !== null && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Score deste mock:{" "}
-                <span className={cn("font-semibold", previewScore >= 60 ? "text-green-500" : "text-destructive")}>
+                <span
+                  className={cn(
+                    "font-semibold",
+                    previewScore >= 60 ? "text-green-500" : "text-destructive",
+                  )}
+                >
                   {previewScore}%
                 </span>
               </p>
@@ -257,7 +320,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
           {/* Content fields */}
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label className="text-muted-foreground text-xs tracking-wide uppercase">
                 Pergunta / problema
               </Label>
               <Textarea
@@ -269,7 +332,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label className="text-muted-foreground text-xs tracking-wide uppercase">
                 Como foi a solução
               </Label>
               <Textarea
@@ -282,7 +345,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                <Label className="text-muted-foreground text-xs tracking-wide uppercase">
                   Pontos fortes
                 </Label>
                 <Textarea
@@ -293,7 +356,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                <Label className="text-muted-foreground text-xs tracking-wide uppercase">
                   Pontos a melhorar
                 </Label>
                 <Textarea
@@ -306,7 +369,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label className="text-muted-foreground text-xs tracking-wide uppercase">
                 Feedback geral
               </Label>
               <Textarea
@@ -318,7 +381,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              <Label className="text-muted-foreground text-xs tracking-wide uppercase">
                 Próximos passos
               </Label>
               <Textarea
@@ -332,7 +395,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
 
           {/* Audio */}
           <div className="space-y-1">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+            <Label className="text-muted-foreground text-xs tracking-wide uppercase">
               Gravação
             </Label>
             <AudioRecorder value={recording} onChange={setRecording} />
@@ -353,9 +416,9 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
         <div className="space-y-4">
           {mocks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <Mic className="h-10 w-10 text-muted-foreground/40 mb-3" />
-              <p className="font-medium text-muted-foreground mb-1">Nenhum mock registrado ainda</p>
-              <p className="text-sm text-muted-foreground mb-4">
+              <Mic className="text-muted-foreground/40 mb-3 h-10 w-10" />
+              <p className="text-muted-foreground mb-1 font-medium">Nenhum mock registrado ainda</p>
+              <p className="text-muted-foreground mb-4 text-sm">
                 Registre suas entrevistas simuladas para acompanhar a evolução.
               </p>
               <Button onClick={openNew}>+ Registrar mock</Button>
@@ -434,10 +497,22 @@ type MockCardProps = {
   onCreateReviews: (descriptions: string[]) => void;
 };
 
-function MockCard({ mock, gapCount, strengthCount, isExpanded, evidence, onToggle, onComplete, onDuplicate, onDelete, onCreateReviews }: MockCardProps) {
+function MockCard({
+  mock,
+  gapCount,
+  strengthCount,
+  isExpanded,
+  evidence,
+  onToggle,
+  onComplete,
+  onDuplicate,
+  onDelete,
+  onCreateReviews,
+}: MockCardProps) {
   const score = mock.score ?? null;
   const typeLabel = getMockTypeLabel(mock.type);
-  const statusLabel = MOCK_STATUS_LABELS[mock.status as keyof typeof MOCK_STATUS_LABELS] ?? mock.status;
+  const statusLabel =
+    MOCK_STATUS_LABELS[mock.status as keyof typeof MOCK_STATUS_LABELS] ?? mock.status;
   const gaps = evidence.filter((e) => e.kind === "gap");
 
   return (
@@ -445,31 +520,38 @@ function MockCard({ mock, gapCount, strengthCount, isExpanded, evidence, onToggl
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <button
-            className="flex-1 text-left min-w-0"
+            className="min-w-0 flex-1 text-left"
             onClick={onToggle}
             aria-expanded={isExpanded}
           >
-            <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className={cn(
-                "text-xs font-medium px-1.5 py-0.5 rounded",
-                mock.status === "completed" ? "bg-green-500/15 text-green-700 dark:text-green-400" :
-                mock.status === "in_progress" ? "bg-blue-500/15 text-blue-700 dark:text-blue-400" :
-                "bg-muted text-muted-foreground",
-              )}>
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <span
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-xs font-medium",
+                  mock.status === "completed"
+                    ? "bg-green-500/15 text-green-700 dark:text-green-400"
+                    : mock.status === "in_progress"
+                      ? "bg-blue-500/15 text-blue-700 dark:text-blue-400"
+                      : "bg-muted text-muted-foreground",
+                )}
+              >
                 {statusLabel}
               </span>
-              <span className="text-xs text-muted-foreground">{typeLabel}</span>
+              <span className="text-muted-foreground text-xs">{typeLabel}</span>
               {score !== null && (
-                <span className={cn("text-xs font-semibold", score >= 60 ? "text-green-600 dark:text-green-400" : "text-destructive")}>
+                <span
+                  className={cn(
+                    "text-xs font-semibold",
+                    score >= 60 ? "text-green-600 dark:text-green-400" : "text-destructive",
+                  )}
+                >
                   {score}%
                 </span>
               )}
-              {mock.hasAudio && <Mic className="h-3 w-3 text-muted-foreground" />}
+              {mock.hasAudio && <Mic className="text-muted-foreground h-3 w-3" />}
             </div>
-            <div className="font-medium text-sm">
-              {mock.title ?? typeLabel}
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5 flex gap-3">
+            <div className="text-sm font-medium">{mock.title ?? typeLabel}</div>
+            <div className="text-muted-foreground mt-0.5 flex gap-3 text-xs">
               <span>{mock.date}</span>
               {gapCount > 0 && (
                 <span className="text-destructive flex items-center gap-0.5">
@@ -478,7 +560,7 @@ function MockCard({ mock, gapCount, strengthCount, isExpanded, evidence, onToggl
                 </span>
               )}
               {strengthCount > 0 && (
-                <span className="text-green-600 dark:text-green-400 flex items-center gap-0.5">
+                <span className="flex items-center gap-0.5 text-green-600 dark:text-green-400">
                   <Star className="h-3 w-3" />
                   {strengthCount}
                 </span>
@@ -486,66 +568,101 @@ function MockCard({ mock, gapCount, strengthCount, isExpanded, evidence, onToggl
             </div>
           </button>
 
-          <div className="flex gap-1 shrink-0">
+          <div className="flex shrink-0 gap-1">
             {mock.status !== "completed" && (
-              <Button size="icon" variant="ghost" className="h-7 w-7" title="Concluir" onClick={onComplete}>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7"
+                title="Concluir"
+                onClick={onComplete}
+              >
                 <Check className="h-3.5 w-3.5" />
               </Button>
             )}
-            <Button size="icon" variant="ghost" className="h-7 w-7" title="Duplicar" onClick={onDuplicate}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7"
+              title="Duplicar"
+              onClick={onDuplicate}
+            >
               <Copy className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" title="Excluir" onClick={onDelete}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="text-destructive hover:text-destructive h-7 w-7"
+              title="Excluir"
+              onClick={onDelete}
+            >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
-            {isExpanded
-              ? <ChevronUp className="h-4 w-4 text-muted-foreground self-center" />
-              : <ChevronDown className="h-4 w-4 text-muted-foreground self-center" />
-            }
+            {isExpanded ? (
+              <ChevronUp className="text-muted-foreground h-4 w-4 self-center" />
+            ) : (
+              <ChevronDown className="text-muted-foreground h-4 w-4 self-center" />
+            )}
           </div>
         </div>
 
         {isExpanded && (
-          <div className="mt-4 border-t pt-3 space-y-3">
+          <div className="mt-4 space-y-3 border-t pt-3">
             {mock.prompt && (
               <div>
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-0.5">Pergunta / problema</div>
+                <div className="text-muted-foreground mb-0.5 text-xs font-medium tracking-wide uppercase">
+                  Pergunta / problema
+                </div>
                 <p className="text-sm whitespace-pre-wrap">{mock.prompt}</p>
               </div>
             )}
             {mock.response && (
               <div>
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-0.5">Solução</div>
+                <div className="text-muted-foreground mb-0.5 text-xs font-medium tracking-wide uppercase">
+                  Solução
+                </div>
                 <p className="text-sm whitespace-pre-wrap">{mock.response}</p>
               </div>
             )}
             {mock.feedback && (
               <div>
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-0.5">Feedback</div>
+                <div className="text-muted-foreground mb-0.5 text-xs font-medium tracking-wide uppercase">
+                  Feedback
+                </div>
                 <p className="text-sm whitespace-pre-wrap">{mock.feedback}</p>
               </div>
             )}
             {mock.rubricResult && mock.rubricResult.criteria.length > 0 && (
               <div>
-                <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Rubrica</div>
+                <div className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
+                  Rubrica
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {mock.rubricResult.criteria.filter((c) => c.rating !== 0).map((c) => (
-                    <Badge
-                      key={c.id}
-                      variant={c.rating >= 4 ? "default" : c.rating <= 2 ? "destructive" : "secondary"}
-                      className="text-xs"
-                    >
-                      {c.label}: {c.rating}
-                    </Badge>
-                  ))}
+                  {mock.rubricResult.criteria
+                    .filter((c) => c.rating !== 0)
+                    .map((c) => (
+                      <Badge
+                        key={c.id}
+                        variant={
+                          c.rating >= 4 ? "default" : c.rating <= 2 ? "destructive" : "secondary"
+                        }
+                        className="text-xs"
+                      >
+                        {c.label}: {c.rating}
+                      </Badge>
+                    ))}
                 </div>
               </div>
             )}
             {gaps.length > 0 && (
               <div>
-                <div className="text-xs font-medium uppercase tracking-wide text-destructive mb-1">Gaps ({gaps.length})</div>
-                <ul className="text-sm text-muted-foreground space-y-0.5">
-                  {gaps.map((e) => <li key={e.id}>• {e.description}</li>)}
+                <div className="text-destructive mb-1 text-xs font-medium tracking-wide uppercase">
+                  Gaps ({gaps.length})
+                </div>
+                <ul className="text-muted-foreground space-y-0.5 text-sm">
+                  {gaps.map((e) => (
+                    <li key={e.id}>• {e.description}</li>
+                  ))}
                 </ul>
                 <Button
                   size="sm"

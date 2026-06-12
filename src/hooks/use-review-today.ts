@@ -4,11 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { ReviewTodayPageState } from "@/lib/presentation/reviews/review-view-model";
 import { buildReviewTodayViewModel } from "@/lib/presentation/reviews/build-review-view-model";
 import { getReviewTodayData } from "@/lib/application/reviews/get-review-today-data";
-import {
-  buildStudySchedule,
-  DEFAULT_WEEKDAY_AVAILABILITY,
-  parseCalendarDate,
-} from "@/lib/domain/schedule";
+import { buildStudySchedule, parseCalendarDate } from "@/lib/domain/schedule";
 import { getEffectiveSchedule } from "@/lib/application/progress";
 import { STUDY_PLAN } from "@/lib/data/study-plan";
 
@@ -21,18 +17,18 @@ export type UseReviewTodayResult = {
 async function loadReviewTodayData(): Promise<ReviewTodayPageState> {
   const { getDb } = await import("@/lib/db/db");
   const { runSeeds } = await import("@/lib/db/seed");
-  const { SETTINGS_ID } = await import("@/lib/db/constants");
+  const { getSettings } = await import("@/lib/application/settings");
 
   const db = getDb();
   await runSeeds(db);
 
-  const settings = await db.settings.get(SETTINGS_ID);
-  if (!settings?.startDate) {
+  const settings = await getSettings(db);
+  if (!settings.startDate) {
     return { status: "no_start_date" };
   }
 
   const startDate = parseCalendarDate(settings.startDate);
-  const availability = DEFAULT_WEEKDAY_AVAILABILITY;
+  const availability = settings.weekdayAvailability;
 
   const baseSchedule = buildStudySchedule(STUDY_PLAN, {
     startDate,

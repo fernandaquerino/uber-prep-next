@@ -17,13 +17,8 @@ export function AdvancedTab() {
   const [error, setError] = useState<string | null>(null);
 
   function runLoad(cancelled: { current: boolean }) {
-    Promise.all([
-      import("@/lib/db/db"),
-      import("@/lib/application/settings"),
-    ])
-      .then(([{ getDb }, { getStorageDiagnostics }]) =>
-        getStorageDiagnostics(getDb()),
-      )
+    Promise.all([import("@/lib/db/db"), import("@/lib/application/settings")])
+      .then(([{ getDb }, { getStorageDiagnostics }]) => getStorageDiagnostics(getDb()))
       .then((data) => {
         if (!cancelled.current) {
           setDiagnostics(data);
@@ -50,22 +45,30 @@ export function AdvancedTab() {
   useEffect(() => {
     const cancelled = { current: false };
     runLoad(cancelled);
-    return () => { cancelled.current = true; };
+    return () => {
+      cancelled.current = true;
+    };
   }, []);
 
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-medium">Diagnóstico</h3>
-          <Button variant="ghost" size="sm" onClick={handleRefresh} disabled={isLoading} className="gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="gap-1"
+          >
             <RefreshCw className={`size-3.5 ${isLoading ? "animate-spin" : ""}`} />
             Atualizar
           </Button>
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 text-sm text-destructive p-3 rounded-lg border border-destructive/30 bg-destructive/5">
+          <div className="text-destructive border-destructive/30 bg-destructive/5 flex items-center gap-2 rounded-lg border p-3 text-sm">
             <AlertCircle className="size-4 shrink-0" />
             {error}
           </div>
@@ -77,18 +80,21 @@ export function AdvancedTab() {
               <InfoRow label="Versão do app" value={diagnostics.appVersion} />
               <InfoRow label="Versão do schema" value={String(diagnostics.schemaVersion)} />
               {diagnostics.estimatedBytes !== null && (
-                <InfoRow label="Armazenamento usado" value={formatBytes(diagnostics.estimatedBytes)} />
+                <InfoRow
+                  label="Armazenamento usado"
+                  value={formatBytes(diagnostics.estimatedBytes)}
+                />
               )}
               <InfoRow label="Seeds aplicadas" value={String(diagnostics.seedsRun.length)} />
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground mb-2">Registros por tabela</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              <p className="text-muted-foreground mb-2 text-xs font-medium">Registros por tabela</p>
+              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {Object.entries(diagnostics.tableCounts).map(([table, count]) => (
                   <div
                     key={table}
-                    className="flex items-center justify-between px-2.5 py-1.5 rounded bg-muted text-xs"
+                    className="bg-muted flex items-center justify-between rounded px-2.5 py-1.5 text-xs"
                   >
                     <span className="text-muted-foreground">{table}</span>
                     <span className="font-medium tabular-nums">{count}</span>
@@ -99,10 +105,10 @@ export function AdvancedTab() {
 
             {diagnostics.seedsRun.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">Seeds aplicadas</p>
+                <p className="text-muted-foreground mb-2 text-xs font-medium">Seeds aplicadas</p>
                 <div className="space-y-0.5">
                   {diagnostics.seedsRun.map((seed) => (
-                    <p key={seed} className="text-xs font-mono text-muted-foreground">
+                    <p key={seed} className="text-muted-foreground font-mono text-xs">
                       ✓ {seed}
                     </p>
                   ))}
@@ -116,8 +122,8 @@ export function AdvancedTab() {
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-1">Sobre o armazenamento</h3>
-        <div className="space-y-1.5 text-xs text-muted-foreground">
+        <h3 className="mb-1 text-sm font-medium">Sobre o armazenamento</h3>
+        <div className="text-muted-foreground space-y-1.5 text-xs">
           <p>• Todos os dados ficam armazenados no seu navegador via IndexedDB.</p>
           <p>• Limpar cache ou dados do site pode apagar seu progresso.</p>
           <p>• Exporte backups regularmente para evitar perda de dados.</p>
@@ -130,8 +136,8 @@ export function AdvancedTab() {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-0.5 px-3 py-2 rounded-lg bg-muted/50">
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="bg-muted/50 flex flex-col gap-0.5 rounded-lg px-3 py-2">
+      <span className="text-muted-foreground text-xs">{label}</span>
       <span className="text-sm font-medium">{value}</span>
     </div>
   );

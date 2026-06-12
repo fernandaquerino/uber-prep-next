@@ -36,6 +36,7 @@ import type {
   TimerSettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
+  WeeklyReportSnapshotRecord,
 } from "@/types/database";
 
 export class UberPrepDatabase extends Dexie {
@@ -66,6 +67,7 @@ export class UberPrepDatabase extends Dexie {
   noteVersions!: Table<NoteVersion, string>;
   noteLinks!: Table<NoteLink, string>;
   weeklyReflections!: Table<WeeklyReflectionRecord, string>;
+  weeklyReportSnapshots!: Table<WeeklyReportSnapshotRecord, string>;
   learningJournal!: Table<LearningJournalRecord, string>;
   playgroundSolutions!: Table<PlaygroundSolutionRecord, string>;
   checklistItems!: Table<ChecklistItemRecord, string>;
@@ -137,44 +139,46 @@ export class UberPrepDatabase extends Dexie {
       timerSettings: "id",
     };
 
-    this.version(6).stores(storesV6).upgrade((tx) =>
-      tx
-        .table("timerSessions")
-        .toCollection()
-        .modify((session) => {
-          const legacy = session as TimerSessionRecord & {
-            durationSeconds?: number;
-            presetSeconds?: number;
-            completedAt?: string;
-            weekNumber?: number;
-          };
+    this.version(6)
+      .stores(storesV6)
+      .upgrade((tx) =>
+        tx
+          .table("timerSessions")
+          .toCollection()
+          .modify((session) => {
+            const legacy = session as TimerSessionRecord & {
+              durationSeconds?: number;
+              presetSeconds?: number;
+              completedAt?: string;
+              weekNumber?: number;
+            };
 
-          if (legacy.actualDurationSeconds !== undefined) return;
+            if (legacy.actualDurationSeconds !== undefined) return;
 
-          const endedAt = legacy.completedAt ?? legacy.endedAt ?? legacy.startedAt;
-          const actualDurationSeconds = Math.max(0, legacy.durationSeconds ?? 0);
-          const targetDurationSeconds =
-            legacy.presetSeconds && legacy.presetSeconds > 0 ? legacy.presetSeconds : undefined;
-          const now = new Date().toISOString();
+            const endedAt = legacy.completedAt ?? legacy.endedAt ?? legacy.startedAt;
+            const actualDurationSeconds = Math.max(0, legacy.durationSeconds ?? 0);
+            const targetDurationSeconds =
+              legacy.presetSeconds && legacy.presetSeconds > 0 ? legacy.presetSeconds : undefined;
+            const now = new Date().toISOString();
 
-          legacy.sourceType = "general";
-          legacy.category = legacy.category || "general";
-          legacy.title = "Sessão de foco migrada";
-          legacy.mode = targetDurationSeconds ? "countdown" : "stopwatch";
-          legacy.status = legacy.status === "completed" ? "completed" : "stopped_early";
-          legacy.targetDurationSeconds = targetDurationSeconds;
-          legacy.actualDurationSeconds = actualDurationSeconds;
-          legacy.endedAt = endedAt;
-          legacy.date = legacy.date ?? endedAt.slice(0, 10);
-          legacy.createdAt = legacy.createdAt ?? legacy.startedAt ?? now;
-          legacy.updatedAt = legacy.updatedAt ?? endedAt;
+            legacy.sourceType = "general";
+            legacy.category = legacy.category || "general";
+            legacy.title = "Sessão de foco migrada";
+            legacy.mode = targetDurationSeconds ? "countdown" : "stopwatch";
+            legacy.status = legacy.status === "completed" ? "completed" : "stopped_early";
+            legacy.targetDurationSeconds = targetDurationSeconds;
+            legacy.actualDurationSeconds = actualDurationSeconds;
+            legacy.endedAt = endedAt;
+            legacy.date = legacy.date ?? endedAt.slice(0, 10);
+            legacy.createdAt = legacy.createdAt ?? legacy.startedAt ?? now;
+            legacy.updatedAt = legacy.updatedAt ?? endedAt;
 
-          delete legacy.durationSeconds;
-          delete legacy.presetSeconds;
-          delete legacy.completedAt;
-          delete legacy.weekNumber;
-        }),
-    );
+            delete legacy.durationSeconds;
+            delete legacy.presetSeconds;
+            delete legacy.completedAt;
+            delete legacy.weekNumber;
+          }),
+      );
 
     // v7: new mock-related tables + backfill MockRecord fields
     const storesV7 = {
@@ -281,6 +285,13 @@ export class UberPrepDatabase extends Dexie {
       technicalEnglishPractices: "id, itemId, createdAt",
     };
 
-    this.version(DATABASE_VERSION).stores(storesV9);
+    this.version(9).stores(storesV9);
+
+    const storesV10 = {
+      ...storesV9,
+      weeklyReportSnapshots: "id, weekNumber, weekStart, generatedAt",
+    };
+
+    this.version(DATABASE_VERSION).stores(storesV10);
   }
 }

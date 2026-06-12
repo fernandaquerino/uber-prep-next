@@ -34,7 +34,11 @@ interface TimerTabProps {
   onUpdate: (input: Partial<TimerSettingsInput>) => Promise<void>;
 }
 
-type BooleanTimerKey = "soundEnabled" | "notificationsEnabled" | "confirmBeforeCancel" | "showCompactTimer";
+type BooleanTimerKey =
+  | "soundEnabled"
+  | "notificationsEnabled"
+  | "confirmBeforeCancel"
+  | "showCompactTimer";
 
 const TIMER_BOOL_LABELS: Record<BooleanTimerKey, { label: string; description: string }> = {
   soundEnabled: {
@@ -91,17 +95,25 @@ export function TimerTab({ timerSettings, onUpdate }: TimerTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Timer padrão</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <h3 className="mb-1 text-sm font-medium">Timer padrão</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Modo padrão</Label>
             <Select
               value={defaultMode}
-              onValueChange={(v) => { if (v) setDefaultMode(v as typeof defaultMode); }}
+              onValueChange={(v) => {
+                if (v) setDefaultMode(v as typeof defaultMode);
+              }}
             >
               <SelectTrigger>
                 <SelectValue>
-                  {(v) => v === "countdown" ? "Contagem regressiva" : v === "stopwatch" ? "Cronômetro" : String(v ?? "")}
+                  {(v) =>
+                    v === "countdown"
+                      ? "Contagem regressiva"
+                      : v === "stopwatch"
+                        ? "Cronômetro"
+                        : String(v ?? "")
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -115,11 +127,16 @@ export function TimerTab({ timerSettings, onUpdate }: TimerTabProps) {
             <Label>Preset padrão</Label>
             <Select
               value={String(defaultPreset)}
-              onValueChange={(v) => { if (v) setDefaultPreset(Number(v)); }}
+              onValueChange={(v) => {
+                if (v) setDefaultPreset(Number(v));
+              }}
             >
               <SelectTrigger>
                 <SelectValue>
-                  {(v) => TIMER_PRESET_OPTIONS.find((o) => String(o.value) === String(v))?.label ?? String(v ?? "")}
+                  {(v) =>
+                    TIMER_PRESET_OPTIONS.find((o) => String(o.value) === String(v))?.label ??
+                    String(v ?? "")
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -136,11 +153,16 @@ export function TimerTab({ timerSettings, onUpdate }: TimerTabProps) {
             <Label>Alerta de sessão longa</Label>
             <Select
               value={String(longThreshold)}
-              onValueChange={(v) => { if (v) setLongThreshold(Number(v)); }}
+              onValueChange={(v) => {
+                if (v) setLongThreshold(Number(v));
+              }}
             >
               <SelectTrigger>
                 <SelectValue>
-                  {(v) => LONG_SESSION_OPTIONS.find((o) => String(o.value) === String(v))?.label ?? String(v ?? "")}
+                  {(v) =>
+                    LONG_SESSION_OPTIONS.find((o) => String(o.value) === String(v))?.label ??
+                    String(v ?? "")
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -151,7 +173,7 @@ export function TimerTab({ timerSettings, onUpdate }: TimerTabProps) {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Avisa quando uma sessão ultrapassa esse tempo.
             </p>
           </div>
@@ -161,27 +183,30 @@ export function TimerTab({ timerSettings, onUpdate }: TimerTabProps) {
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Comportamento</h3>
+        <h3 className="mb-3 text-sm font-medium">Comportamento</h3>
         <div className="space-y-2">
-          {(Object.entries(TIMER_BOOL_LABELS) as [BooleanTimerKey, { label: string; description: string }][]).map(
-            ([key, meta]) => (
-              <label
-                key={key}
-                className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={bools[key]}
-                  onChange={() => toggleBool(key)}
-                  className="mt-0.5 rounded"
-                />
-                <div>
-                  <p className="text-sm font-medium">{meta.label}</p>
-                  <p className="text-xs text-muted-foreground">{meta.description}</p>
-                </div>
-              </label>
-            ),
-          )}
+          {(
+            Object.entries(TIMER_BOOL_LABELS) as [
+              BooleanTimerKey,
+              { label: string; description: string },
+            ][]
+          ).map(([key, meta]) => (
+            <label
+              key={key}
+              className="hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors"
+            >
+              <input
+                type="checkbox"
+                checked={bools[key]}
+                onChange={() => toggleBool(key)}
+                className="mt-0.5 rounded"
+              />
+              <div>
+                <p className="text-sm font-medium">{meta.label}</p>
+                <p className="text-muted-foreground text-xs">{meta.description}</p>
+              </div>
+            </label>
+          ))}
         </div>
       </div>
 

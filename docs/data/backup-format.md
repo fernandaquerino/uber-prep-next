@@ -17,14 +17,27 @@ Exportação e importação de dados em JSON.
     "planProgress": [...],
     "reviews": [...],
     "flashcards": [...],
+    "quizQuestions": [...],
+    "quizSessions": [...],
+    "quizAnswers": [...],
+    "quizMarkedQuestions": [...],
     "quizAttempts": [...],
     "quizReviews": [...],
     "activeTimer": [...],
     "timerSessions": [...],
     "timerSettings": [...],
     "mocks": [...],
+    "mockEvidence": [...],
+    "starAnswers": [...],
+    "systemDesignDrafts": [...],
+    "fullInterviewSessions": [...],
+    "fullInterviewSteps": [...],
+    "checklistSessions": [...],
     "notes": [...],
+    "noteVersions": [...],
+    "noteLinks": [...],
     "weeklyReflections": [...],
+    "weeklyReportSnapshots": [...],
     "learningJournal": [...],
     "playgroundSolutions": [...],
     "checklistItems": [...],
@@ -43,7 +56,7 @@ BACKUP_VERSION = 1;
 ## Notas importantes
 
 - **Áudio não incluído**: Blobs de áudio (`mockAudio`) são excluídos do backup. O campo `audioCount` indica quantos arquivos existiam.
-- **Metadata preservada**: O array `metadata` é exportado mas nunca importado para evitar sobrescrever o estado do banco atual.
+- **Metadata versionada**: O array `metadata` participa de exportação e restauração para preservar o histórico de migrations e seeds.
 - **Timer separado**: `activeTimer` guarda a sessão em andamento, `timerSessions` guarda histórico oficial e `timerSettings` guarda preferências.
 
 ## Modos de importação
@@ -51,7 +64,7 @@ BACKUP_VERSION = 1;
 | Modo      | Comportamento                                                                                                      |
 | --------- | ------------------------------------------------------------------------------------------------------------------ |
 | `merge`   | Registros já existentes são mantidos. Apenas novos IDs são inseridos. Conflitos são logados em `result.conflicts`. |
-| `replace` | Todas as tabelas (exceto `metadata` e `mockAudio`) são limpas antes da importação, incluindo timer.                |
+| `replace` | Todas as tabelas do backup são limpas antes da importação. `mockAudio` permanece separado.                         |
 
 ## API
 
@@ -77,6 +90,6 @@ O schema `backupFileSchema` (em `src/lib/validation/backup.schemas.ts`) verifica
 
 - `app === "uber-prep"`
 - `backupVersion === 1`
-- Campos obrigatórios presentes e com tipos corretos
-- Tabelas de progresso, eventos e overrides presentes no backup
-- Tabelas `activeTimer`, `timerSessions` e `timerSettings` presentes ou normalizadas com defaults compatíveis
+- Envelope e coleção `data` presentes
+- Coleções ausentes de backups antigos normalizadas para `[]`
+- Validação concluída antes de abrir a transação de importação

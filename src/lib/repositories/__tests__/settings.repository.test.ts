@@ -20,7 +20,14 @@ describe("settings repository", () => {
   it("upsert and get", async () => {
     const now = new Date().toISOString();
     await repo.upsert(
-      withSettingsDefaults({ id: "app-settings", startDate: "2025-01-01", timezone: "UTC", theme: "dark", createdAt: now, updatedAt: now }),
+      withSettingsDefaults({
+        id: "app-settings",
+        startDate: "2025-01-01",
+        timezone: "UTC",
+        theme: "dark",
+        createdAt: now,
+        updatedAt: now,
+      }),
     );
     const settings = await repo.get();
     expect(settings?.startDate).toBe("2025-01-01");
@@ -37,7 +44,14 @@ describe("settings repository", () => {
   it("setStartDate updates start date on existing settings", async () => {
     const now = new Date().toISOString();
     await repo.upsert(
-      withSettingsDefaults({ id: "app-settings", startDate: null, timezone: "UTC", theme: "dark", createdAt: now, updatedAt: now }),
+      withSettingsDefaults({
+        id: "app-settings",
+        startDate: null,
+        timezone: "UTC",
+        theme: "dark",
+        createdAt: now,
+        updatedAt: now,
+      }),
     );
     await repo.setStartDate("2025-03-01");
     const settings = await repo.get();
@@ -47,7 +61,14 @@ describe("settings repository", () => {
   it("setTheme updates only the theme", async () => {
     const now = new Date().toISOString();
     await repo.upsert(
-      withSettingsDefaults({ id: "app-settings", startDate: "2025-01-01", timezone: "UTC", theme: "dark", createdAt: now, updatedAt: now }),
+      withSettingsDefaults({
+        id: "app-settings",
+        startDate: "2025-01-01",
+        timezone: "UTC",
+        theme: "dark",
+        createdAt: now,
+        updatedAt: now,
+      }),
     );
     await repo.setTheme("light");
     const settings = await repo.get();
@@ -65,7 +86,14 @@ describe("settings repository", () => {
   it("update merges partial changes", async () => {
     const now = new Date().toISOString();
     await repo.upsert(
-      withSettingsDefaults({ id: "app-settings", startDate: null, timezone: "UTC", theme: "dark", createdAt: now, updatedAt: now }),
+      withSettingsDefaults({
+        id: "app-settings",
+        startDate: null,
+        timezone: "UTC",
+        theme: "dark",
+        createdAt: now,
+        updatedAt: now,
+      }),
     );
     const updated = await repo.update({ theme: "light", planDurationWeeks: 8 });
     expect(updated.theme).toBe("light");

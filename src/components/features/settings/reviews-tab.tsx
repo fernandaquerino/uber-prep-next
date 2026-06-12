@@ -78,16 +78,16 @@ export function ReviewsTab({ settings, onUpdate }: ReviewsTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Ciclos de repetição espaçada</h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        <h3 className="mb-1 text-sm font-medium">Ciclos de repetição espaçada</h3>
+        <p className="text-muted-foreground mb-4 text-xs">
           Dias após a atividade em que a revisão será agendada, em sequência.
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="mb-3 flex flex-wrap gap-2">
           {intervals.map((v) => (
             <span
               key={v}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium"
+              className="bg-primary/10 text-primary inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm font-medium"
             >
               {v} dia{v !== 1 ? "s" : ""}
               <button
@@ -110,19 +110,27 @@ export function ReviewsTab({ settings, onUpdate }: ReviewsTabProps) {
             placeholder="Dias"
             value={newInterval}
             onChange={(e) => setNewInterval(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") addInterval(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addInterval();
+            }}
             className="h-8 w-28 text-sm"
           />
           <Button type="button" variant="outline" size="sm" onClick={addInterval} className="gap-1">
             <Plus className="size-3.5" />
             Adicionar
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={resetToDefault} className="text-muted-foreground">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={resetToDefault}
+            className="text-muted-foreground"
+          >
             Restaurar padrão
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-2 text-xs">
           Padrão: {DEFAULT_REVIEW_INTERVALS.join(", ")} dias
         </p>
       </div>
@@ -130,8 +138,8 @@ export function ReviewsTab({ settings, onUpdate }: ReviewsTabProps) {
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-1">Criação automática de revisões</h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        <h3 className="mb-1 text-sm font-medium">Criação automática de revisões</h3>
+        <p className="text-muted-foreground mb-4 text-xs">
           Escolha quando revisões são criadas automaticamente na fila.
         </p>
 
@@ -139,7 +147,7 @@ export function ReviewsTab({ settings, onUpdate }: ReviewsTabProps) {
           {(Object.keys(AUTO_CREATE_LABELS) as AutoCreateKey[]).map((key) => (
             <label
               key={key}
-              className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+              className="hover:bg-muted/50 flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors"
             >
               <input
                 type="checkbox"

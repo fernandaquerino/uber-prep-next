@@ -22,10 +22,7 @@ export async function getTimerSettings(db: UberPrepDatabase): Promise<TimerSetti
 }
 
 export async function getAllSettings(db: UberPrepDatabase) {
-  const [settings, timerSettings] = await Promise.all([
-    getSettings(db),
-    getTimerSettings(db),
-  ]);
+  const [settings, timerSettings] = await Promise.all([getSettings(db), getTimerSettings(db)]);
   return { settings, timerSettings };
 }
 
@@ -154,6 +151,9 @@ export async function resetModule(db: UberPrepDatabase, module: ResetModule): Pr
       await db.flashcards.clear();
       break;
     case "quizzes":
+      await db.quizSessions.clear();
+      await db.quizAnswers.clear();
+      await db.quizMarkedQuestions.clear();
       await db.quizAttempts.clear();
       await db.quizReviews.clear();
       break;
@@ -164,10 +164,18 @@ export async function resetModule(db: UberPrepDatabase, module: ResetModule): Pr
     case "mocks":
       await db.mocks.clear();
       await db.mockAudio.clear();
+      await db.mockEvidence.clear();
+      await db.starAnswers.clear();
+      await db.systemDesignDrafts.clear();
+      await db.fullInterviewSessions.clear();
+      await db.fullInterviewSteps.clear();
+      await db.checklistSessions.clear();
       await db.checklistItems.clear();
       break;
     case "notes":
       await db.notes.clear();
+      await db.noteVersions.clear();
+      await db.noteLinks.clear();
       await db.weeklyReflections.clear();
       await db.learningJournal.clear();
       break;
@@ -186,15 +194,28 @@ export async function resetModule(db: UberPrepDatabase, module: ResetModule): Pr
         db.scheduleOverrides.clear(),
         db.reviews.clear(),
         db.flashcards.clear(),
+        db.quizQuestions.clear(),
+        db.quizSessions.clear(),
+        db.quizAnswers.clear(),
+        db.quizMarkedQuestions.clear(),
         db.quizAttempts.clear(),
         db.quizReviews.clear(),
         db.timerSessions.clear(),
         db.activeTimer.clear(),
         db.mocks.clear(),
         db.mockAudio.clear(),
+        db.mockEvidence.clear(),
+        db.starAnswers.clear(),
+        db.systemDesignDrafts.clear(),
+        db.fullInterviewSessions.clear(),
+        db.fullInterviewSteps.clear(),
+        db.checklistSessions.clear(),
         db.checklistItems.clear(),
         db.notes.clear(),
+        db.noteVersions.clear(),
+        db.noteLinks.clear(),
         db.weeklyReflections.clear(),
+        db.weeklyReportSnapshots.clear(),
         db.learningJournal.clear(),
         db.playgroundSolutions.clear(),
         db.resources.clear(),

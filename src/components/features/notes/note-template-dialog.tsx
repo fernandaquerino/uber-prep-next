@@ -73,7 +73,7 @@ export function NoteTemplateDialog({
                 A nota já possui conteúdo. O que você deseja fazer?
               </DialogDescription>
             </DialogHeader>
-            <div className="flex flex-col gap-2 mt-2">
+            <div className="mt-2 flex flex-col gap-2">
               <Button
                 variant="destructive"
                 onClick={() => handleConfirm("replace")}
@@ -101,19 +101,19 @@ export function NoteTemplateDialog({
                 Selecione um template para aplicar à nota atual.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex flex-col gap-2 mt-2">
+            <div className="mt-2 flex flex-col gap-2">
               {NOTE_TEMPLATES.map((template) => (
                 <button
                   key={template.id}
                   type="button"
                   onClick={() => handleSelectTemplate(template)}
-                  className="flex items-center gap-3 rounded-md border border-border px-4 py-3 text-left hover:bg-muted transition-colors"
+                  className="border-border hover:bg-muted flex items-center gap-3 rounded-md border px-4 py-3 text-left transition-colors"
                 >
-                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <FileText className="text-muted-foreground h-4 w-4 shrink-0" />
                   <div>
                     <p className="text-sm font-medium">{template.name}</p>
                     {template.category && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         {getCategoryLabel(template.category)}
                       </p>
                     )}

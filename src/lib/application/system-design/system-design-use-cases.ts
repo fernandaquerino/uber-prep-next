@@ -20,10 +20,7 @@ export async function saveSystemDesignDraft(
   const now = new Date().toISOString();
 
   try {
-    const existing = await db.systemDesignDrafts
-      .where("templateId")
-      .equals(templateId)
-      .first();
+    const existing = await db.systemDesignDrafts.where("templateId").equals(templateId).first();
 
     const id = existing?.id ?? generateId();
     const record: SystemDesignDraft = {
@@ -100,11 +97,18 @@ export async function registerDraftAsMock(
     response: response || undefined,
     sourceType: "system_design_template",
     sourceId: templateId,
-  } as Parameters<typeof createMock>[1] & { sourceType: "system_design_template"; sourceId: string });
+  } as Parameters<typeof createMock>[1] & {
+    sourceType: "system_design_template";
+    sourceId: string;
+  });
 
   // Link the draft to this mock
   if (draft) {
-    await db.systemDesignDrafts.put({ ...draft, linkedMockId: mockId, updatedAt: new Date().toISOString() });
+    await db.systemDesignDrafts.put({
+      ...draft,
+      linkedMockId: mockId,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   return mockId;

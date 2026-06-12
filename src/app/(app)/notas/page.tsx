@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 function NotesSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <Skeleton className="h-7 w-32" />
         <Skeleton className="h-9 w-28" />
       </div>
       <Skeleton className="h-10 w-full" />
       <Skeleton className="h-10 w-full" />
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
         <div className="space-y-2">
           <Skeleton className="h-16 w-full" />
           <Skeleton className="h-16 w-full" />

@@ -36,29 +36,29 @@ export function PrivacyTab() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Privacidade local</h3>
-        <p className="text-xs text-muted-foreground">
+        <h3 className="mb-1 text-sm font-medium">Privacidade local</h3>
+        <p className="text-muted-foreground text-xs">
           O Uber Prep é um app local-first. Veja abaixo como seus dados são tratados.
         </p>
       </div>
 
       <div className="space-y-3">
         {PRIVACY_POINTS.map(({ icon, title, description }) => (
-          <div key={title} className="flex gap-3 p-3 rounded-lg border bg-background">
-            <div className="shrink-0 mt-0.5 text-primary">{icon}</div>
+          <div key={title} className="bg-background flex gap-3 rounded-lg border p-3">
+            <div className="text-primary mt-0.5 shrink-0">{icon}</div>
             <div>
               <p className="text-sm font-medium">{title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">{description}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="p-4 rounded-lg bg-muted/50 text-sm space-y-2">
+      <div className="bg-muted/50 space-y-2 rounded-lg p-4 text-sm">
         <p className="font-medium">Recomendação</p>
         <p className="text-muted-foreground text-xs">
           Exporte um backup completo com frequência. Use a aba{" "}
-          <span className="font-medium text-foreground">Dados e Backup</span> para baixar um arquivo
+          <span className="text-foreground font-medium">Dados e Backup</span> para baixar um arquivo
           JSON com todo o seu progresso.
         </p>
       </div>

@@ -46,7 +46,12 @@ export function PracticeDialog({ item, open, onClose, onSave }: PracticeDialogPr
   if (!item) return null;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) handleClose();
+      }}
+    >
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Praticar — {item.title}</DialogTitle>
@@ -54,7 +59,7 @@ export function PracticeDialog({ item, open, onClose, onSave }: PracticeDialogPr
 
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+            <p className="text-muted-foreground mb-2 text-xs font-medium tracking-wide uppercase">
               Prompt / Cenário
             </p>
             <div className="bg-muted/50 rounded p-3 text-sm whitespace-pre-line">
@@ -81,13 +86,13 @@ export function PracticeDialog({ item, open, onClose, onSave }: PracticeDialogPr
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-xs h-7"
+                className="h-7 text-xs"
                 onClick={() => setShowSuggestion((s) => !s)}
               >
                 {showSuggestion ? "Ocultar sugestão" : "Ver sugestão / tradução"}
               </Button>
               {showSuggestion && (
-                <div className="mt-2 bg-muted/30 rounded p-3 text-sm text-muted-foreground whitespace-pre-line">
+                <div className="bg-muted/30 text-muted-foreground mt-2 rounded p-3 text-sm whitespace-pre-line">
                   {item.translation}
                 </div>
               )}

@@ -19,7 +19,16 @@ describe("createTestDatabase", () => {
     const db1 = createTestDatabase();
     const db2 = createTestDatabase();
     const now = new Date().toISOString();
-    await db1.settings.put(withSettingsDefaults({ id: "app-settings", startDate: null, timezone: "UTC", theme: "dark", createdAt: now, updatedAt: now }));
+    await db1.settings.put(
+      withSettingsDefaults({
+        id: "app-settings",
+        startDate: null,
+        timezone: "UTC",
+        theme: "dark",
+        createdAt: now,
+        updatedAt: now,
+      }),
+    );
     const count1 = await db1.settings.count();
     const count2 = await db2.settings.count();
     expect(count1).toBe(1);

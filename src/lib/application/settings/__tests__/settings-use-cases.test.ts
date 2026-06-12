@@ -17,7 +17,12 @@ function makeDb() {
 
 async function seedDb(db: UberPrepDatabase) {
   const now = new Date().toISOString();
-  const settings = withSettingsDefaults({ id: SETTINGS_ID, startDate: null, createdAt: now, updatedAt: now });
+  const settings = withSettingsDefaults({
+    id: SETTINGS_ID,
+    startDate: null,
+    createdAt: now,
+    updatedAt: now,
+  });
   await db.settings.put(settings);
   await db.timerSettings.put({
     id: TIMER_SETTINGS_ID,
@@ -48,6 +53,22 @@ describe("getSettings", () => {
     const s = await getSettings(db);
     expect(s.theme).toBe("system");
     expect(s.weekdayAvailability.monday.enabled).toBe(true);
+  });
+
+  it("repairs legacy settings without weekday availability", async () => {
+    const db = makeDb();
+    const now = new Date().toISOString();
+    await db.settings.put({
+      id: SETTINGS_ID,
+      startDate: "2026-06-12",
+      timezone: "America/Sao_Paulo",
+      createdAt: now,
+      updatedAt: now,
+    } as Parameters<typeof db.settings.put>[0]);
+
+    const settings = await getSettings(db);
+    expect(settings.weekdayAvailability.monday.availableMinutes).toBe(480);
+    expect(settings.weekdayAvailability.sunday.enabled).toBe(false);
   });
 });
 
@@ -114,7 +135,10 @@ describe("updateTimerSettings", () => {
   it("updates timer sound and notification", async () => {
     const db = makeDb();
     await seedDb(db);
-    const updated = await updateTimerSettings(db, { soundEnabled: false, notificationsEnabled: true });
+    const updated = await updateTimerSettings(db, {
+      soundEnabled: false,
+      notificationsEnabled: true,
+    });
     expect(updated.soundEnabled).toBe(false);
     expect(updated.notificationsEnabled).toBe(true);
     expect(updated.confirmBeforeCancel).toBe(true); // preserved
@@ -171,5 +195,67 @@ describe("resetModule", () => {
 
     expect(await db.settings.count()).toBe(0);
     expect(await db.planProgress.count()).toBe(0);
+  });
+
+  it("removes structured quiz progress without deleting the question catalog", async () => {
+    const db = makeDb();
+    const now = new Date().toISOString();
+    await db.quizQuestions.put({
+      id: "question-1",
+      prompt: "Question",
+      type: "open_text",
+      category: "javascript",
+      difficulty: "medium",
+      topicIds: [],
+      tags: [],
+      sourceType: "seed",
+      lifecycleStatus: "active",
+      createdAt: now,
+      updatedAt: now,
+    });
+    await db.quizSessions.put({
+      id: "session-1",
+      type: "daily",
+      status: "in_progress",
+      questionIds: ["question-1"],
+      currentIndex: 0,
+      config: { type: "daily", feedbackMode: "immediate" },
+      startedAt: now,
+      updatedAt: now,
+      elapsedSeconds: 0,
+    });
+
+    await resetModule(db, "quizzes");
+
+    expect(await db.quizQuestions.count()).toBe(1);
+    expect(await db.quizSessions.count()).toBe(0);
+  });
+
+  it("removes mock evidence and note history in their module resets", async () => {
+    const db = makeDb();
+    const now = new Date().toISOString();
+    await db.mockEvidence.put({
+      id: "evidence-1",
+      mockId: "mock-1",
+      area: "communication",
+      kind: "gap",
+      description: "Needs practice",
+      confidence: 3,
+      createdAt: now,
+    });
+    await db.noteVersions.put({
+      id: "version-1",
+      noteId: "note-1",
+      title: "Version",
+      content: "Content",
+      reason: "manual",
+      createdAt: now,
+    });
+
+    await resetModule(db, "mocks");
+    await resetModule(db, "notes");
+
+    expect(await db.mockEvidence.count()).toBe(0);
+    expect(await db.noteVersions.count()).toBe(0);
   });
 });

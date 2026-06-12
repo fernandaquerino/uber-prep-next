@@ -60,13 +60,13 @@ export function DashboardResourcesCompact() {
 
   return (
     <Card>
-      <CardHeader className="pb-2 pt-4 px-4">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <BookOpen className="size-4 text-muted-foreground" />
+      <CardHeader className="px-4 pt-4 pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm font-medium">
+          <BookOpen className="text-muted-foreground size-4" />
           Recursos & Inglês
           <Link
             href="/recursos"
-            className="ml-auto text-xs text-muted-foreground hover:text-foreground flex items-center gap-0.5"
+            className="text-muted-foreground hover:text-foreground ml-auto flex items-center gap-0.5 text-xs"
           >
             Ver tudo
             <ExternalLink className="size-3" />
@@ -78,31 +78,31 @@ export function DashboardResourcesCompact() {
           {data.inProgress > 0 && (
             <div className="bg-muted/50 rounded p-2 text-center">
               <div className="text-lg font-semibold">{data.inProgress}</div>
-              <div className="text-xs text-muted-foreground">Em andamento</div>
+              <div className="text-muted-foreground text-xs">Em andamento</div>
             </div>
           )}
           {data.completedThisWeek > 0 && (
-            <div className="bg-green-50 dark:bg-green-950/20 rounded p-2 text-center">
+            <div className="rounded bg-green-50 p-2 text-center dark:bg-green-950/20">
               <div className="text-lg font-semibold text-green-700 dark:text-green-300">
                 {data.completedThisWeek}
               </div>
-              <div className="text-xs text-muted-foreground">Concluídos (semana)</div>
+              <div className="text-muted-foreground text-xs">Concluídos (semana)</div>
             </div>
           )}
           {data.forReview > 0 && (
-            <div className="bg-orange-50 dark:bg-orange-950/20 rounded p-2 text-center">
+            <div className="rounded bg-orange-50 p-2 text-center dark:bg-orange-950/20">
               <div className="text-lg font-semibold text-orange-700 dark:text-orange-300">
                 {data.forReview}
               </div>
-              <div className="text-xs text-muted-foreground">Inglês p/ revisar</div>
+              <div className="text-muted-foreground text-xs">Inglês p/ revisar</div>
             </div>
           )}
           {data.practicedRecently > 0 && (
-            <div className="bg-blue-50 dark:bg-blue-950/20 rounded p-2 text-center">
+            <div className="rounded bg-blue-50 p-2 text-center dark:bg-blue-950/20">
               <div className="text-lg font-semibold text-blue-700 dark:text-blue-300">
                 {data.practicedRecently}
               </div>
-              <div className="text-xs text-muted-foreground">Práticas (semana)</div>
+              <div className="text-muted-foreground text-xs">Práticas (semana)</div>
             </div>
           )}
         </div>

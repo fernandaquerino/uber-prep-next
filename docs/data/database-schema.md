@@ -2,31 +2,44 @@
 
 Banco de dados local: **IndexedDB** via **Dexie 4**  
 Nome: `uber-prep`  
-Versão: `6`
+Versão: `10`
 
 ## Tabelas
 
-| Tabela                | Chave primária | Índices secundários                                                                    |
-| --------------------- | -------------- | -------------------------------------------------------------------------------------- |
-| `settings`            | `id`           | —                                                                                      |
-| `planProgress`        | `id`           | `blockId`, `status`, `scheduledDate`, `planDayId`, `planDaySequence`                   |
-| `progressEvents`      | `id`           | `blockId`, `type`, `occurredAt`, `actionGroupId`                                       |
-| `scheduleOverrides`   | `id`           | `blockId`, `type`, `fromDate`, `toDate`, `actionGroupId`                               |
-| `reviews`             | `id`           | `sourceType`, `sourceId`, `scheduledFor`, `status`, `[status+scheduledFor]`            |
-| `flashcards`          | `id`           | `category`, `*tags` (multi), `status`, `nextReview`                                    |
-| `quizAttempts`        | `id`           | `mode`, `dailyDate`, `createdAt`                                                       |
-| `quizReviews`         | `id`           | `questionId`, `nextReview`, `cycleIndex`                                               |
-| `activeTimer`         | `id`           | `status`, `sourceType`, `sourceId`, `category`, `updatedAt`                            |
-| `timerSessions`       | `id`           | `date`, `startedAt`, `endedAt`, `category`, `sourceType`, `sourceId`, `status`, `mode` |
-| `timerSettings`       | `id`           | —                                                                                      |
-| `mocks`               | `id`           | `date`, `type`                                                                         |
-| `mockAudio`           | `id`           | `mockId`, `createdAt`                                                                  |
-| `notes`               | `id`           | `type`, `category`, `topicId`, `updatedAt`                                             |
-| `weeklyReflections`   | `id`           | `weekNumber`                                                                           |
-| `learningJournal`     | `id`           | `date`                                                                                 |
-| `playgroundSolutions` | `id`           | `language`, `updatedAt`                                                                |
-| `checklistItems`      | `id`           | `phase`                                                                                |
-| `metadata`            | `id`           | —                                                                                      |
+| Tabela                  | Chave primária | Índices secundários                                                                    |
+| ----------------------- | -------------- | -------------------------------------------------------------------------------------- |
+| `settings`              | `id`           | —                                                                                      |
+| `planProgress`          | `id`           | `blockId`, `status`, `scheduledDate`, `planDayId`, `planDaySequence`                   |
+| `progressEvents`        | `id`           | `blockId`, `type`, `occurredAt`, `actionGroupId`                                       |
+| `scheduleOverrides`     | `id`           | `blockId`, `type`, `fromDate`, `toDate`, `actionGroupId`                               |
+| `reviews`               | `id`           | `sourceType`, `sourceId`, `scheduledFor`, `status`, `[status+scheduledFor]`            |
+| `flashcards`            | `id`           | `category`, `*tags` (multi), `status`, `nextReview`                                    |
+| `quizQuestions`         | `id`           | catálogo versionado de questões                                                        |
+| `quizSessions`          | `id`           | sessões configuráveis e estado                                                         |
+| `quizAnswers`           | `id`           | respostas por sessão e questão                                                         |
+| `quizMarkedQuestions`   | `id`           | questões marcadas                                                                      |
+| `quizAttempts`          | `id`           | `mode`, `dailyDate`, `createdAt`                                                       |
+| `quizReviews`           | `id`           | `questionId`, `nextReview`, `cycleIndex`                                               |
+| `activeTimer`           | `id`           | `status`, `sourceType`, `sourceId`, `category`, `updatedAt`                            |
+| `timerSessions`         | `id`           | `date`, `startedAt`, `endedAt`, `category`, `sourceType`, `sourceId`, `status`, `mode` |
+| `timerSettings`         | `id`           | —                                                                                      |
+| `mocks`                 | `id`           | `date`, `type`                                                                         |
+| `mockAudio`             | `id`           | `mockId`, `createdAt`                                                                  |
+| `mockEvidence`          | `id`           | evidências de força e gap                                                              |
+| `starAnswers`           | `id`           | respostas STAR                                                                         |
+| `systemDesignDrafts`    | `id`           | rascunhos de System Design                                                             |
+| `fullInterviewSessions` | `id`           | sessões Full Loop                                                                      |
+| `fullInterviewSteps`    | `id`           | etapas de Full Loop                                                                    |
+| `checklistSessions`     | `id`           | snapshots de checklist                                                                 |
+| `notes`                 | `id`           | `type`, `category`, `topicId`, `updatedAt`                                             |
+| `noteVersions`          | `id`           | histórico de versões                                                                   |
+| `noteLinks`             | `id`           | vínculos com outros módulos                                                            |
+| `weeklyReflections`     | `id`           | `weekNumber`                                                                           |
+| `weeklyReportSnapshots` | `id`           | snapshots de relatórios                                                                |
+| `learningJournal`       | `id`           | `date`                                                                                 |
+| `playgroundSolutions`   | `id`           | `language`, `updatedAt`                                                                |
+| `checklistItems`        | `id`           | `phase`                                                                                |
+| `metadata`              | `id`           | —                                                                                      |
 
 ## Registros singleton
 

@@ -36,13 +36,16 @@ export function useStar(): UseStarResult {
         }
       })
       .catch((err) => {
-        if (!cancelled) setError(err instanceof Error ? err.message : "Erro ao carregar respostas STAR.");
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : "Erro ao carregar respostas STAR.");
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [rev]);
 
   const refresh = useCallback(() => setRev((v) => v + 1), []);

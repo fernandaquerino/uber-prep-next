@@ -41,12 +41,7 @@ const RESOURCE_TYPES = [
 
 const RESOURCE_DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
 
-const RESOURCE_STATUSES = [
-  "not_started",
-  "in_progress",
-  "completed",
-  "saved_for_later",
-] as const;
+const RESOURCE_STATUSES = ["not_started", "in_progress", "completed", "saved_for_later"] as const;
 
 const SORT_OPTIONS: Record<ResourceSortKey, string> = {
   recent: "Mais recentes",
@@ -80,14 +75,14 @@ export function ResourceFiltersBar({
 
   return (
     <div className="space-y-2">
-      <div className="flex gap-2 flex-wrap items-center">
-        <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative min-w-48 flex-1">
+          <Search className="text-muted-foreground absolute top-2.5 left-2.5 size-4" />
           <Input
             placeholder="Buscar recurso..."
             value={filters.query ?? ""}
             onChange={(e) => onFiltersChange({ ...filters, query: e.target.value || undefined })}
-            className="pl-8 h-9 text-sm"
+            className="h-9 pl-8 text-sm"
           />
         </div>
 
@@ -98,7 +93,7 @@ export function ResourceFiltersBar({
             onFiltersChange({ ...filters, category: v === "_all" ? undefined : v });
           }}
         >
-          <SelectTrigger className="h-9 text-sm w-36">
+          <SelectTrigger className="h-9 w-36 text-sm">
             <SelectValue>
               {(v) => (!v || v === "_all" ? "Categoria" : getCategoryLabel(String(v)))}
             </SelectValue>
@@ -119,9 +114,13 @@ export function ResourceFiltersBar({
             onFiltersChange({ ...filters, type: v === "_all" ? undefined : (v as never) })
           }
         >
-          <SelectTrigger className="h-9 text-sm w-36">
+          <SelectTrigger className="h-9 w-36 text-sm">
             <SelectValue>
-              {(v) => (!v || v === "_all" ? "Tipo" : (RESOURCE_TYPE_LABELS[v as keyof typeof RESOURCE_TYPE_LABELS] ?? String(v)))}
+              {(v) =>
+                !v || v === "_all"
+                  ? "Tipo"
+                  : (RESOURCE_TYPE_LABELS[v as keyof typeof RESOURCE_TYPE_LABELS] ?? String(v))
+              }
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -140,9 +139,14 @@ export function ResourceFiltersBar({
             onFiltersChange({ ...filters, difficulty: v === "_all" ? undefined : (v as never) })
           }
         >
-          <SelectTrigger className="h-9 text-sm w-36">
+          <SelectTrigger className="h-9 w-36 text-sm">
             <SelectValue>
-              {(v) => (!v || v === "_all" ? "Dificuldade" : (RESOURCE_DIFFICULTY_LABELS[v as keyof typeof RESOURCE_DIFFICULTY_LABELS] ?? String(v)))}
+              {(v) =>
+                !v || v === "_all"
+                  ? "Dificuldade"
+                  : (RESOURCE_DIFFICULTY_LABELS[v as keyof typeof RESOURCE_DIFFICULTY_LABELS] ??
+                    String(v))
+              }
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -161,9 +165,13 @@ export function ResourceFiltersBar({
             onFiltersChange({ ...filters, status: v === "_all" ? undefined : (v as never) })
           }
         >
-          <SelectTrigger className="h-9 text-sm w-36">
+          <SelectTrigger className="h-9 w-36 text-sm">
             <SelectValue>
-              {(v) => (!v || v === "_all" ? "Status" : (RESOURCE_STATUS_LABELS[v as keyof typeof RESOURCE_STATUS_LABELS] ?? String(v)))}
+              {(v) =>
+                !v || v === "_all"
+                  ? "Status"
+                  : (RESOURCE_STATUS_LABELS[v as keyof typeof RESOURCE_STATUS_LABELS] ?? String(v))
+              }
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -177,7 +185,7 @@ export function ResourceFiltersBar({
         </Select>
 
         <Select value={sortKey} onValueChange={(v) => onSortChange(v as ResourceSortKey)}>
-          <SelectTrigger className="h-9 text-sm w-44">
+          <SelectTrigger className="h-9 w-44 text-sm">
             <SelectValue>
               {(v) => (!v ? "Ordenar" : (SORT_OPTIONS[v as ResourceSortKey] ?? String(v)))}
             </SelectValue>
@@ -199,7 +207,7 @@ export function ResourceFiltersBar({
         )}
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={() =>
             onFiltersChange({
@@ -207,9 +215,9 @@ export function ResourceFiltersBar({
               isFavorite: filters.isFavorite ? undefined : true,
             })
           }
-          className={`text-xs px-2 py-1 rounded border transition-colors ${
+          className={`rounded border px-2 py-1 text-xs transition-colors ${
             filters.isFavorite
-              ? "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300"
+              ? "border-amber-300 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
               : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
           }`}
         >
@@ -221,7 +229,7 @@ export function ResourceFiltersBar({
             onClick={() =>
               onFiltersChange({ ...filters, tag: filters.tag === tag ? undefined : tag })
             }
-            className={`text-xs px-2 py-1 rounded border transition-colors ${
+            className={`rounded border px-2 py-1 text-xs transition-colors ${
               filters.tag === tag
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-muted text-muted-foreground border-border hover:bg-muted/80"

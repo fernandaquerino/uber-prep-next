@@ -656,8 +656,19 @@ export type WeeklyReflectionRecord = {
   rating?: number;
   blockers?: string;
   wins?: string;
+  whatWorked?: string;
+  whatToAdjust?: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type WeeklyReportSnapshotRecord = {
+  id: string;
+  weekNumber: number;
+  weekStart: string;
+  weekEnd: string;
+  generatedAt: string;
+  reportJson: string;
 };
 
 // ─── Learning Journal ─────────────────────────────────────────────────────────

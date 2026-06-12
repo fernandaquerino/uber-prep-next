@@ -9,7 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +30,15 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 export function SystemDesignTab({ onRefresh }: { onRefresh: () => void }) {
   const { templates, drafts, refresh } = useSystemDesign();
-  const { saveDraft, resetDraft, registerAsMock, isLoading: saving } = useSystemDesignActions(() => { refresh(); onRefresh(); });
+  const {
+    saveDraft,
+    resetDraft,
+    registerAsMock,
+    isLoading: saving,
+  } = useSystemDesignActions(() => {
+    refresh();
+    onRefresh();
+  });
 
   const [activeTemplateId, setActiveTemplateId] = useState<string>(templates[0]?.id ?? "");
   const [resetConfirm, setResetConfirm] = useState(false);
@@ -29,25 +46,27 @@ export function SystemDesignTab({ onRefresh }: { onRefresh: () => void }) {
   const activeTemplate = templates.find((t) => t.id === activeTemplateId) ?? templates[0] ?? null;
   const activeDraft = activeTemplate ? (drafts.get(activeTemplate.id) ?? null) : null;
 
-  if (!activeTemplate) return <div className="text-sm text-muted-foreground p-4">Nenhum template disponível.</div>;
+  if (!activeTemplate)
+    return <div className="text-muted-foreground p-4 text-sm">Nenhum template disponível.</div>;
 
-  const filledSections = activeTemplate.sections.filter(
-    (s) => activeDraft?.answers[s.id]?.trim(),
+  const filledSections = activeTemplate.sections.filter((s) =>
+    activeDraft?.answers[s.id]?.trim(),
   ).length;
-  const progressPct = activeTemplate.sections.length > 0
-    ? Math.round((filledSections / activeTemplate.sections.length) * 100)
-    : 0;
+  const progressPct =
+    activeTemplate.sections.length > 0
+      ? Math.round((filledSections / activeTemplate.sections.length) * 100)
+      : 0;
 
   return (
     <div className="space-y-4">
       {/* Template tabs */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex flex-wrap gap-2">
         {templates.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTemplateId(t.id)}
             className={cn(
-              "px-3 py-1.5 rounded-md text-sm font-medium border transition-colors",
+              "rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
               activeTemplateId === t.id
                 ? "bg-primary text-primary-foreground border-primary"
                 : "border-border hover:bg-accent",
@@ -60,38 +79,36 @@ export function SystemDesignTab({ onRefresh }: { onRefresh: () => void }) {
 
       {/* Template meta */}
       <div className="space-y-1">
-        <p className="text-sm text-muted-foreground">{activeTemplate.description}</p>
-        <div className="flex gap-2 flex-wrap items-center">
-          <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", DIFFICULTY_COLORS[activeTemplate.difficulty] ?? "")}>
+        <p className="text-muted-foreground text-sm">{activeTemplate.description}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={cn(
+              "rounded px-1.5 py-0.5 text-xs font-medium",
+              DIFFICULTY_COLORS[activeTemplate.difficulty] ?? "",
+            )}
+          >
             {activeTemplate.difficulty}
           </span>
           {activeTemplate.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+            <Badge key={tag} variant="outline" className="text-xs">
+              {tag}
+            </Badge>
           ))}
-          <span className="text-xs text-muted-foreground">{progressPct}% completo</span>
+          <span className="text-muted-foreground text-xs">{progressPct}% completo</span>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 flex-wrap">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setResetConfirm(true)}
-          disabled={saving}
-        >
-          <RotateCcw className="h-3.5 w-3.5 mr-1" />
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={() => setResetConfirm(true)} disabled={saving}>
+          <RotateCcw className="mr-1 h-3.5 w-3.5" />
           Apagar rascunho
         </Button>
-        <Button
-          size="sm"
-          onClick={() => registerAsMock(activeTemplate.id)}
-          disabled={saving}
-        >
+        <Button size="sm" onClick={() => registerAsMock(activeTemplate.id)} disabled={saving}>
           Registrar como mock
         </Button>
         {activeDraft?.linkedMockId && (
-          <span className="text-xs text-muted-foreground self-center">Mock vinculado</span>
+          <span className="text-muted-foreground self-center text-xs">Mock vinculado</span>
         )}
       </div>
 
@@ -144,38 +161,52 @@ function TemplateEditor({ template, draft, onSave }: TemplateEditorProps) {
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "dirty">("saved");
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const triggerSave = useCallback((newAnswers: Record<string, string>, newChecklist: Record<string, boolean>) => {
-    setSaveStatus("dirty");
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(async () => {
-      setSaveStatus("saving");
-      await onSave(newAnswers, newChecklist);
-      setSaveStatus("saved");
-    }, 1500);
-  }, [onSave]);
+  const triggerSave = useCallback(
+    (newAnswers: Record<string, string>, newChecklist: Record<string, boolean>) => {
+      setSaveStatus("dirty");
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(async () => {
+        setSaveStatus("saving");
+        await onSave(newAnswers, newChecklist);
+        setSaveStatus("saved");
+      }, 1500);
+    },
+    [onSave],
+  );
 
-  const handleAnswer = useCallback((sectionId: string, value: string) => {
-    setAnswers((prev) => {
-      const next = { ...prev, [sectionId]: value };
-      triggerSave(next, checklist);
-      return next;
-    });
-  }, [checklist, triggerSave]);
+  const handleAnswer = useCallback(
+    (sectionId: string, value: string) => {
+      setAnswers((prev) => {
+        const next = { ...prev, [sectionId]: value };
+        triggerSave(next, checklist);
+        return next;
+      });
+    },
+    [checklist, triggerSave],
+  );
 
-  const handleChecklist = useCallback((itemId: string, checked: boolean) => {
-    setChecklist((prev) => {
-      const next = { ...prev, [itemId]: checked };
-      triggerSave(answers, next);
-      return next;
-    });
-  }, [answers, triggerSave]);
+  const handleChecklist = useCallback(
+    (itemId: string, checked: boolean) => {
+      setChecklist((prev) => {
+        const next = { ...prev, [itemId]: checked };
+        triggerSave(answers, next);
+        return next;
+      });
+    },
+    [answers, triggerSave],
+  );
 
   const sortedSections = [...template.sections].sort((a, b) => a.order - b.order);
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <span className={cn("text-xs", saveStatus === "saved" ? "text-green-600 dark:text-green-400" : "text-muted-foreground")}>
+        <span
+          className={cn(
+            "text-xs",
+            saveStatus === "saved" ? "text-green-600 dark:text-green-400" : "text-muted-foreground",
+          )}
+        >
           {saveStatus === "saving" ? "Salvando..." : saveStatus === "dirty" ? "Não salvo" : "Salvo"}
         </span>
       </div>
@@ -183,12 +214,12 @@ function TemplateEditor({ template, draft, onSave }: TemplateEditorProps) {
       {/* Sections */}
       {sortedSections.map((section) => (
         <div key={section.id} className="space-y-1">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+          <Label className="text-muted-foreground text-xs tracking-wide uppercase">
             {section.title}
             {section.required && <span className="text-destructive ml-0.5">*</span>}
           </Label>
           {section.description && (
-            <p className="text-xs text-muted-foreground">{section.description}</p>
+            <p className="text-muted-foreground text-xs">{section.description}</p>
           )}
           <Textarea
             rows={5}
@@ -202,22 +233,30 @@ function TemplateEditor({ template, draft, onSave }: TemplateEditorProps) {
       {/* Checklist */}
       {template.checklist.length > 0 && (
         <div className="space-y-2 pt-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Checklist</Label>
-          <div className="text-sm text-muted-foreground leading-relaxed">
+          <Label className="text-muted-foreground text-xs tracking-wide uppercase">Checklist</Label>
+          <div className="text-muted-foreground text-sm leading-relaxed">
             {template.checklist.map((item, i) => {
               const itemId = `cl-${i}`;
               return (
-                <span key={itemId} className="inline-flex items-center gap-1 mr-3">
+                <span key={itemId} className="mr-3 inline-flex items-center gap-1">
                   <Checkbox
                     id={itemId}
                     checked={!!checklist[itemId]}
                     onCheckedChange={(v) => handleChecklist(itemId, !!v)}
                     className="h-3.5 w-3.5"
                   />
-                  <label htmlFor={itemId} className={cn("cursor-pointer", checklist[itemId] && "line-through text-muted-foreground/50")}>
+                  <label
+                    htmlFor={itemId}
+                    className={cn(
+                      "cursor-pointer",
+                      checklist[itemId] && "text-muted-foreground/50 line-through",
+                    )}
+                  >
                     {item}
                   </label>
-                  {i < template.checklist.length - 1 && <span className="text-muted-foreground/40 ml-1">·</span>}
+                  {i < template.checklist.length - 1 && (
+                    <span className="text-muted-foreground/40 ml-1">·</span>
+                  )}
                 </span>
               );
             })}

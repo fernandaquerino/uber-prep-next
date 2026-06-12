@@ -95,7 +95,17 @@ export function createResourcesRepository(db: UberPrepDatabase): ResourcesReposi
     }
   }
 
-  return { findById, list, listByCategory, listByTopicId, upsert, bulkUpsert, delete: delete_, clear, count };
+  return {
+    findById,
+    list,
+    listByCategory,
+    listByTopicId,
+    upsert,
+    bulkUpsert,
+    delete: delete_,
+    clear,
+    count,
+  };
 }
 
 export function createResourceProgressRepository(db: UberPrepDatabase): ResourceProgressRepository {

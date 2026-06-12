@@ -132,7 +132,7 @@ export function ResourceFormDialog({
               onChange={(e) => setFormTitle(e.target.value)}
               placeholder="Nome do recurso"
             />
-            {error && <p className="text-xs text-destructive">{error}</p>}
+            {error && <p className="text-destructive text-xs">{error}</p>}
           </div>
 
           <div className="space-y-1">
@@ -151,7 +151,12 @@ export function ResourceFormDialog({
               <Select value={type} onValueChange={(v) => setType(v as ResourceType)}>
                 <SelectTrigger>
                   <SelectValue>
-                    {(v) => (v ? (RESOURCE_TYPE_LABELS[v as keyof typeof RESOURCE_TYPE_LABELS] ?? String(v)) : "Selecionar")}
+                    {(v) =>
+                      v
+                        ? (RESOURCE_TYPE_LABELS[v as keyof typeof RESOURCE_TYPE_LABELS] ??
+                          String(v))
+                        : "Selecionar"
+                    }
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -166,7 +171,12 @@ export function ResourceFormDialog({
 
             <div className="space-y-1">
               <Label>Categoria *</Label>
-              <Select value={category} onValueChange={(v) => { if (v) setCategory(v); }}>
+              <Select
+                value={category}
+                onValueChange={(v) => {
+                  if (v) setCategory(v);
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue>
                     {(v) => (v ? getCategoryLabel(String(v)) : "Selecionar")}
@@ -188,13 +198,17 @@ export function ResourceFormDialog({
               <Label>Dificuldade</Label>
               <Select
                 value={difficulty || "_none"}
-                onValueChange={(v) =>
-                  setDifficulty(v === "_none" ? "" : (v as ResourceDifficulty))
-                }
+                onValueChange={(v) => setDifficulty(v === "_none" ? "" : (v as ResourceDifficulty))}
               >
                 <SelectTrigger>
                   <SelectValue>
-                    {(v) => (!v || v === "_none" ? "Opcional" : (RESOURCE_DIFFICULTY_LABELS[v as keyof typeof RESOURCE_DIFFICULTY_LABELS] ?? String(v)))}
+                    {(v) =>
+                      !v || v === "_none"
+                        ? "Opcional"
+                        : (RESOURCE_DIFFICULTY_LABELS[
+                            v as keyof typeof RESOURCE_DIFFICULTY_LABELS
+                          ] ?? String(v))
+                    }
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>

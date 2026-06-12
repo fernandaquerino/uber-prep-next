@@ -59,7 +59,8 @@ function applyFormat(
   const newValue = value.slice(0, selStart) + replacement + value.slice(selEnd);
 
   const newStart = selStart + before.length;
-  const newEnd = newStart + (value.slice(selStart, selEnd) ? selEnd - selStart : defaultText.length);
+  const newEnd =
+    newStart + (value.slice(selStart, selEnd) ? selEnd - selStart : defaultText.length);
   return { newValue, newStart, newEnd };
 }
 
@@ -161,10 +162,10 @@ export function NoteToolbar({ editorRef, value, onChange, onInsertTemplate }: To
 
   return (
     <TooltipProvider>
-      <div className="flex flex-wrap items-center gap-1 border-b border-border px-2 py-1.5 bg-muted/30">
+      <div className="border-border bg-muted/30 flex flex-wrap items-center gap-1 border-b px-2 py-1.5">
         {allGroups.map((group, gi) => (
           <span key={gi} className="flex items-center gap-0.5">
-            {gi > 0 && <Separator orientation="vertical" className="h-4 mx-1" />}
+            {gi > 0 && <Separator orientation="vertical" className="mx-1 h-4" />}
             {group.map((btn) => (
               <Tooltip key={btn.title}>
                 <TooltipTrigger
@@ -191,7 +192,7 @@ export function NoteToolbar({ editorRef, value, onChange, onInsertTemplate }: To
 
         {onInsertTemplate && (
           <>
-            <Separator orientation="vertical" className="h-4 mx-1" />
+            <Separator orientation="vertical" className="mx-1 h-4" />
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -199,7 +200,7 @@ export function NoteToolbar({ editorRef, value, onChange, onInsertTemplate }: To
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 px-2 gap-1.5 text-xs"
+                    className="h-7 gap-1.5 px-2 text-xs"
                     onClick={onInsertTemplate}
                     aria-label="Inserir template"
                   />

@@ -49,7 +49,9 @@ export function useMocks(): UseMocksResult {
         if (!cancelled) setIsLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [rev]);
 
   const refresh = useCallback(() => setRev((v) => v + 1), []);

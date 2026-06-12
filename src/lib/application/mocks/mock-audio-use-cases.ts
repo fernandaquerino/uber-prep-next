@@ -13,10 +13,7 @@ export type SaveAudioInput = {
   mockId?: string;
 };
 
-export async function saveMockAudio(
-  db: UberPrepDatabase,
-  input: SaveAudioInput,
-): Promise<string> {
+export async function saveMockAudio(db: UberPrepDatabase, input: SaveAudioInput): Promise<string> {
   const id = generateId();
   const now = new Date().toISOString();
 
@@ -49,10 +46,7 @@ export async function getMockAudio(
   }
 }
 
-export async function deleteMockAudio(
-  db: UberPrepDatabase,
-  audioId: string,
-): Promise<void> {
+export async function deleteMockAudio(db: UberPrepDatabase, audioId: string): Promise<void> {
   try {
     await db.mockAudio.delete(audioId);
   } catch (err) {

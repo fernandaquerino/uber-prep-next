@@ -95,8 +95,7 @@ export async function updateFullInterviewStep(
   await db.fullInterviewSteps.put({
     ...step,
     ...updates,
-    completedAt:
-      updates.status === "completed" ? (step.completedAt ?? now) : step.completedAt,
+    completedAt: updates.status === "completed" ? (step.completedAt ?? now) : step.completedAt,
     updatedAt: now,
   });
 }
@@ -158,4 +157,3 @@ export async function getFullInterviewSession(
 
   return { session, steps };
 }
-

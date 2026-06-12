@@ -33,17 +33,13 @@ export type CreateMockInput = {
   audioRecordingId?: string;
 };
 
-export async function createMock(
-  db: UberPrepDatabase,
-  input: CreateMockInput,
-): Promise<string> {
+export async function createMock(db: UberPrepDatabase, input: CreateMockInput): Promise<string> {
   const now = new Date().toISOString();
   const id = generateId();
   const canonicalType = normalizeMockType(input.type);
 
   const rubricResult =
-    input.rubricResult ??
-    createEmptyRubricResult(canonicalType as CanonicalMockType);
+    input.rubricResult ?? createEmptyRubricResult(canonicalType as CanonicalMockType);
 
   const score = input.rubricResult ? calculateMockScore(input.rubricResult) : null;
 
@@ -81,16 +77,11 @@ export async function createMock(
 
 // ─── Update mock ──────────────────────────────────────────────────────────────
 
-export type UpdateMockInput = Partial<
-  Omit<CreateMockInput, "type">
-> & {
+export type UpdateMockInput = Partial<Omit<CreateMockInput, "type">> & {
   id: string;
 };
 
-export async function updateMock(
-  db: UberPrepDatabase,
-  input: UpdateMockInput,
-): Promise<void> {
+export async function updateMock(db: UberPrepDatabase, input: UpdateMockInput): Promise<void> {
   const existing = await db.mocks.get(input.id);
   if (!existing) throw new Error(`Mock not found: ${input.id}`);
 
@@ -148,7 +139,12 @@ export async function completeMock(
     });
 
     // Generate and save evidence from this completed mock
-    const updatedMock = { ...existing, status: "completed" as const, rubricResult: finalRubricResult, score };
+    const updatedMock = {
+      ...existing,
+      status: "completed" as const,
+      rubricResult: finalRubricResult,
+      score,
+    };
     const evidence = generateMockEvidence(updatedMock, now);
     if (evidence.length > 0) {
       // Delete old evidence before saving new
@@ -193,7 +189,12 @@ export async function deleteMock(db: UberPrepDatabase, mockId: string): Promise<
     if (reviews.length > 0) {
       const now = new Date().toISOString();
       await db.reviews.bulkPut(
-        reviews.map((r) => ({ ...r, status: "cancelled" as const, cancelledAt: now, updatedAt: now })),
+        reviews.map((r) => ({
+          ...r,
+          status: "cancelled" as const,
+          cancelledAt: now,
+          updatedAt: now,
+        })),
       );
     }
   } catch (err) {

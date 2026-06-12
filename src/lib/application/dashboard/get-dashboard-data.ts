@@ -3,7 +3,6 @@ import {
   buildStudySchedule,
   groupScheduleByCalendarWeek,
   parseCalendarDate,
-  DEFAULT_WEEKDAY_AVAILABILITY,
 } from "@/lib/domain/schedule";
 import {
   getCurrentStudyState,
@@ -103,19 +102,19 @@ export type GetDashboardDataResult =
 export async function getDashboardData(): Promise<GetDashboardDataResult> {
   const { getDb } = await import("@/lib/db/db");
   const { runSeeds } = await import("@/lib/db/seed");
-  const { SETTINGS_ID } = await import("@/lib/db/constants");
+  const { getSettings } = await import("@/lib/application/settings");
 
   const db = getDb();
   await runSeeds(db);
 
-  const settings = await db.settings.get(SETTINGS_ID);
-  if (!settings?.startDate) {
+  const settings = await getSettings(db);
+  if (!settings.startDate) {
     return { kind: "no_start_date" };
   }
 
   const startDate = parseCalendarDate(settings.startDate);
   const today = getTodayCalendarDate();
-  const availability = DEFAULT_WEEKDAY_AVAILABILITY;
+  const availability = settings.weekdayAvailability;
 
   const baseSchedule = buildStudySchedule(STUDY_PLAN, {
     startDate,

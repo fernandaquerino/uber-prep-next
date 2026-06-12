@@ -42,10 +42,10 @@ export function SettingsScreen() {
 
   return (
     <Tabs defaultValue="geral">
-      <div className="overflow-x-auto -mx-1 px-1 pb-1">
-        <TabsList className="flex w-max gap-0.5 h-auto p-1 flex-wrap">
+      <div className="-mx-1 overflow-x-auto px-1 pb-1">
+        <TabsList className="flex h-auto w-max flex-wrap gap-0.5 p-1">
           {TABS.map(({ value, label }) => (
-            <TabsTrigger key={value} value={value} className="text-xs sm:text-sm px-3 py-1.5">
+            <TabsTrigger key={value} value={value} className="px-3 py-1.5 text-xs sm:text-sm">
               {label}
             </TabsTrigger>
           ))}

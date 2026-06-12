@@ -197,7 +197,13 @@ export function useStarActions(onSuccess?: () => void) {
     [wrap],
   );
 
-  return { actionState, actionError, isLoading: actionState === "loading", saveStarAnswer, deleteStarAnswer };
+  return {
+    actionState,
+    actionError,
+    isLoading: actionState === "loading",
+    saveStarAnswer,
+    deleteStarAnswer,
+  };
 }
 
 // ── Audio actions ─────────────────────────────────────────────────────────────

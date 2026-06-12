@@ -23,8 +23,7 @@ const SHARED_SECTIONS: SystemDesignTemplateSection[] = [
     id: "functional-requirements",
     title: "Requisitos funcionais",
     description: "O que o sistema precisa fazer? Liste as features prioritárias.",
-    placeholder:
-      "Ex: Usuários podem criar posts; Feed exibe posts de seguidos; Suporte a imagens.",
+    placeholder: "Ex: Usuários podem criar posts; Feed exibe posts de seguidos; Suporte a imagens.",
     required: true,
     order: 1,
   },
@@ -181,8 +180,7 @@ export const SYSTEM_DESIGN_TEMPLATES: SystemDesignTemplateData[] = [
         id: "api-design",
         title: "API de busca",
         description: "Contrato da API de sugestões.",
-        placeholder:
-          "GET /autocomplete?q=reac&limit=5 → { suggestions: [{id, label, metadata}] }",
+        placeholder: "GET /autocomplete?q=reac&limit=5 → { suggestions: [{id, label, metadata}] }",
         order: 4,
       },
       {

@@ -1,6 +1,9 @@
-
 import type { UberPrepDatabase } from "@/lib/db/schema";
-import type { TechnicalEnglishRecord, TechnicalEnglishPracticeRecord, ReviewRecord } from "@/types/database";
+import type {
+  TechnicalEnglishRecord,
+  TechnicalEnglishPracticeRecord,
+  ReviewRecord,
+} from "@/types/database";
 import type {
   CreateTechnicalEnglishInput,
   UpdateTechnicalEnglishInput,
@@ -75,20 +78,14 @@ export async function updateTechnicalEnglishItem(
   await repo.upsert({ ...existing, ...input, updatedAt: nowIso() });
 }
 
-export async function toggleTechEnglishFavorite(
-  db: UberPrepDatabase,
-  id: string,
-): Promise<void> {
+export async function toggleTechEnglishFavorite(db: UberPrepDatabase, id: string): Promise<void> {
   const repo = createTechnicalEnglishRepository(db);
   const existing = await repo.findById(id);
   if (!existing) return;
   await repo.upsert({ ...existing, isFavorite: !existing.isFavorite, updatedAt: nowIso() });
 }
 
-export async function archiveTechnicalEnglishItem(
-  db: UberPrepDatabase,
-  id: string,
-): Promise<void> {
+export async function archiveTechnicalEnglishItem(db: UberPrepDatabase, id: string): Promise<void> {
   const repo = createTechnicalEnglishRepository(db);
   const existing = await repo.findById(id);
   if (!existing) return;
@@ -114,10 +111,7 @@ export async function saveTechEnglishPractice(
   return record;
 }
 
-export async function createTechEnglishReview(
-  db: UberPrepDatabase,
-  itemId: string,
-): Promise<void> {
+export async function createTechEnglishReview(db: UberPrepDatabase, itemId: string): Promise<void> {
   const reviewsRepo = createReviewsRepository(db);
   const now = nowIso();
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);

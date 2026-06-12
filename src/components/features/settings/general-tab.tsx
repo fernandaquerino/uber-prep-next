@@ -61,8 +61,8 @@ export function GeneralTab({ settings, onUpdate }: GeneralTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Perfil</h3>
-        <p className="text-xs text-muted-foreground mb-4">
+        <h3 className="mb-1 text-sm font-medium">Perfil</h3>
+        <p className="text-muted-foreground mb-4 text-xs">
           Informações opcionais exibidas no app. Nenhum dado é enviado a servidores.
         </p>
 
@@ -86,9 +86,7 @@ export function GeneralTab({ settings, onUpdate }: GeneralTabProps) {
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">
-              Usada para calcular quanto tempo resta.
-            </p>
+            <p className="text-muted-foreground text-xs">Usada para calcular quanto tempo resta.</p>
           </div>
 
           <div className="space-y-1.5">
@@ -107,15 +105,18 @@ export function GeneralTab({ settings, onUpdate }: GeneralTabProps) {
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-1">Localização</h3>
+        <h3 className="mb-1 text-sm font-medium">Localização</h3>
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label>Fuso horário</Label>
-            <Select value={timezone} onValueChange={(v) => { if (v) setTimezone(v); }}>
+            <Select
+              value={timezone}
+              onValueChange={(v) => {
+                if (v) setTimezone(v);
+              }}
+            >
               <SelectTrigger className="w-64">
-                <SelectValue>
-                  {(v) => String(v ?? "Selecionar")}
-                </SelectValue>
+                <SelectValue>{(v) => String(v ?? "Selecionar")}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {COMMON_TIMEZONES.map((tz) => (
@@ -129,18 +130,29 @@ export function GeneralTab({ settings, onUpdate }: GeneralTabProps) {
 
           <div className="space-y-1.5">
             <Label>Formato de data</Label>
-            <Select value={dateFormat} onValueChange={(v) => { if (v) setDateFormat(v as typeof dateFormat); }}>
+            <Select
+              value={dateFormat}
+              onValueChange={(v) => {
+                if (v) setDateFormat(v as typeof dateFormat);
+              }}
+            >
               <SelectTrigger className="w-64">
                 <SelectValue>
-                  {(v) => (v ? (DATE_FORMAT_LABELS[v as keyof typeof DATE_FORMAT_LABELS] ?? String(v)) : "Selecionar")}
+                  {(v) =>
+                    v
+                      ? (DATE_FORMAT_LABELS[v as keyof typeof DATE_FORMAT_LABELS] ?? String(v))
+                      : "Selecionar"
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {(Object.entries(DATE_FORMAT_LABELS) as [typeof dateFormat, string][]).map(([k, label]) => (
-                  <SelectItem key={k} value={k}>
-                    {label}
-                  </SelectItem>
-                ))}
+                {(Object.entries(DATE_FORMAT_LABELS) as [typeof dateFormat, string][]).map(
+                  ([k, label]) => (
+                    <SelectItem key={k} value={k}>
+                      {label}
+                    </SelectItem>
+                  ),
+                )}
               </SelectContent>
             </Select>
           </div>

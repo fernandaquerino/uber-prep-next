@@ -47,9 +47,7 @@ export function getRubricStats(criteria: Array<{ rating: RubricRating }>) {
   const evaluated = criteria.filter((c) => c.rating !== 0);
   const notEvaluated = criteria.filter((c) => c.rating === 0);
   const avg =
-    evaluated.length > 0
-      ? evaluated.reduce((s, c) => s + c.rating, 0) / evaluated.length
-      : null;
+    evaluated.length > 0 ? evaluated.reduce((s, c) => s + c.rating, 0) / evaluated.length : null;
   return {
     total: criteria.length,
     evaluatedCount: evaluated.length,

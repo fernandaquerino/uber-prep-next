@@ -3,10 +3,7 @@ import type { NoteFilters } from "./note.types";
 
 /** Normalize a string: lowercase and remove diacritics */
 function normalize(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "");
+  return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
 /** Strip markdown formatting for plain-text search */

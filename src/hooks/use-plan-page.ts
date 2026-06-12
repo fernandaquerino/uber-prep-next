@@ -12,7 +12,6 @@ import {
   buildStudySchedule,
   groupScheduleByCalendarWeek,
   parseCalendarDate,
-  DEFAULT_WEEKDAY_AVAILABILITY,
 } from "@/lib/domain/schedule";
 import { getEffectiveSchedule } from "@/lib/application/progress";
 import { STUDY_PLAN } from "@/lib/data/study-plan";
@@ -69,18 +68,18 @@ type LoadResult = { kind: "ready"; data: PlanPageData } | { kind: "no_start_date
 async function fetchPlanData(): Promise<LoadResult> {
   const { getDb } = await import("@/lib/db/db");
   const { runSeeds } = await import("@/lib/db/seed");
-  const { SETTINGS_ID } = await import("@/lib/db/constants");
+  const { getSettings } = await import("@/lib/application/settings");
 
   const db = getDb();
   await runSeeds(db);
 
-  const settings = await db.settings.get(SETTINGS_ID);
-  if (!settings?.startDate) {
+  const settings = await getSettings(db);
+  if (!settings.startDate) {
     return { kind: "no_start_date" };
   }
 
   const startDate = parseCalendarDate(settings.startDate);
-  const availability = DEFAULT_WEEKDAY_AVAILABILITY;
+  const availability = settings.weekdayAvailability;
   const today = getTodayCalendarDate();
 
   const baseSchedule = buildStudySchedule(STUDY_PLAN, {

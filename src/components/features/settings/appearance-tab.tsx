@@ -59,14 +59,14 @@ export function AppearanceTab({ settings, onUpdate }: AppearanceTabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-1">Tema</h3>
-        <div className="flex gap-2 flex-wrap">
+        <h3 className="mb-1 text-sm font-medium">Tema</h3>
+        <div className="flex flex-wrap gap-2">
           {THEMES.map(({ value, label, icon }) => (
             <button
               key={value}
               type="button"
               onClick={() => handleThemeChange(value)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm transition-colors ${
+              className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
                 theme === value
                   ? "border-primary bg-primary/10 text-primary font-medium"
                   : "border-border hover:bg-muted"
@@ -77,7 +77,7 @@ export function AppearanceTab({ settings, onUpdate }: AppearanceTabProps) {
             </button>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-2 text-xs">
           A alteração é aplicada imediatamente. Salve para persistir.
         </p>
       </div>
@@ -85,13 +85,15 @@ export function AppearanceTab({ settings, onUpdate }: AppearanceTabProps) {
       <hr className="border-border" />
 
       <div>
-        <h3 className="text-sm font-medium mb-3">Interface</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <h3 className="mb-3 text-sm font-medium">Interface</h3>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Densidade</Label>
             <Select
               value={density}
-              onValueChange={(v) => { if (v) setDensity(v as AppDensity); }}
+              onValueChange={(v) => {
+                if (v) setDensity(v as AppDensity);
+              }}
             >
               <SelectTrigger>
                 <SelectValue>
@@ -112,11 +114,15 @@ export function AppearanceTab({ settings, onUpdate }: AppearanceTabProps) {
             <Label>Modo padrão do editor de notas</Label>
             <Select
               value={notesView}
-              onValueChange={(v) => { if (v) setNotesView(v as NotesDefaultView); }}
+              onValueChange={(v) => {
+                if (v) setNotesView(v as NotesDefaultView);
+              }}
             >
               <SelectTrigger>
                 <SelectValue>
-                  {(v) => (v ? (NOTES_VIEW_LABELS[v as NotesDefaultView] ?? String(v)) : "Selecionar")}
+                  {(v) =>
+                    v ? (NOTES_VIEW_LABELS[v as NotesDefaultView] ?? String(v)) : "Selecionar"
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -132,7 +138,7 @@ export function AppearanceTab({ settings, onUpdate }: AppearanceTabProps) {
       </div>
 
       <div>
-        <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors">
+        <label className="hover:bg-muted/50 flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors">
           <input
             type="checkbox"
             checked={reduceMotion}
@@ -141,7 +147,7 @@ export function AppearanceTab({ settings, onUpdate }: AppearanceTabProps) {
           />
           <div>
             <p className="text-sm font-medium">Reduzir animações</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Desativa transições e animações decorativas.
             </p>
           </div>

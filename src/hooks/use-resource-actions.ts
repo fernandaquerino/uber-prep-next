@@ -82,13 +82,10 @@ export function useResourceActions(refresh: () => void) {
     [refresh],
   );
 
-  const markForReview = useCallback(
-    async (resourceId: string) => {
-      const { createResourceReview } = await import("@/lib/application/resources");
-      await createResourceReview(await getDb(), resourceId);
-    },
-    [],
-  );
+  const markForReview = useCallback(async (resourceId: string) => {
+    const { createResourceReview } = await import("@/lib/application/resources");
+    await createResourceReview(await getDb(), resourceId);
+  }, []);
 
   return {
     createResource,

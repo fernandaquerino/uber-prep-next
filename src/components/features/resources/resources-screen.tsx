@@ -43,7 +43,7 @@ export function ResourcesScreen() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold">Recursos & Inglês Técnico</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {stats.total} recursos · {stats.inProgress} em andamento · {stats.completed} concluídos
           </p>
         </div>
@@ -60,14 +60,14 @@ export function ResourcesScreen() {
           <TabsTrigger value="favoritos">
             Favoritos
             {stats.favorites > 0 && (
-              <span className="ml-1.5 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 px-1.5 py-0.5 rounded-full">
+              <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
                 {stats.favorites}
               </span>
             )}
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="recursos" className="space-y-4 mt-4">
+        <TabsContent value="recursos" className="mt-4 space-y-4">
           <ResourceFiltersBar
             filters={filters}
             sortKey={sortKey}
@@ -88,7 +88,7 @@ export function ResourcesScreen() {
               }
             />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((item) => (
                 <ResourceCard
                   key={item.resource.id}
@@ -125,7 +125,7 @@ export function ResourcesScreen() {
           <TechnicalEnglishTab />
         </TabsContent>
 
-        <TabsContent value="favoritos" className="space-y-4 mt-4">
+        <TabsContent value="favoritos" className="mt-4 space-y-4">
           {(() => {
             const favFilters: ResourceFilters = { lifecycleStatus: "active", isFavorite: true };
             const favItems = sortResources(filterResources(data.items, favFilters), sortKey);
@@ -138,7 +138,7 @@ export function ResourcesScreen() {
               );
             }
             return (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {favItems.map((item) => (
                   <ResourceCard
                     key={item.resource.id}
