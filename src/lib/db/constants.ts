@@ -16,8 +16,8 @@ export const SEED_ID_SETTINGS = "seed:default-settings:v1";
 export const SEED_ID_TIMER_SETTINGS = "seed:timer-settings:v1";
 export const SEED_ID_METADATA = "seed:metadata:v1";
 export const SEED_ID_CHECKLIST = "seed:default-checklist:v1";
-export const SEED_ID_RESOURCES = "seed:initial-resources:v1";
-export const SEED_ID_TECHNICAL_ENGLISH = "seed:initial-technical-english:v1";
+export const SEED_ID_RESOURCES = "seed:initial-resources:v2";
+export const SEED_ID_TECHNICAL_ENGLISH = "seed:initial-technical-english:v2";
 
 // Max audio size (in bytes) before refusing to migrate base64 → Blob inline
 export const AUDIO_MIGRATION_MAX_BYTES = 5 * 1024 * 1024; // 5 MB

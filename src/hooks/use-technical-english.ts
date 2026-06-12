@@ -5,10 +5,11 @@ import type { TechnicalEnglishPageData } from "@/lib/domain/technical-english";
 
 async function loadTechnicalEnglishPageData(): Promise<TechnicalEnglishPageData> {
   const { getDb } = await import("@/lib/db/db");
-  const { getTechnicalEnglishPageData } = await import(
-    "@/lib/application/technical-english"
-  );
-  return getTechnicalEnglishPageData(getDb());
+  const { runSeeds } = await import("@/lib/db/seed");
+  const { getTechnicalEnglishPageData } = await import("@/lib/application/technical-english");
+  const db = getDb();
+  await runSeeds(db);
+  return getTechnicalEnglishPageData(db);
 }
 
 export type UseTechnicalEnglishResult = {

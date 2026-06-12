@@ -1,4 +1,5 @@
 import type { ResourceRecord } from "@/types/database";
+import { RESOURCES, WEEKS } from "./plan";
 
 const BASE_DATE = "2024-01-01T00:00:00.000Z";
 
@@ -37,14 +38,22 @@ function makeResource(
   };
 }
 
-export const INITIAL_RESOURCES: ResourceRecord[] = [
+const CURATED_RESOURCES: ResourceRecord[] = [
   // ── Algoritmos ────────────────────────────────────────────────────────────
   makeResource(
     "res:algo:neetcode-150",
     "NeetCode 150",
     "exercise",
     "algo",
-    ["arrays", "two-pointers", "sliding-window", "binary-search", "dynamic-programming", "graphs", "trees"],
+    [
+      "arrays",
+      "two-pointers",
+      "sliding-window",
+      "binary-search",
+      "dynamic-programming",
+      "graphs",
+      "trees",
+    ],
     ["leetcode", "patterns", "must-do"],
     {
       url: "https://neetcode.io/practice",
@@ -412,3 +421,126 @@ export const INITIAL_RESOURCES: ResourceRecord[] = [
     },
   ),
 ];
+
+type LegacyCatalogResource = {
+  type: string;
+  title: string;
+  author?: string;
+  why?: string;
+  url?: string;
+  priority?: string;
+};
+
+type LegacyPlanBlock = {
+  duration: number;
+  type: string;
+  category: string | null;
+  label: string;
+  resource?: string;
+  leetcode?: string;
+  difficulty?: string;
+};
+
+const RESOURCE_TYPE_MAP: Record<string, ResourceRecord["type"]> = {
+  article: "article",
+  book: "book",
+  course: "course",
+  documentation: "documentation",
+  exercise: "exercise",
+  platform: "course",
+  repo: "repo",
+  video: "video",
+};
+
+function slugify(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 80);
+}
+
+function normalizeUrl(url?: string): string | undefined {
+  return url?.replace(/\/+$/, "").toLowerCase();
+}
+
+function buildResourcesFromPlan(): ResourceRecord[] {
+  const catalogResources = Object.entries(RESOURCES).flatMap(([category, entries]) =>
+    (entries as LegacyCatalogResource[]).map((entry) =>
+      makeResource(
+        `res:catalog:${category}:${slugify(entry.title)}`,
+        entry.title,
+        RESOURCE_TYPE_MAP[entry.type] ?? "other",
+        category,
+        [],
+        [entry.priority, entry.author].filter((value): value is string => Boolean(value)),
+        {
+          url: entry.url,
+          description: entry.why,
+        },
+      ),
+    ),
+  );
+
+  const blockResources: ResourceRecord[] = [];
+  for (const week of WEEKS) {
+    for (const day of week.days) {
+      let studyBlockIndex = 0;
+      for (const rawBlock of day.blocks as LegacyPlanBlock[]) {
+        if (rawBlock.category === null || rawBlock.type === "pausa") continue;
+
+        const blockId = `block-${day.day}-${studyBlockIndex++}`;
+        const url = rawBlock.leetcode ?? rawBlock.resource;
+        if (!url) continue;
+
+        blockResources.push({
+          ...makeResource(
+            `res:plan:${blockId}`,
+            rawBlock.label,
+            rawBlock.leetcode ? "exercise" : (RESOURCE_TYPE_MAP[rawBlock.type] ?? "other"),
+            rawBlock.category,
+            [],
+            [
+              "plano",
+              rawBlock.type,
+              rawBlock.difficulty ? `difficulty:${rawBlock.difficulty}` : undefined,
+            ].filter((value): value is string => Boolean(value)),
+            {
+              url,
+              description: `Recurso vinculado ao dia ${day.day} do plano de estudos.`,
+              estimatedMinutes: rawBlock.duration,
+            },
+          ),
+          linkedPlanBlockIds: [blockId],
+        });
+      }
+    }
+  }
+
+  return [...catalogResources, ...blockResources];
+}
+
+function mergeResources(...groups: ResourceRecord[][]): ResourceRecord[] {
+  const merged: ResourceRecord[] = [];
+  const seenUrls = new Set<string>();
+  const seenTitles = new Set<string>();
+
+  for (const resource of groups.flat()) {
+    const url = normalizeUrl(resource.url);
+    const titleKey = `${resource.category}:${resource.title.trim().toLowerCase()}`;
+    if ((url && seenUrls.has(url)) || seenTitles.has(titleKey)) continue;
+
+    merged.push(resource);
+    if (url) seenUrls.add(url);
+    seenTitles.add(titleKey);
+  }
+
+  return merged;
+}
+
+export const INITIAL_RESOURCES: ResourceRecord[] = mergeResources(
+  CURATED_RESOURCES,
+  buildResourcesFromPlan(),
+);

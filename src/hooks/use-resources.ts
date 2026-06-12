@@ -5,8 +5,11 @@ import type { ResourcePageData } from "@/lib/domain/resources";
 
 async function loadResourcePageData(): Promise<ResourcePageData> {
   const { getDb } = await import("@/lib/db/db");
+  const { runSeeds } = await import("@/lib/db/seed");
   const { getResourcePageData } = await import("@/lib/application/resources");
-  return getResourcePageData(getDb());
+  const db = getDb();
+  await runSeeds(db);
+  return getResourcePageData(db);
 }
 
 export type UseResourcesResult = {

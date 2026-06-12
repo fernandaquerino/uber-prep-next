@@ -1,4 +1,5 @@
 import type { TechnicalEnglishRecord } from "@/types/database";
+import { TECH_ENGLISH_PHRASES } from "./technical-english";
 
 const BASE_DATE = "2024-01-01T00:00:00.000Z";
 
@@ -28,7 +29,7 @@ function makeItem(
   };
 }
 
-export const INITIAL_TECHNICAL_ENGLISH_ITEMS: TechnicalEnglishRecord[] = [
+const CURATED_TECHNICAL_ENGLISH_ITEMS: TechnicalEnglishRecord[] = [
   // ── Clarifying Questions ─────────────────────────────────────────────────
   makeItem(
     "te:clarifying:001",
@@ -555,3 +556,50 @@ Sou especialmente apaixonado(a) por [área de interesse].`,
     ["vocabulary", "api"],
   ),
 ];
+
+const PHASE_SCENARIOS: Array<TechnicalEnglishRecord["scenario"]> = [
+  "clarifying",
+  "coding",
+  "coding",
+  "coding",
+  "system_design",
+  "behavioral",
+  "general",
+];
+
+function buildItemsFromTechnicalEnglish(): TechnicalEnglishRecord[] {
+  return TECH_ENGLISH_PHRASES.flatMap((group, phaseIndex) =>
+    group.phrases.map((phrase, phraseIndex) =>
+      makeItem(
+        `te:legacy:${phaseIndex + 1}:${phraseIndex + 1}`,
+        "phrase",
+        PHASE_SCENARIOS[phaseIndex] ?? "general",
+        phrase.en,
+        phrase.en,
+        phrase.pt,
+        [group.phase],
+      ),
+    ),
+  );
+}
+
+function mergeTechnicalEnglishItems(
+  ...groups: TechnicalEnglishRecord[][]
+): TechnicalEnglishRecord[] {
+  const merged: TechnicalEnglishRecord[] = [];
+  const seenContent = new Set<string>();
+
+  for (const item of groups.flat()) {
+    const contentKey = item.content.trim().toLowerCase();
+    if (seenContent.has(contentKey)) continue;
+    merged.push(item);
+    seenContent.add(contentKey);
+  }
+
+  return merged;
+}
+
+export const INITIAL_TECHNICAL_ENGLISH_ITEMS: TechnicalEnglishRecord[] = mergeTechnicalEnglishItems(
+  CURATED_TECHNICAL_ENGLISH_ITEMS,
+  buildItemsFromTechnicalEnglish(),
+);
