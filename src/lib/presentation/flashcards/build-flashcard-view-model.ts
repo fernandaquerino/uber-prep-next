@@ -19,9 +19,12 @@ const LAST_RESULT_LABELS: Record<string, string> = {
 
 const LEARNING_STATE_BADGES: Record<string, string> = {
   new: "bg-muted text-muted-foreground border-border",
-  learning: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
-  reviewing: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
-  mastered: "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
+  learning:
+    "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700",
+  reviewing:
+    "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
+  mastered:
+    "bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
 };
 
 function formatNextReview(date: string | null, today: CalendarDate): string {
@@ -134,8 +137,7 @@ export function buildSessionSummaryViewModel(
   const durationSeconds = Math.round(result.durationMs / 1000);
   const minutes = Math.floor(durationSeconds / 60);
   const seconds = durationSeconds % 60;
-  const durationFormatted =
-    minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+  const durationFormatted = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
   return {
     total: result.total,

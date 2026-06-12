@@ -204,16 +204,19 @@ export function PlanScreen() {
       )}
 
       {state.status === "no_start_date" && (
-        <EmptyState
-          icon={<CalendarIcon className="h-8 w-8" aria-hidden />}
-          title="Data de início não configurada"
-          description="Configure a data de início para gerar o plano de estudos."
-          action={
-            <Button onClick={() => setChangeStartDateOpen(true)} size="sm">
-              Configurar data de início
-            </Button>
-          }
-        />
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold tracking-tight">Plano de Estudos</h1>
+          <EmptyState
+            icon={<CalendarIcon className="h-8 w-8" aria-hidden />}
+            title="Configure o início do plano"
+            description="Escolha uma data inicial para gerar a agenda de estudos."
+            action={
+              <Button onClick={() => setChangeStartDateOpen(true)} size="sm">
+                Escolher início
+              </Button>
+            }
+          />
+        </div>
       )}
 
       {state.status === "ready" && currentStudyState && completionSummary && (

@@ -2,8 +2,8 @@
 
 Plataforma de preparação para entrevistas de engenharia de software. Local-first, sem backend, sem conta.
 
-> **Estado atual:** Entrega 04 concluída — progresso do plano e agenda efetiva.
-> As Entregas 01–04 estão concluídas. Página Plano funcional, revisões, Dashboard e relatórios ainda não foram implementados.
+> **Estado atual:** Entrega 09 em implementação — Quizzes completos e integrados ao sistema de revisão.
+> As Entregas 01–09 têm implementação funcional no app local-first. Relatórios avançados, Timer e Mocks ainda não fazem parte deste recorte.
 
 ---
 
@@ -182,11 +182,11 @@ docs/
 | 02  | IndexedDB, schema, migration, repositories     | Concluída |
 | 03  | Domínio de calendário                          | Concluída |
 | 04  | Progresso do plano, agenda efetiva, undo       | Concluída |
-| 05  | Página Plano                                   | Pendente  |
-| 06  | Dashboard                                      | Pendente  |
-| 07  | Revisão Hoje                                   | Pendente  |
-| 08  | Flashcards                                     | Pendente  |
-| 09  | Quizzes                                        | Pendente  |
+| 05  | Página Plano                                   | Concluída |
+| 06  | Dashboard                                      | Concluída |
+| 07  | Revisão Hoje                                   | Concluída |
+| 08  | Flashcards                                     | Concluída |
+| 09  | Quizzes                                        | Concluída |
 | 10  | Timer                                          | Pendente  |
 | 11  | Mocks                                          | Pendente  |
 | 12  | Playground                                     | Pendente  |

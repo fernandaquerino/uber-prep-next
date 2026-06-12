@@ -12,6 +12,8 @@ type BuildReviewQueueInput = {
   today: CalendarDate;
   /** Optional: map from flashcard ID → front text for title resolution */
   flashcardTitles?: Map<string, string>;
+  /** Optional: map from quiz question ID → prompt/category for title resolution */
+  quizQuestions?: Map<string, { prompt: string; category: string }>;
 };
 
 function buildBlockLookupFromSchedule(
@@ -49,6 +51,7 @@ export function buildReviewQueue({
   effectiveSchedule,
   today,
   flashcardTitles,
+  quizQuestions,
 }: BuildReviewQueueInput): ReviewQueueItem[] {
   const blockMap = buildBlockLookupFromSchedule(effectiveSchedule);
 
@@ -86,6 +89,18 @@ export function buildReviewQueue({
         title = flashcardFront.length > 80 ? flashcardFront.slice(0, 80) + "…" : flashcardFront;
       }
       category = "flashcard";
+    } else if (review.sourceType === "quiz") {
+      const quizQuestion = quizQuestions?.get(review.sourceId);
+      if (quizQuestion) {
+        title =
+          quizQuestion.prompt.length > 80
+            ? quizQuestion.prompt.slice(0, 80) + "…"
+            : quizQuestion.prompt;
+        category = quizQuestion.category;
+      } else {
+        category = "quiz";
+      }
+      type = "quiz";
     }
 
     return {

@@ -16,10 +16,7 @@ function generateSessionId(): string {
 }
 
 /** Convert a FlashcardRecord + optional ReviewRecord → FlashcardStudyCard */
-function toStudyCard(
-  card: FlashcardRecord,
-  review: ReviewRecord | undefined,
-): FlashcardStudyCard {
+function toStudyCard(card: FlashcardRecord, review: ReviewRecord | undefined): FlashcardStudyCard {
   return {
     flashcardId: card.id,
     front: card.front,

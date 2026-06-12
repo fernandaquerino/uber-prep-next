@@ -90,13 +90,13 @@ function EmptyQueue({ onRequestManual }: { onRequestManual: () => void }) {
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">
-          <div className="rounded-lg border bg-muted/25 p-3">
+          <div className="bg-muted/25 rounded-lg border p-3">
             <p className="text-sm font-medium">Quer revisar algo agora?</p>
             <p className="text-muted-foreground mt-1 text-xs">
               Crie uma revisão manual para um tópico que ainda está fresco ou difícil.
             </p>
           </div>
-          <div className="rounded-lg border bg-muted/25 p-3">
+          <div className="bg-muted/25 rounded-lg border p-3">
             <p className="text-sm font-medium">Próximas revisões ficam salvas</p>
             <p className="text-muted-foreground mt-1 text-xs">
               Itens agendados para outros dias aparecem no resumo como próximas.

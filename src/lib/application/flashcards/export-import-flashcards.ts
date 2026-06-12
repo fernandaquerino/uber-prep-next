@@ -27,10 +27,7 @@ export async function exportFlashcards(db: UberPrepDatabase): Promise<FlashcardE
 /** Import flashcards from a previously exported JSON.
  * Skips cards that already exist by ID or have duplicate front+category.
  */
-export async function importFlashcards(
-  db: UberPrepDatabase,
-  data: unknown,
-): Promise<ImportResult> {
+export async function importFlashcards(db: UberPrepDatabase, data: unknown): Promise<ImportResult> {
   const result: ImportResult = { imported: 0, skipped: 0, errors: [] };
 
   if (

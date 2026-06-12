@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/feedback/page-header";
-import { ComingSoonState } from "@/components/feedback/coming-soon-state";
+import { QuizzesScreen } from "@/components/features/quizzes/quizzes-screen";
 
 export const metadata: Metadata = {
   title: "Quizzes",
@@ -11,15 +10,7 @@ export const metadata: Metadata = {
 export default function QuizzesPage() {
   return (
     <PageContainer>
-      <PageHeader
-        title="Quizzes"
-        description="Pratique com questões de algoritmos, frontend e system design."
-      />
-      <ComingSoonState
-        featureName="Quizzes"
-        delivery={9}
-        description="Os quizzes incluirão questões de múltipla escolha, abertas e daily quiz gerado automaticamente. Será implementado na Entrega 09."
-      />
+      <QuizzesScreen />
     </PageContainer>
   );
 }

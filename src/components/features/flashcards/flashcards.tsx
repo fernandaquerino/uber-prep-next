@@ -381,9 +381,9 @@ export default function FlashCards() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4">
-        <p className="text-sm font-medium text-destructive">Erro ao carregar flashcards</p>
-        <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+      <div className="border-destructive/30 bg-destructive/10 rounded-lg border p-4">
+        <p className="text-destructive text-sm font-medium">Erro ao carregar flashcards</p>
+        <p className="text-muted-foreground mt-1 text-sm">{error}</p>
         <Button className="mt-3" variant="outline" onClick={refresh}>
           Tentar novamente
         </Button>
@@ -399,10 +399,18 @@ export default function FlashCards() {
             <Button onClick={startDueSession} disabled={!data?.dueCount || actions.isLoading}>
               Revisar vencidos
             </Button>
-            <Button variant="outline" onClick={startNewSession} disabled={!data?.newCount || actions.isLoading}>
+            <Button
+              variant="outline"
+              onClick={startNewSession}
+              disabled={!data?.newCount || actions.isLoading}
+            >
               Estudar novos
             </Button>
-            <Button variant="outline" onClick={startFilteredPractice} disabled={filteredCards.length === 0}>
+            <Button
+              variant="outline"
+              onClick={startFilteredPractice}
+              disabled={filteredCards.length === 0}
+            >
               Praticar filtrados
             </Button>
           </div>
@@ -432,18 +440,18 @@ export default function FlashCards() {
         </div>
 
         {importReport && (
-          <p className="rounded-md border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+          <p className="bg-muted/40 text-muted-foreground rounded-md border px-3 py-2 text-sm">
             {importReport}
           </p>
         )}
 
         {actions.error && (
-          <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p className="border-destructive/30 bg-destructive/10 text-destructive rounded-md border px-3 py-2 text-sm">
             {actions.error}
           </p>
         )}
 
-        {isRefreshing && <p className="text-xs text-muted-foreground">Atualizando flashcards…</p>}
+        {isRefreshing && <p className="text-muted-foreground text-xs">Atualizando flashcards…</p>}
       </section>
 
       <FlashcardSummaryCards
@@ -462,13 +470,13 @@ export default function FlashCards() {
       </section>
 
       {sessionSummary && (
-        <section className="rounded-lg border bg-muted/30 p-4">
+        <section className="bg-muted/30 rounded-lg border p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-sm font-medium">Sessão finalizada</p>
-              <p className="text-sm text-muted-foreground">
-                {sessionSummary.total} respostas em {sessionSummary.durationFormatted}. Acertos bons/fáceis:{" "}
-                {sessionSummary.goodPlusEasyPercent}%.
+              <p className="text-muted-foreground text-sm">
+                {sessionSummary.total} respostas em {sessionSummary.durationFormatted}. Acertos
+                bons/fáceis: {sessionSummary.goodPlusEasyPercent}%.
               </p>
             </div>
             <Badge variant="outline">{sessionSummary.againPercent}% para revisar de novo</Badge>
@@ -481,7 +489,7 @@ export default function FlashCards() {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-sm font-medium">Sessão de flashcards</p>
-              <p className="text-sm text-muted-foreground">{studyProgress}</p>
+              <p className="text-muted-foreground text-sm">{studyProgress}</p>
             </div>
             <div className="flex gap-2">
               {!currentStudyCard && (
@@ -496,7 +504,7 @@ export default function FlashCards() {
 
           {currentStudyCard ? (
             <div className="grid gap-4">
-              <div className="rounded-lg border bg-background p-4">
+              <div className="bg-background rounded-lg border p-4">
                 <div className="mb-3 flex flex-wrap gap-2">
                   <Badge variant="outline">{currentStudyCard.category}</Badge>
                   {currentStudyCard.tags.map((tag) => (
@@ -506,16 +514,16 @@ export default function FlashCards() {
                   ))}
                 </div>
                 <div
-                  className="prose prose-sm max-w-none dark:prose-invert"
+                  className="prose prose-sm dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(currentStudyCard.front) }}
                 />
               </div>
 
               {studySession.session.isRevealed ? (
                 <div className="grid gap-3">
-                  <div className="rounded-lg border bg-muted/30 p-4">
+                  <div className="bg-muted/30 rounded-lg border p-4">
                     <div
-                      className="prose prose-sm max-w-none dark:prose-invert"
+                      className="prose prose-sm dark:prose-invert max-w-none"
                       dangerouslySetInnerHTML={{ __html: renderMarkdown(currentStudyCard.back) }}
                     />
                   </div>
@@ -531,7 +539,7 @@ export default function FlashCards() {
               )}
             </div>
           ) : (
-            <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+            <div className="text-muted-foreground rounded-lg border border-dashed p-4 text-sm">
               Nenhum cartão disponível nesta sessão.
             </div>
           )}
@@ -555,7 +563,7 @@ export default function FlashCards() {
       ) : (
         <section className="rounded-lg border border-dashed p-6 text-center">
           <p className="text-sm font-medium">Nenhum flashcard encontrado</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="text-muted-foreground mt-1 text-sm">
             Ajuste os filtros ou crie um novo cartão para continuar estudando.
           </p>
           <Button className="mt-3" onClick={openCreateForm}>
@@ -598,7 +606,7 @@ export default function FlashCards() {
               <section className="grid gap-2">
                 <h3 className="text-sm font-medium">Pergunta</h3>
                 <div
-                  className="prose prose-sm max-w-none rounded-lg border bg-background p-4 dark:prose-invert"
+                  className="prose prose-sm bg-background dark:prose-invert max-w-none rounded-lg border p-4"
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(selectedCard.front) }}
                 />
               </section>
@@ -607,7 +615,7 @@ export default function FlashCards() {
                 <section className="grid gap-2">
                   <h3 className="text-sm font-medium">Resposta</h3>
                   <div
-                    className="prose prose-sm max-w-none rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 dark:prose-invert"
+                    className="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4"
                     dangerouslySetInnerHTML={{ __html: renderMarkdown(selectedCard.back) }}
                   />
                 </section>
@@ -693,7 +701,9 @@ export default function FlashCards() {
               <Textarea
                 id="flashcard-front"
                 value={form.front}
-                onChange={(event) => setForm((current) => ({ ...current, front: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, front: event.target.value }))
+                }
                 rows={4}
                 required
               />
@@ -704,7 +714,9 @@ export default function FlashCards() {
               <Textarea
                 id="flashcard-back"
                 value={form.back}
-                onChange={(event) => setForm((current) => ({ ...current, back: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, back: event.target.value }))
+                }
                 rows={5}
                 required
               />
@@ -738,13 +750,15 @@ export default function FlashCards() {
                 <Input
                   id="flashcard-tags"
                   value={form.tags}
-                  onChange={(event) => setForm((current) => ({ ...current, tags: event.target.value }))}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, tags: event.target.value }))
+                  }
                   placeholder="closures, hooks, performance"
                 />
               </div>
             </div>
 
-            {formError && <p className="text-sm text-destructive">{formError}</p>}
+            {formError && <p className="text-destructive text-sm">{formError}</p>}
 
             <DialogFooter showCloseButton={false}>
               <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
