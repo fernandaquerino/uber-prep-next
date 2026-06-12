@@ -24,11 +24,15 @@ import type {
   QuizQuestionRecord,
   QuizReviewRecord,
   QuizSessionRecord,
+  ResourceProgressRecord,
+  ResourceRecord,
   ReviewRecord,
   ScheduleOverrideRecord,
   SettingsRecord,
   StarAnswer,
   SystemDesignDraft,
+  TechnicalEnglishPracticeRecord,
+  TechnicalEnglishRecord,
   TimerSettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
@@ -66,6 +70,10 @@ export class UberPrepDatabase extends Dexie {
   playgroundSolutions!: Table<PlaygroundSolutionRecord, string>;
   checklistItems!: Table<ChecklistItemRecord, string>;
   metadata!: Table<MetadataRecord, string>;
+  resources!: Table<ResourceRecord, string>;
+  resourceProgress!: Table<ResourceProgressRecord, string>;
+  technicalEnglishItems!: Table<TechnicalEnglishRecord, string>;
+  technicalEnglishPractices!: Table<TechnicalEnglishPracticeRecord, string>;
 
   constructor(name: string = DATABASE_NAME, options?: ConstructorParameters<typeof Dexie>[1]) {
     super(name, options);
@@ -240,7 +248,7 @@ export class UberPrepDatabase extends Dexie {
       noteLinks: "id, noteId, targetType, targetId",
     };
 
-    this.version(DATABASE_VERSION)
+    this.version(8)
       .stores(storesV8)
       .upgrade((tx) =>
         tx
@@ -261,5 +269,18 @@ export class UberPrepDatabase extends Dexie {
             }
           }),
       );
+
+    // v9: resources, resourceProgress, technicalEnglishItems, technicalEnglishPractices
+    const storesV9 = {
+      ...storesV8,
+      resources:
+        "id, category, type, lifecycleStatus, isFavorite, sourceType, *topicIds, *tags, updatedAt",
+      resourceProgress: "id, resourceId, status, updatedAt",
+      technicalEnglishItems:
+        "id, type, scenario, lifecycleStatus, isFavorite, sourceType, *topicIds, *tags, updatedAt",
+      technicalEnglishPractices: "id, itemId, createdAt",
+    };
+
+    this.version(DATABASE_VERSION).stores(storesV9);
   }
 }

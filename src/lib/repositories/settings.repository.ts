@@ -2,10 +2,13 @@ import type { SettingsRecord } from "@/types/database";
 import type { UberPrepDatabase } from "@/lib/db/schema";
 import { METADATA_ID, SETTINGS_ID } from "@/lib/db/constants";
 import { DatabaseError } from "@/lib/db/errors";
+import { withSettingsDefaults } from "@/lib/domain/settings";
 
 export interface SettingsRepository {
   get(): Promise<SettingsRecord | undefined>;
+  getWithDefaults(): Promise<SettingsRecord>;
   upsert(record: SettingsRecord): Promise<void>;
+  update(partial: Partial<Omit<SettingsRecord, "id" | "createdAt">>): Promise<SettingsRecord>;
   setStartDate(date: string | null): Promise<void>;
   setTheme(theme: SettingsRecord["theme"]): Promise<void>;
 }
@@ -19,6 +22,18 @@ export function createSettingsRepository(db: UberPrepDatabase): SettingsReposito
     }
   }
 
+  async function getWithDefaults(): Promise<SettingsRecord> {
+    const existing = await get();
+    if (!existing) {
+      const now = new Date().toISOString();
+      const defaults = withSettingsDefaults({ id: SETTINGS_ID, createdAt: now, updatedAt: now });
+      await db.settings.put(defaults);
+      return defaults;
+    }
+    // Apply defaults for any fields missing on legacy records
+    return withSettingsDefaults(existing as Partial<SettingsRecord> & { id: "app-settings" });
+  }
+
   async function upsert(record: SettingsRecord): Promise<void> {
     try {
       await db.settings.put(record);
@@ -27,24 +42,30 @@ export function createSettingsRepository(db: UberPrepDatabase): SettingsReposito
     }
   }
 
+  async function update(
+    partial: Partial<Omit<SettingsRecord, "id" | "createdAt">>,
+  ): Promise<SettingsRecord> {
+    const existing = await getWithDefaults();
+    const updated: SettingsRecord = {
+      ...existing,
+      ...partial,
+      updatedAt: new Date().toISOString(),
+    };
+    await upsert(updated);
+    return updated;
+  }
+
   async function setStartDate(date: string | null): Promise<void> {
-    const existing = await get();
-    if (!existing) throw new DatabaseError("Settings not initialized");
-    const now = new Date().toISOString();
-    await upsert({ ...existing, startDate: date, updatedAt: now });
+    await update({ startDate: date });
   }
 
   async function setTheme(theme: SettingsRecord["theme"]): Promise<void> {
-    const existing = await get();
-    if (!existing) throw new DatabaseError("Settings not initialized");
-    const now = new Date().toISOString();
-    await upsert({ ...existing, theme, updatedAt: now });
+    await update({ theme });
   }
 
-  return { get, upsert, setStartDate, setTheme };
+  return { get, getWithDefaults, upsert, update, setStartDate, setTheme };
 }
 
-// Default singleton factory — call with getDb() from outside
 export function getSettingsId() {
   return SETTINGS_ID;
 }

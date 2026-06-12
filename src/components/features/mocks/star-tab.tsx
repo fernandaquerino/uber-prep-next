@@ -172,7 +172,9 @@ export function StarTab({ onRefresh }: { onRefresh: () => void }) {
             <Label className="text-xs uppercase tracking-wide text-muted-foreground">Avaliação pessoal</Label>
             <Select value={String(form.selfRating)} onValueChange={(v) => setForm((f) => ({ ...f, selfRating: Number(v) as RubricRating }))}>
               <SelectTrigger className="max-w-xs">
-                <SelectValue />
+                <SelectValue>
+                  {(v) => v != null ? `${v} — ${RUBRIC_RATING_LABELS[Number(v) as RubricRating] ?? String(v)}` : "Selecionar"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {([0, 1, 2, 3, 4, 5] as RubricRating[]).map((r) => (

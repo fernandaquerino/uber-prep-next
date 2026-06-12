@@ -230,7 +230,7 @@ function NoteEditorInner({
   //   );
   // }
 
-  const noteVersions = versions.filter((v) => v.noteId === note.id);
+  const noteVersions = versions.filter((v) => v.noteId === note?.id);
 
   return (
     <div className="border-border bg-background flex h-full flex-col overflow-hidden rounded-lg border">

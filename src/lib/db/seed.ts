@@ -4,7 +4,9 @@ import {
   SEED_ID_FLASHCARDS,
   SEED_ID_METADATA,
   SEED_ID_QUIZ_QUESTIONS,
+  SEED_ID_RESOURCES,
   SEED_ID_SETTINGS,
+  SEED_ID_TECHNICAL_ENGLISH,
   SEED_ID_TIMER_SETTINGS,
   SETTINGS_ID,
   TIMER_SETTINGS_ID,
@@ -12,8 +14,11 @@ import {
 import { DATABASE_VERSION } from "./constants";
 import { INITIAL_FLASHCARDS } from "@/lib/data/initial-flashcards";
 import { INITIAL_QUIZ_QUESTIONS } from "@/lib/data/quizzes";
+import { INITIAL_RESOURCES } from "@/lib/data/resources-seed";
+import { INITIAL_TECHNICAL_ENGLISH_ITEMS } from "@/lib/data/technical-english-items";
 import { normalizeLegacyQuizQuestion, validateQuizQuestion } from "@/lib/domain/quizzes";
 import type { MetadataRecord, SettingsRecord, TimerSettingsRecord } from "@/types/database";
+import { withSettingsDefaults } from "@/lib/domain/settings";
 
 export async function runSeeds(db: UberPrepDatabase): Promise<void> {
   await seedMetadata(db);
@@ -21,6 +26,8 @@ export async function runSeeds(db: UberPrepDatabase): Promise<void> {
   await seedTimerSettings(db);
   await seedFlashcards(db);
   await seedQuizQuestions(db);
+  await seedResources(db);
+  await seedTechnicalEnglish(db);
 }
 
 async function hasSeedRun(db: UberPrepDatabase, seedId: string): Promise<boolean> {
@@ -71,14 +78,17 @@ async function seedSettings(db: UberPrepDatabase): Promise<void> {
   }
 
   const now = new Date().toISOString();
-  const record: SettingsRecord = {
+  const detectedTimezone =
+    typeof window !== "undefined"
+      ? Intl.DateTimeFormat().resolvedOptions().timeZone
+      : "America/Sao_Paulo";
+  const record: SettingsRecord = withSettingsDefaults({
     id: SETTINGS_ID,
     startDate: null,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    theme: "system",
+    timezone: detectedTimezone,
     createdAt: now,
     updatedAt: now,
-  };
+  });
   await db.settings.put(record);
   await markSeedRun(db, SEED_ID_SETTINGS);
 }
@@ -154,4 +164,34 @@ async function seedQuizQuestions(db: UberPrepDatabase): Promise<void> {
   });
 
   await markSeedRun(db, SEED_ID_QUIZ_QUESTIONS);
+}
+
+async function seedResources(db: UberPrepDatabase): Promise<void> {
+  if (await hasSeedRun(db, SEED_ID_RESOURCES)) return;
+
+  await db.transaction("rw", db.resources, async () => {
+    for (const resource of INITIAL_RESOURCES) {
+      const existing = await db.resources.get(resource.id);
+      if (!existing) {
+        await db.resources.put(resource);
+      }
+    }
+  });
+
+  await markSeedRun(db, SEED_ID_RESOURCES);
+}
+
+async function seedTechnicalEnglish(db: UberPrepDatabase): Promise<void> {
+  if (await hasSeedRun(db, SEED_ID_TECHNICAL_ENGLISH)) return;
+
+  await db.transaction("rw", db.technicalEnglishItems, async () => {
+    for (const item of INITIAL_TECHNICAL_ENGLISH_ITEMS) {
+      const existing = await db.technicalEnglishItems.get(item.id);
+      if (!existing) {
+        await db.technicalEnglishItems.put(item);
+      }
+    }
+  });
+
+  await markSeedRun(db, SEED_ID_TECHNICAL_ENGLISH);
 }

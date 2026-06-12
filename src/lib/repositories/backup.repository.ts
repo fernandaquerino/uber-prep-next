@@ -30,6 +30,10 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
       playgroundSolutions,
       checklistItems,
       metadata,
+      resources,
+      resourceProgress,
+      technicalEnglishItems,
+      technicalEnglishPractices,
     ] = await Promise.all([
       db.settings.toArray(),
       db.planProgress.toArray(),
@@ -49,6 +53,10 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
       db.playgroundSolutions.toArray(),
       db.checklistItems.toArray(),
       db.metadata.toArray(),
+      db.resources.toArray(),
+      db.resourceProgress.toArray(),
+      db.technicalEnglishItems.toArray(),
+      db.technicalEnglishPractices.toArray(),
     ]);
 
     const audioCount = await db.mockAudio.count();
@@ -79,6 +87,10 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
         playgroundSolutions,
         checklistItems,
         metadata,
+        resources,
+        resourceProgress,
+        technicalEnglishItems,
+        technicalEnglishPractices,
       },
     };
   }
@@ -119,6 +131,10 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
         db.playgroundSolutions,
         db.checklistItems,
         db.metadata,
+        db.resources,
+        db.resourceProgress,
+        db.technicalEnglishItems,
+        db.technicalEnglishPractices,
       ],
       async () => {
         if (mode === "replace") {
@@ -140,6 +156,10 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
             db.learningJournal.clear(),
             db.playgroundSolutions.clear(),
             db.checklistItems.clear(),
+            db.resources.clear(),
+            db.resourceProgress.clear(),
+            db.technicalEnglishItems.clear(),
+            db.technicalEnglishPractices.clear(),
           ]);
         }
 
@@ -164,6 +184,10 @@ export function createBackupRepository(db: UberPrepDatabase): BackupRepository {
           { key: "learningJournal", table: db.learningJournal as never },
           { key: "playgroundSolutions", table: db.playgroundSolutions as never },
           { key: "checklistItems", table: db.checklistItems as never },
+          { key: "resources", table: db.resources as never },
+          { key: "resourceProgress", table: db.resourceProgress as never },
+          { key: "technicalEnglishItems", table: db.technicalEnglishItems as never },
+          { key: "technicalEnglishPractices", table: db.technicalEnglishPractices as never },
         ];
 
         for (const { key, table } of tables) {

@@ -2,6 +2,7 @@
 
 import type { BackupFile } from "@/types/backup";
 import { BACKUP_APP_ID, BACKUP_VERSION } from "@/types/backup";
+import { withSettingsDefaults } from "@/lib/domain/settings";
 
 export const MINIMAL_BACKUP: BackupFile = {
   app: BACKUP_APP_ID,
@@ -12,14 +13,14 @@ export const MINIMAL_BACKUP: BackupFile = {
   audioCount: 0,
   data: {
     settings: [
-      {
+      withSettingsDefaults({
         id: "app-settings",
         startDate: "2025-01-01",
         timezone: "America/Sao_Paulo",
         theme: "dark",
         createdAt: "2025-01-01T00:00:00.000Z",
         updatedAt: "2025-01-01T00:00:00.000Z",
-      },
+      }),
     ],
     planProgress: [
       {
@@ -45,6 +46,10 @@ export const MINIMAL_BACKUP: BackupFile = {
     learningJournal: [],
     playgroundSolutions: [],
     checklistItems: [],
+    resources: [],
+    resourceProgress: [],
+    technicalEnglishItems: [],
+    technicalEnglishPractices: [],
     metadata: [
       {
         id: "app-metadata",

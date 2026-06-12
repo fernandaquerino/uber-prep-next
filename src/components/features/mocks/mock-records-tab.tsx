@@ -229,7 +229,9 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
                     onValueChange={(v) => handleRubricChange(c.id, Number(v) as RubricRating)}
                   >
                     <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
+                      <SelectValue>
+                        {(v) => v != null ? `${v} — ${RUBRIC_RATING_LABELS[Number(v) as RubricRating] ?? String(v)}` : "–"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {RATING_OPTIONS.map((r) => (

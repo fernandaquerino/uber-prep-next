@@ -11,6 +11,7 @@ import {
 } from "@/lib/validation/legacy.schemas";
 import { LEGACY_STORAGE_KEYS, MOCK_AUDIO_KEY_PREFIX } from "@/types/legacy";
 import { getMockTypeLabel } from "@/lib/domain/mocks/mock.types";
+import { withSettingsDefaults } from "@/lib/domain/settings";
 import type {
   ChecklistItemRecord,
   FlashcardRecord,
@@ -146,14 +147,14 @@ async function migrateProgress(
   const theme = legacyThemeSchema.parse(legacyThemeRaw ?? "dark");
   const existingSettings = await db.settings.get(SETTINGS_ID);
   if (!existingSettings) {
-    const settingsRecord: SettingsRecord = {
+    const settingsRecord: SettingsRecord = withSettingsDefaults({
       id: SETTINGS_ID,
       startDate: data.startDate ?? null,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      timezone: typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "America/Sao_Paulo",
       theme,
       createdAt: now,
       updatedAt: now,
-    };
+    });
     await db.settings.put(settingsRecord);
     imported["settings"] = (imported["settings"] ?? 0) + 1;
   } else {

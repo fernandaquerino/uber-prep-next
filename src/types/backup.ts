@@ -12,9 +12,13 @@ import type {
   PlaygroundSolutionRecord,
   QuizAttemptRecord,
   QuizReviewRecord,
+  ResourceProgressRecord,
+  ResourceRecord,
   ReviewRecord,
   ScheduleOverrideRecord,
   SettingsRecord,
+  TechnicalEnglishPracticeRecord,
+  TechnicalEnglishRecord,
   TimerSettingsRecord,
   TimerSessionRecord,
   WeeklyReflectionRecord,
@@ -44,6 +48,10 @@ export type BackupData = {
   playgroundSolutions: PlaygroundSolutionRecord[];
   checklistItems: ChecklistItemRecord[];
   metadata: MetadataRecord[];
+  resources: ResourceRecord[];
+  resourceProgress: ResourceProgressRecord[];
+  technicalEnglishItems: TechnicalEnglishRecord[];
+  technicalEnglishPractices: TechnicalEnglishPracticeRecord[];
 };
 
 export type BackupFile = {

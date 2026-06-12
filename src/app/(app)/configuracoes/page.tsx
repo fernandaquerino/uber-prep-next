@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/feedback/page-header";
-import { ComingSoonState } from "@/components/feedback/coming-soon-state";
+import { SettingsScreen } from "@/components/features/settings/settings-screen";
 
 export const metadata: Metadata = {
   title: "Configurações",
@@ -13,13 +13,9 @@ export default function ConfiguracoesPage() {
     <PageContainer>
       <PageHeader
         title="Configurações"
-        description="Configurações de tema, exportação de dados e preferências do aplicativo."
+        description="Gerencie plano, agenda, revisões, timer, aparência e dados."
       />
-      <ComingSoonState
-        featureName="Configurações"
-        delivery={16}
-        description="As configurações incluirão tema, exportação/importação de dados e preferências de notificação. Será implementado na Entrega 16."
-      />
+      <SettingsScreen />
     </PageContainer>
   );
 }

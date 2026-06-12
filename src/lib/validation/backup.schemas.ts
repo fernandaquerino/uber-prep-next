@@ -20,6 +20,10 @@ export const backupDataSchema = z.object({
   playgroundSolutions: z.array(z.unknown()),
   checklistItems: z.array(z.unknown()),
   metadata: z.array(z.unknown()),
+  resources: z.array(z.unknown()).default([]),
+  resourceProgress: z.array(z.unknown()).default([]),
+  technicalEnglishItems: z.array(z.unknown()).default([]),
+  technicalEnglishPractices: z.array(z.unknown()).default([]),
 });
 
 export const backupFileSchema = z.object({

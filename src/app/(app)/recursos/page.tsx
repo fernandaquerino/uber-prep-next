@@ -1,25 +1,45 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/feedback/page-header";
-import { ComingSoonState } from "@/components/feedback/coming-soon-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ResourcesScreen } from "@/components/features/resources/resources-screen";
 
 export const metadata: Metadata = {
   title: "Recursos",
-  description: "Materiais de estudo recomendados.",
+  description: "Biblioteca de recursos de estudo e inglês técnico.",
 };
+
+function ResourcesSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="space-y-1">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <Skeleton className="h-9 w-32" />
+      </div>
+      <Skeleton className="h-10 w-64" />
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-9 w-36" />
+        <Skeleton className="h-9 w-36" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Skeleton key={i} className="h-36 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function RecursosPage() {
   return (
     <PageContainer>
-      <PageHeader
-        title="Recursos"
-        description="Livros, plataformas, vídeos e artigos recomendados para a preparação."
-      />
-      <ComingSoonState
-        featureName="Recursos"
-        delivery={13}
-        description="Os recursos serão contextualizados com base nos seus tópicos mais fracos. Será implementado na Entrega 13."
-      />
+      <Suspense fallback={<ResourcesSkeleton />}>
+        <ResourcesScreen />
+      </Suspense>
     </PageContainer>
   );
 }

@@ -1,6 +1,13 @@
 // ─── Review ──────────────────────────────────────────────────────────────────
 
-export type ReviewSourceType = "plan" | "flashcard" | "quiz" | "mock" | "manual";
+export type ReviewSourceType =
+  | "plan"
+  | "flashcard"
+  | "quiz"
+  | "mock"
+  | "manual"
+  | "resource"
+  | "technical_english";
 
 export type ReviewStatus =
   | "scheduled"
@@ -328,6 +335,8 @@ export type TimerSourceType =
   | "playground_solution"
   | "mock"
   | "note"
+  | "resource"
+  | "technical_english"
   | "manual"
   | "general";
 
@@ -626,7 +635,9 @@ export type NoteLinkTargetType =
   | "flashcard"
   | "quiz_question"
   | "mock"
-  | "review";
+  | "review"
+  | "resource"
+  | "technical_english_item";
 
 export type NoteLink = {
   id: string;
@@ -691,11 +702,66 @@ export type ChecklistItemRecord = {
 
 export type AppTheme = "light" | "dark" | "system";
 
+export type LostDayPolicy = "shift" | "reschedule" | "skip" | "keep";
+
+export type AppDensity = "compact" | "default" | "comfortable";
+
+export type FontSizePreference = "sm" | "md" | "lg";
+
+export type DateFormatPreference = "dd/MM/yyyy" | "MM/dd/yyyy" | "yyyy-MM-dd";
+
+export type NotesDefaultView = "edit" | "split" | "preview";
+
+export type SettingsDayAvailability = {
+  enabled: boolean;
+  availableMinutes: number;
+};
+
+export type SettingsWeekdayAvailability = {
+  monday: SettingsDayAvailability;
+  tuesday: SettingsDayAvailability;
+  wednesday: SettingsDayAvailability;
+  thursday: SettingsDayAvailability;
+  friday: SettingsDayAvailability;
+  saturday: SettingsDayAvailability;
+  sunday: SettingsDayAvailability;
+};
+
+export type ReviewAutoCreateSettings = {
+  onBlockComplete: boolean;
+  onQuizError: boolean;
+  onFlashcard: boolean;
+  onMockGap: boolean;
+  includeOnRestDays: boolean;
+};
+
 export type SettingsRecord = {
   id: "app-settings";
+  // General
+  displayName?: string;
+  targetInterviewDate?: string;
+  mainFocus?: string;
+  dateFormat: DateFormatPreference;
+  // Plan
   startDate: string | null;
+  planDurationWeeks: number;
+  lostDayPolicy: LostDayPolicy;
+  // Calendar / Agenda
   timezone: string;
+  weekdayAvailability: SettingsWeekdayAvailability;
+  // Appearance
   theme: AppTheme;
+  density: AppDensity;
+  reduceMotion: boolean;
+  notesDefaultView: NotesDefaultView;
+  // Accessibility
+  increasedContrast: boolean;
+  fontSize: FontSizePreference;
+  showFocusOutline: boolean;
+  disableSounds: boolean;
+  // Reviews
+  reviewIntervals: number[];
+  reviewAutoCreate: ReviewAutoCreateSettings;
   createdAt: string;
   updatedAt: string;
 };
@@ -732,6 +798,108 @@ export type MetadataRecord = {
   backupVersion: number;
   seedsRun: string[];
   lastMigrationReport?: MigrationReport;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─── Resources ────────────────────────────────────────────────────────────────
+
+export type ResourceType =
+  | "article"
+  | "video"
+  | "course"
+  | "documentation"
+  | "book"
+  | "exercise"
+  | "repo"
+  | "cheatsheet"
+  | "other";
+
+export type ResourceStatus =
+  | "not_started"
+  | "in_progress"
+  | "completed"
+  | "saved_for_later"
+  | "archived";
+
+export type ResourceDifficulty = "beginner" | "intermediate" | "advanced";
+
+export type ResourceRecord = {
+  id: string;
+  title: string;
+  description?: string;
+  url?: string;
+  type: ResourceType;
+  category: string;
+  topicIds: string[];
+  tags: string[];
+  difficulty?: ResourceDifficulty;
+  estimatedMinutes?: number;
+  isFavorite: boolean;
+  sourceType: "seed" | "manual" | "imported";
+  lifecycleStatus: "active" | "archived";
+  linkedPlanBlockIds: string[];
+  linkedNoteIds: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ResourceProgressRecord = {
+  id: string;
+  resourceId: string;
+  status: ResourceStatus;
+  progressPercent: number;
+  startedAt?: string;
+  completedAt?: string;
+  lastOpenedAt?: string;
+  notes?: string;
+  rating?: 1 | 2 | 3 | 4 | 5;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ─── Technical English ────────────────────────────────────────────────────────
+
+export type TechnicalEnglishItemType =
+  | "phrase"
+  | "vocabulary"
+  | "template"
+  | "question"
+  | "answer"
+  | "scenario";
+
+export type TechnicalEnglishScenario =
+  | "intro"
+  | "coding"
+  | "system_design"
+  | "behavioral"
+  | "pair_programming"
+  | "clarifying"
+  | "tradeoffs"
+  | "feedback"
+  | "general";
+
+export type TechnicalEnglishRecord = {
+  id: string;
+  type: TechnicalEnglishItemType;
+  scenario: TechnicalEnglishScenario;
+  title: string;
+  content: string;
+  translation?: string;
+  category?: string;
+  topicIds: string[];
+  tags: string[];
+  isFavorite: boolean;
+  sourceType: "seed" | "manual" | "imported";
+  lifecycleStatus: "active" | "archived";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TechnicalEnglishPracticeRecord = {
+  id: string;
+  itemId: string;
+  response: string;
   createdAt: string;
   updatedAt: string;
 };

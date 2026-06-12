@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { createTestDatabase } from "@/test/indexed-db";
 import { runSeeds } from "@/lib/db/seed";
+import { withSettingsDefaults } from "@/lib/domain/settings";
 import {
   SEED_ID_FLASHCARDS,
   SEED_ID_METADATA,
@@ -67,14 +68,7 @@ describe("runSeeds", () => {
       createdAt: now,
       updatedAt: now,
     });
-    await db.settings.put({
-      id: SETTINGS_ID,
-      startDate: "2025-01-01",
-      timezone: "America/Sao_Paulo",
-      theme: "dark",
-      createdAt: now,
-      updatedAt: now,
-    });
+    await db.settings.put(withSettingsDefaults({ id: SETTINGS_ID, startDate: "2025-01-01", timezone: "America/Sao_Paulo", theme: "dark", createdAt: now, updatedAt: now }));
     await runSeeds(db);
     const settings = await db.settings.get(SETTINGS_ID);
     expect(settings?.startDate).toBe("2025-01-01");

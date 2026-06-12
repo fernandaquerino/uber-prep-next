@@ -46,6 +46,8 @@ export function getStudySecondsBySource(
       playground_solution: 0,
       mock: 0,
       note: 0,
+      resource: 0,
+      technical_english: 0,
       manual: 0,
       general: 0,
     },
