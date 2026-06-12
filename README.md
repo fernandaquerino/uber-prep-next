@@ -40,7 +40,7 @@ npm run test:e2e
 | ---------------- | ------------------------------------------------------------------ |
 | `/dashboard`     | Prioridades, progresso, evidências, readiness, riscos e Skill Tree |
 | `/plano`         | Agenda efetiva, progresso, atrasos e reagendamentos                |
-| `/revisar`       | Fila unificada, diário e reflexão semanal                          |
+| `/revisoes`      | Fila unificada, diário e reflexão semanal                          |
 | `/flashcards`    | Criação, estudo e repetição espaçada                               |
 | `/quizzes`       | Sessões, histórico, erros e revisões                               |
 | `/timer`         | Timer global e histórico de tempo real                             |

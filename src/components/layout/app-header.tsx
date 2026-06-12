@@ -2,9 +2,9 @@
 
 import { useCurrentPage } from "@/hooks/use-current-page";
 import { cn } from "@/lib/utils";
-import { Bell, SearchIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { SearchIcon } from "lucide-react";
 import { TimerCompact } from "../features/timer/timer-compact";
+import { NotificationsPanel } from "../features/notifications/notifications-panel";
 
 export function AppHeader() {
   const currentPage = useCurrentPage();
@@ -42,9 +42,7 @@ export function AppHeader() {
 
       <TimerCompact />
 
-      <Button variant="ghost" size="icon" aria-label="Abrir Notificações">
-        <Bell className="h-8 w-8" />
-      </Button>
+      <NotificationsPanel />
     </header>
   );
 }

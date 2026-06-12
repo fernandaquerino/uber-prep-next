@@ -21,7 +21,7 @@ export function buildAnalyticsRecommendations(
     actionLabel: risk.reasons.some((reason) => reason.includes("atrasada"))
       ? "Abrir revisões"
       : "Abrir plano",
-    href: risk.reasons.some((reason) => reason.includes("atrasada")) ? "/revisar" : "/plano",
+    href: risk.reasons.some((reason) => reason.includes("atrasada")) ? "/revisoes" : "/plano",
     priority: 100 - index,
   }));
 
