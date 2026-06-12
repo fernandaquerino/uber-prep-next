@@ -40,6 +40,10 @@ const SORT_OPTIONS = [
   { value: "front_asc", label: "Ordem alfabética" },
 ];
 
+function getOptionLabel(options: Array<{ value: string; label: string }>, value: string) {
+  return options.find((option) => option.value === value)?.label ?? value;
+}
+
 type Props = {
   filters: FlashcardFilters;
   onFiltersChange: (f: Partial<FlashcardFilters>) => void;
@@ -81,7 +85,9 @@ export function FlashcardFiltersBar({ filters, onFiltersChange, onReset, allTags
           }}
         >
           <SelectTrigger className="w-[180px]" aria-label="Filtrar por categoria">
-            <SelectValue />
+            <SelectValue>
+              {(value) => getOptionLabel(CATEGORIES, String(value ?? "all"))}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {CATEGORIES.map((c) => (
@@ -102,7 +108,9 @@ export function FlashcardFiltersBar({ filters, onFiltersChange, onReset, allTags
           }}
         >
           <SelectTrigger className="w-[170px]" aria-label="Filtrar por estado">
-            <SelectValue />
+            <SelectValue>
+              {(value) => getOptionLabel(LEARNING_STATES, String(value ?? "all"))}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {LEARNING_STATES.map((s) => (
@@ -115,7 +123,9 @@ export function FlashcardFiltersBar({ filters, onFiltersChange, onReset, allTags
 
         <Select value={sortValue} onValueChange={handleSort}>
           <SelectTrigger className="w-[170px]" aria-label="Ordenar por">
-            <SelectValue />
+            <SelectValue>
+              {(value) => getOptionLabel(SORT_OPTIONS, String(value ?? sortValue))}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {SORT_OPTIONS.map((o) => (

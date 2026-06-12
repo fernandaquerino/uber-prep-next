@@ -68,6 +68,10 @@ const EMPTY_FORM = {
 type FlashcardFormState = typeof EMPTY_FORM;
 type SummaryFilter = "due" | "new" | "learning" | "reviewing" | "mastered" | "archived";
 
+function getCategoryOptionLabel(value: string) {
+  return CATEGORY_OPTIONS.find((category) => category.value === value)?.label ?? value;
+}
+
 function getTodayCalendarDate() {
   const now = new Date();
   return parseCalendarDate(
@@ -733,7 +737,9 @@ export default function FlashCards() {
                   }}
                 >
                   <SelectTrigger aria-label="Categoria do flashcard">
-                    <SelectValue />
+                    <SelectValue>
+                      {(value) => getCategoryOptionLabel(String(value ?? form.category))}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORY_OPTIONS.map((category) => (
