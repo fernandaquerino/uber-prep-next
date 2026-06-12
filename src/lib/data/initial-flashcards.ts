@@ -2,7 +2,16 @@ import type { FlashcardRecord } from "@/types/database";
 
 type InitialCard = Omit<
   FlashcardRecord,
-  "status" | "source" | "knownAt" | "lastReviewedAt" | "reviewCount" | "reviews" | "updatedAt"
+  | "status"
+  | "source"
+  | "lifecycleStatus"
+  | "sourceId"
+  | "archivedAt"
+  | "knownAt"
+  | "lastReviewedAt"
+  | "reviewCount"
+  | "reviews"
+  | "updatedAt"
 >;
 
 const SEED_DATE = "2025-01-01";
@@ -380,6 +389,7 @@ const now = new Date().toISOString();
 export const INITIAL_FLASHCARDS: FlashcardRecord[] = RAW_CARDS.map((card) => ({
   ...card,
   status: "pending",
+  lifecycleStatus: "active",
   source: "initial",
   knownAt: null,
   lastReviewedAt: null,

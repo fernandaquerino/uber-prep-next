@@ -5,6 +5,8 @@ import { DatabaseError } from "@/lib/db/errors";
 export interface FlashcardsRepository {
   findById(id: string): Promise<FlashcardRecord | undefined>;
   list(): Promise<FlashcardRecord[]>;
+  listActive(): Promise<FlashcardRecord[]>;
+  listArchived(): Promise<FlashcardRecord[]>;
   listByStatus(status: FlashcardStatus): Promise<FlashcardRecord[]>;
   listDue(today: string): Promise<FlashcardRecord[]>;
   upsert(record: FlashcardRecord): Promise<void>;
@@ -44,10 +46,36 @@ export function createFlashcardsRepository(db: UberPrepDatabase): FlashcardsRepo
   async function listDue(today: string): Promise<FlashcardRecord[]> {
     try {
       return await db.flashcards
-        .filter((c) => c.status !== "known" && (!c.nextReview || c.nextReview <= today))
+        .filter(
+          (c) =>
+            c.lifecycleStatus !== "archived" &&
+            c.status !== "known" &&
+            (!c.nextReview || c.nextReview <= today),
+        )
         .toArray();
     } catch (err) {
       throw new DatabaseError("Failed to list due flashcards", err);
+    }
+  }
+
+  async function listActive(): Promise<FlashcardRecord[]> {
+    try {
+      return await db.flashcards
+        .filter((c) => c.lifecycleStatus !== "archived")
+        .toArray();
+    } catch (err) {
+      throw new DatabaseError("Failed to list active flashcards", err);
+    }
+  }
+
+  async function listArchived(): Promise<FlashcardRecord[]> {
+    try {
+      return await db.flashcards
+        .where("lifecycleStatus")
+        .equals("archived")
+        .toArray();
+    } catch (err) {
+      throw new DatabaseError("Failed to list archived flashcards", err);
     }
   }
 
@@ -110,6 +138,8 @@ export function createFlashcardsRepository(db: UberPrepDatabase): FlashcardsRepo
   return {
     findById,
     list,
+    listActive,
+    listArchived,
     listByStatus,
     listDue,
     upsert,

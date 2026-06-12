@@ -18,6 +18,7 @@ function makeCard(overrides: Partial<FlashcardRecord> = {}): FlashcardRecord {
     category: "algo",
     tags: ["big-o"],
     status: "pending",
+    lifecycleStatus: "active",
     source: "initial",
     nextReview: null,
     knownAt: null,

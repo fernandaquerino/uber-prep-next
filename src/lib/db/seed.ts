@@ -85,8 +85,20 @@ async function seedFlashcards(db: UberPrepDatabase): Promise<void> {
     return;
   }
 
+  const now = new Date().toISOString();
+  const seeded = INITIAL_FLASHCARDS.map((card) => ({
+    ...card,
+    status: "pending" as const,
+    source: "initial" as const,
+    lifecycleStatus: "active" as const,
+    knownAt: null,
+    lastReviewedAt: null,
+    reviewCount: 0,
+    reviews: [],
+    updatedAt: now,
+  }));
   await db.transaction("rw", db.flashcards, async () => {
-    await db.flashcards.bulkAdd(INITIAL_FLASHCARDS);
+    await db.flashcards.bulkAdd(seeded);
   });
   await markSeedRun(db, SEED_ID_FLASHCARDS);
 }

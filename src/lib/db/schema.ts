@@ -42,7 +42,7 @@ export class UberPrepDatabase extends Dexie {
   constructor(name: string = DATABASE_NAME, options?: ConstructorParameters<typeof Dexie>[1]) {
     super(name, options);
 
-    const stores = {
+    const storesV3 = {
       settings: "id",
       planProgress: "id, blockId, status, scheduledDate, planDayId, planDaySequence",
       progressEvents: "id, blockId, type, occurredAt, actionGroupId",
@@ -62,7 +62,26 @@ export class UberPrepDatabase extends Dexie {
       metadata: "id",
     };
 
-    this.version(2).stores(stores);
-    this.version(DATABASE_VERSION).stores(stores);
+    // v4 adds lifecycleStatus index on flashcards
+    const storesV4 = {
+      ...storesV3,
+      flashcards: "id, category, *tags, status, nextReview, lifecycleStatus, source",
+    };
+
+    this.version(2).stores(storesV3);
+    this.version(3).stores(storesV3);
+    this.version(DATABASE_VERSION)
+      .stores(storesV4)
+      .upgrade((tx) => {
+        // Backfill lifecycleStatus for all existing flashcards
+        return tx
+          .table("flashcards")
+          .toCollection()
+          .modify((card: FlashcardRecord) => {
+            if (!card.lifecycleStatus) {
+              card.lifecycleStatus = "active";
+            }
+          });
+      });
   }
 }

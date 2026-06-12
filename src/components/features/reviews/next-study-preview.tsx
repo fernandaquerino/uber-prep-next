@@ -2,7 +2,6 @@
 
 import type { NextStudyPreviewViewModel } from "@/lib/presentation/reviews/review-view-model";
 import { CategoryBadge } from "@/components/features/plan/category-badge";
-import { Button } from "@/components/ui/button";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
@@ -62,5 +61,3 @@ export function NextStudyPreview({ preview }: Props) {
     </section>
   );
 }
-
-void Button;

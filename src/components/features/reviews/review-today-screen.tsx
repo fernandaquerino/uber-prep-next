@@ -21,6 +21,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Separator } from "@/components/ui/separator";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -170,29 +171,32 @@ export function ReviewTodayScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between">
-        <PageHeader
-          title="Revisar Hoje"
-          description={
-            state.status === "ready"
-              ? state.viewModel.summary.headerSubtitle
-              : "Revise conteúdos devidos e registre o que aprendeu."
-          }
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={refresh}
-          disabled={isRefreshing}
-          aria-label={isRefreshing ? "Atualizando…" : "Atualizar"}
-          className="mt-1 shrink-0"
-        >
-          {isRefreshing ? (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-          ) : (
-            <RefreshCw className="h-4 w-4" aria-hidden />
-          )}
-        </Button>
+      <div className="space-y-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight">Revisar hoje</h1>
+            <p className="text-muted-foreground text-sm">
+              {state.status === "ready"
+                ? state.viewModel.summary.headerSubtitle
+                : "Revise conteúdos devidos e registre o que aprendeu."}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={refresh}
+            disabled={isRefreshing}
+            aria-label={isRefreshing ? "Atualizando…" : "Atualizar"}
+            className="mt-1 shrink-0"
+          >
+            {isRefreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              <RefreshCw className="h-4 w-4" aria-hidden />
+            )}
+          </Button>
+        </div>
+        <Separator />
       </div>
 
       {state.status === "loading" && <ReviewTodaySkeleton />}

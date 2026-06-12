@@ -134,7 +134,9 @@ export type ScheduleOverrideRecord = {
 // ─── Flashcards ───────────────────────────────────────────────────────────────
 
 export type FlashcardStatus = "pending" | "known" | "review";
-export type FlashcardSource = "initial" | "user" | "migrated";
+/** "initial" = seed data; "user" = manually created; "migrated" = imported from old app; "plan" = created from a plan block */
+export type FlashcardSource = "initial" | "user" | "migrated" | "plan";
+export type FlashcardLifecycleStatus = "active" | "archived";
 
 export type FlashcardReviewEntry = {
   date: string;
@@ -147,8 +149,14 @@ export type FlashcardRecord = {
   back: string;
   category: string;
   tags: string[];
+  /** Legacy spaced-repetition status kept for backwards compat; new logic uses ReviewRecord */
   status: FlashcardStatus;
   source: FlashcardSource;
+  /** Active = visible in sessions; Archived = hidden but history preserved */
+  lifecycleStatus: FlashcardLifecycleStatus;
+  /** ID of a plan block this card was created from */
+  sourceId?: string;
+  archivedAt?: string;
   nextReview: string | null;
   knownAt: string | null;
   lastReviewedAt: string | null;

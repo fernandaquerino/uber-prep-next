@@ -90,7 +90,11 @@ export async function getReviewTodayData(
     (r) => r.status === "completed" && r.doneAt?.startsWith(today),
   );
 
-  const queue = buildReviewQueue({ reviews: dueReviews, effectiveSchedule, today });
+  // Load flashcard front texts for title resolution in the review queue
+  const flashcards = await db.flashcards.toArray();
+  const flashcardTitles = new Map(flashcards.map((c) => [c.id, c.front]));
+
+  const queue = buildReviewQueue({ reviews: dueReviews, effectiveSchedule, today, flashcardTitles });
 
   const estimatedMinutes = queue.reduce((s, q) => s + (q.estimatedMinutes ?? 15), 0);
 
