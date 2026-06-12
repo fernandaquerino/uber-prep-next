@@ -21,6 +21,11 @@ import { DashboardWeekDays } from "./dashboard-week-days";
 import { DashboardUpcomingEnhanced } from "./dashboard-upcoming-enhanced";
 import { DashboardActivityEnhanced } from "./dashboard-activity-enhanced";
 import { DashboardConsistency } from "./dashboard-consistency";
+import { DashboardReadiness } from "./dashboard-readiness";
+import { DashboardSkillTree } from "./dashboard-skill-tree";
+import { DashboardRiskTopics } from "./dashboard-risk-topics";
+import { DashboardKnowledgeHeatmap } from "./dashboard-knowledge-heatmap";
+import { DashboardStatistics } from "./dashboard-statistics";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -194,6 +199,13 @@ function DashboardContent({ vm }: { vm: DashboardViewModel }) {
 
       {/* 7. Consistência */}
       <DashboardConsistency consistency={vm.consistency} />
+
+      {/* 8. Analytics consolidados */}
+      <DashboardReadiness analytics={vm.analytics} />
+      <DashboardRiskTopics analytics={vm.analytics} />
+      <DashboardSkillTree analytics={vm.analytics} />
+      <DashboardKnowledgeHeatmap analytics={vm.analytics} />
+      <DashboardStatistics analytics={vm.analytics} />
     </div>
   );
 }

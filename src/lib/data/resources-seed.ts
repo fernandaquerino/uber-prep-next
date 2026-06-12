@@ -529,11 +529,12 @@ function mergeResources(...groups: ResourceRecord[][]): ResourceRecord[] {
 
   for (const resource of groups.flat()) {
     const url = normalizeUrl(resource.url);
+    const urlKey = url ? `${resource.category}:${url}` : undefined;
     const titleKey = `${resource.category}:${resource.title.trim().toLowerCase()}`;
-    if ((url && seenUrls.has(url)) || seenTitles.has(titleKey)) continue;
+    if ((urlKey && seenUrls.has(urlKey)) || seenTitles.has(titleKey)) continue;
 
     merged.push(resource);
-    if (url) seenUrls.add(url);
+    if (urlKey) seenUrls.add(urlKey);
     seenTitles.add(titleKey);
   }
 

@@ -28,7 +28,10 @@ describe("resource and technical english seeds", () => {
 
     for (const entries of Object.values(RESOURCES)) {
       for (const entry of entries) {
-        expect(resources.some((resource) => resource.title === entry.title)).toBe(true);
+        expect(
+          resources.some((resource) => resource.title === entry.title),
+          `Missing seeded resource: ${entry.title}`,
+        ).toBe(true);
       }
     }
 

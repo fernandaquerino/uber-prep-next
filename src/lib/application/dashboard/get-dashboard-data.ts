@@ -14,6 +14,7 @@ import { getEffectiveSchedule } from "@/lib/application/progress";
 import { STUDY_PLAN } from "@/lib/data/study-plan";
 import type { DashboardViewModel } from "@/lib/presentation/dashboard/dashboard-view-model";
 import { buildDashboardViewModel } from "./build-dashboard-view-model";
+import { getDashboardAnalytics } from "./get-dashboard-analytics";
 
 // ─── Exported supporting types ────────────────────────────────────────────────
 
@@ -150,40 +151,42 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     // Non-fatal: if reviews module fails, dashboard still loads
   }
 
-  const timer = await (async () => {
-    try {
-      const [{ getTimerDailySummary, getTimerWeeklySummary }, { getWeekRange }] = await Promise.all(
-        [import("@/lib/domain/timer"), import("@/lib/application/timer")],
-      );
-      const [sessions, activeTimer] = await Promise.all([
-        db.timerSessions.toArray(),
-        db.activeTimer.toCollection().first(),
-      ]);
-      const weekRange = getWeekRange(today);
-      const todaySummary = getTimerDailySummary(sessions, today);
-      const weekSummary = getTimerWeeklySummary(sessions, weekRange.start, weekRange.end);
+  const [timer, analytics] = await Promise.all([
+    (async () => {
+      try {
+        const [{ getTimerDailySummary, getTimerWeeklySummary }, { getWeekRange }] =
+          await Promise.all([import("@/lib/domain/timer"), import("@/lib/application/timer")]);
+        const [sessions, activeTimer] = await Promise.all([
+          db.timerSessions.toArray(),
+          db.activeTimer.toCollection().first(),
+        ]);
+        const weekRange = getWeekRange(today);
+        const todaySummary = getTimerDailySummary(sessions, today);
+        const weekSummary = getTimerWeeklySummary(sessions, weekRange.start, weekRange.end);
 
-      return {
-        activeTitle: activeTimer?.title ?? null,
-        activeStatus: activeTimer?.status ?? null,
-        activeCategory: activeTimer?.category ?? null,
-        todaySeconds: todaySummary.totalSeconds,
-        todaySessionCount: todaySummary.sessionCount,
-        weekSeconds: weekSummary.totalSeconds,
-        weekSessionCount: weekSummary.sessionCount,
-      };
-    } catch {
-      return {
-        activeTitle: null,
-        activeStatus: null,
-        activeCategory: null,
-        todaySeconds: 0,
-        todaySessionCount: 0,
-        weekSeconds: 0,
-        weekSessionCount: 0,
-      };
-    }
-  })();
+        return {
+          activeTitle: activeTimer?.title ?? null,
+          activeStatus: activeTimer?.status ?? null,
+          activeCategory: activeTimer?.category ?? null,
+          todaySeconds: todaySummary.totalSeconds,
+          todaySessionCount: todaySummary.sessionCount,
+          weekSeconds: weekSummary.totalSeconds,
+          weekSessionCount: weekSummary.sessionCount,
+        };
+      } catch {
+        return {
+          activeTitle: null,
+          activeStatus: null,
+          activeCategory: null,
+          todaySeconds: 0,
+          todaySessionCount: 0,
+          weekSeconds: 0,
+          weekSessionCount: 0,
+        };
+      }
+    })(),
+    getDashboardAnalytics(db, today),
+  ]);
 
   const viewModel = buildDashboardViewModel({
     today,
@@ -196,6 +199,7 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     streak,
     dueReviewCount,
     timer,
+    analytics,
   });
 
   return { kind: "ready", viewModel };

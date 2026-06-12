@@ -108,6 +108,22 @@ test.describe("E2E 06.3 — Dashboard com plano configurado", () => {
     const skeleton = page.locator('[aria-busy="true"]');
     await expect(skeleton).not.toBeVisible({ timeout: 5000 });
   });
+
+  test("mostra analytics sem readiness artificial", async ({ page }, testInfo) => {
+    const status = await waitForDashboard(page);
+    if (status !== "ready") {
+      testInfo.skip(true, "Plano não configurado");
+      return;
+    }
+
+    await expect(page.getByRole("heading", { name: /readiness explicável/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /skill tree/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /heatmap de conhecimento/i })).toBeVisible();
+
+    const insufficient = page.getByText(/dados insuficientes para calcular readiness/i);
+    const score = page.getByLabel(/readiness \d+ de 100/i);
+    expect((await insufficient.count()) + (await score.count())).toBeGreaterThan(0);
+  });
 });
 
 test.describe("E2E 06.4 — Consistência com página Plano", () => {

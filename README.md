@@ -195,9 +195,10 @@ docs/
 | 11  | Playground                                     | Parcial   |
 | 12  | Mocks                                          | Pendente  |
 | 13  | Notas + Recursos                               | Pendente  |
-| 14  | Retention metrics, skill tree, gamification    | Pendente  |
-| 15  | Relatórios semanais                            | Pendente  |
-| 16  | Configurações, polishing, PWA                  | Pendente  |
+| 14  | Configurações                                  | Parcial   |
+| 15  | Dashboard analytics, Skill Tree e Readiness    | Concluída |
+| 16  | Relatórios semanais                            | Pendente  |
+| 17  | Auditoria final                                | Pendente  |
 
 ---
 
@@ -234,7 +235,15 @@ docs/
 
 ## Limitações atuais
 
-- Configurações completas de timer ainda não aparecem em `/configuracoes`.
-- Mocks ainda não possuem fluxo real rastreável.
-- Readiness, relatórios avançados e tópicos de risco ainda não consomem todos os módulos.
+- Algumas preferências de Configurações ainda não alimentam todos os módulos.
+- Relatórios semanais consolidados ainda não foram implementados.
 - Áudio de mocks não é incluído no backup JSON (apenas metadados).
+
+## Dashboard Analytics
+
+- Evidências são derivadas de todas as fontes locais sem criar métricas artificiais.
+- Readiness exige quantidade mínima de dados e múltiplas fontes.
+- Skill Tree diferencia não iniciado, aprendizado, prática, consistência, domínio e risco.
+- Tópicos de risco incluem motivos e ações recomendadas.
+- O heatmap de conhecimento não deve ser confundido com o calendário de atividade.
+- Fórmulas: `docs/domain/readiness.md`.

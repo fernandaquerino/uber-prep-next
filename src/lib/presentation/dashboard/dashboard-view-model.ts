@@ -1,5 +1,6 @@
 import type { CalendarDate } from "@/lib/domain/schedule";
 import type { PlanBlockExecutionStatus } from "@/lib/domain/progress";
+import type { AnalyticsSnapshot } from "@/lib/domain/analytics";
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 
@@ -194,6 +195,7 @@ export type DashboardViewModel = {
   activity: DashboardActivityViewModel;
   consistency: DashboardConsistencyViewModel;
   timer: DashboardTimerViewModel;
+  analytics: AnalyticsSnapshot;
 };
 
 // ─── Page states ─────────────────────────────────────────────────────────────

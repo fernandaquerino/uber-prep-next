@@ -30,6 +30,7 @@ import type {
   ActivityDayViewModel,
 } from "@/lib/presentation/dashboard/dashboard-view-model";
 import type { ActivityDay, DashboardStreak } from "./get-dashboard-data";
+import type { AnalyticsSnapshot } from "@/lib/domain/analytics";
 import {
   formatMinutes,
   formatCalendarDate,
@@ -407,6 +408,7 @@ export type BuildDashboardViewModelInput = {
   streak: DashboardStreak;
   dueReviewCount?: number;
   timer: DashboardTimerViewModel;
+  analytics: AnalyticsSnapshot;
 };
 
 export function buildDashboardViewModel(input: BuildDashboardViewModelInput): DashboardViewModel {
@@ -421,6 +423,7 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     streak,
     dueReviewCount = 0,
     timer,
+    analytics,
   } = input;
 
   const planEnd = effectiveSchedule.at(-1)?.date ?? startDate;
@@ -460,5 +463,6 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     activity,
     consistency,
     timer,
+    analytics,
   };
 }
