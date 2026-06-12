@@ -408,6 +408,7 @@ async function migrateFlashcards(
       category: card.category,
       tags: card.tags,
       status,
+      lifecycleStatus: "active",
       source: "migrated",
       nextReview: card.nextReview ?? null,
       knownAt: card.knownAt ?? null,
