@@ -74,7 +74,9 @@ export function selectDueFlashcards(
   items: FlashcardListItem[],
   today: CalendarDate,
 ): FlashcardListItem[] {
-  return items.filter((c) => c.lifecycleStatus !== "archived" && isDueToday(c.nextReviewDate, today));
+  return items.filter(
+    (c) => c.lifecycleStatus !== "archived" && isDueToday(c.nextReviewDate, today),
+  );
 }
 
 /** Filter to new flashcards (never reviewed) */

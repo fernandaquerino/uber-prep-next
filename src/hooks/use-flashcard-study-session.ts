@@ -42,38 +42,35 @@ export function useFlashcardStudySession(
   const [result, setResult] = useState<FlashcardSessionResult | null>(null);
   const startedAtRef = useRef<number | null>(null);
 
-  const startSession = useCallback(
-    (config: FlashcardSessionConfig, data: FlashcardsPageData) => {
-      const built = buildFlashcardSession({
-        config,
-        cards: data.allCards.map((c) => ({
-          id: c.id,
-          front: c.front,
-          back: c.back,
-          category: c.category,
-          tags: c.tags,
-          status: "pending",
-          lifecycleStatus: c.lifecycleStatus,
-          source: c.source,
-          sourceId: c.sourceId,
-          nextReview: c.nextReviewDate,
-          knownAt: null,
-          lastReviewedAt: null,
-          reviewCount: c.reviewCount,
-          reviews: [],
-          createdAt: c.createdAt,
-          updatedAt: c.updatedAt,
-        })),
-        reviewsByCardId: data.reviewsByCardId,
-        today: getTodayCalendarDate(),
-      });
-      startedAtRef.current = Date.now();
-      setResult(null);
-      setSession(built);
-      saveSessionToStorage(built);
-    },
-    [],
-  );
+  const startSession = useCallback((config: FlashcardSessionConfig, data: FlashcardsPageData) => {
+    const built = buildFlashcardSession({
+      config,
+      cards: data.allCards.map((c) => ({
+        id: c.id,
+        front: c.front,
+        back: c.back,
+        category: c.category,
+        tags: c.tags,
+        status: "pending",
+        lifecycleStatus: c.lifecycleStatus,
+        source: c.source,
+        sourceId: c.sourceId,
+        nextReview: c.nextReviewDate,
+        knownAt: null,
+        lastReviewedAt: null,
+        reviewCount: c.reviewCount,
+        reviews: [],
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      })),
+      reviewsByCardId: data.reviewsByCardId,
+      today: getTodayCalendarDate(),
+    });
+    startedAtRef.current = Date.now();
+    setResult(null);
+    setSession(built);
+    saveSessionToStorage(built);
+  }, []);
 
   const restoreSession = useCallback((): boolean => {
     const stored = loadSessionFromStorage();
@@ -117,8 +114,8 @@ export function useFlashcardStudySession(
   );
 
   const endSession = useCallback(() => {
-      setSession((prev) => {
-        if (!prev) return prev;
+    setSession((prev) => {
+      if (!prev) return prev;
       const durationMs = Date.now() - (startedAtRef.current ?? Date.now());
       const counts = { again: 0, hard: 0, good: 0, easy: 0 };
       for (const r of prev.answered.values()) {

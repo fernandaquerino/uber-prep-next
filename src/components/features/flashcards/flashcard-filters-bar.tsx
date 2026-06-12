@@ -63,7 +63,7 @@ export function FlashcardFiltersBar({ filters, onFiltersChange, onReset, allTags
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
         <div className="relative min-w-[200px] flex-1">
-          <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" aria-hidden />
+          <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" aria-hidden />
           <Input
             placeholder="Buscar flashcards…"
             value={filters.query ?? ""}
@@ -131,10 +131,8 @@ export function FlashcardFiltersBar({ filters, onFiltersChange, onReset, allTags
           size="sm"
           onClick={() =>
             onFiltersChange({
-              lifecycleStatus:
-                filters.lifecycleStatus === "archived" ? undefined : "archived",
-              includeArchived:
-                filters.lifecycleStatus === "archived" ? undefined : true,
+              lifecycleStatus: filters.lifecycleStatus === "archived" ? undefined : "archived",
+              includeArchived: filters.lifecycleStatus === "archived" ? undefined : true,
               learningState: undefined,
               isDue: undefined,
             })
@@ -163,9 +161,7 @@ export function FlashcardFiltersBar({ filters, onFiltersChange, onReset, allTags
           {allTags.slice(0, 12).map((tag) => (
             <button
               key={tag}
-              onClick={() =>
-                onFiltersChange({ tag: filters.tag === tag ? undefined : tag })
-              }
+              onClick={() => onFiltersChange({ tag: filters.tag === tag ? undefined : tag })}
               className={`rounded-full border px-2 py-0.5 text-xs transition-colors ${
                 filters.tag === tag
                   ? "border-primary bg-primary text-primary-foreground"

@@ -168,6 +168,118 @@ export type FlashcardRecord = {
 
 // ─── Quiz Attempts ────────────────────────────────────────────────────────────
 
+export type QuizQuestionType =
+  | "single_choice"
+  | "multiple_choice"
+  | "true_false"
+  | "open_text"
+  | "interview";
+
+export type QuizDifficulty = "easy" | "medium" | "hard";
+export type QuizQuestionSource = "seed" | "manual" | "flashcard" | "imported";
+export type QuizQuestionLifecycleStatus = "active" | "archived";
+
+export type QuizOptionRecord = {
+  id: string;
+  label: string;
+};
+
+export type QuizCorrectAnswerRecord =
+  | { kind: "single"; optionId: string }
+  | { kind: "multiple"; optionIds: string[] }
+  | { kind: "boolean"; value: boolean };
+
+export type QuizQuestionRecord = {
+  id: string;
+  prompt: string;
+  code?: string;
+  type: QuizQuestionType;
+  category: string;
+  difficulty: QuizDifficulty;
+  group?: string;
+  week?: number;
+  topicIds: string[];
+  tags: string[];
+  options?: QuizOptionRecord[];
+  correctAnswer?: QuizCorrectAnswerRecord;
+  explanation?: string;
+  referenceAnswer?: string;
+  evaluationCriteria?: string[];
+  sourceType: QuizQuestionSource;
+  sourceId?: string;
+  lifecycleStatus: QuizQuestionLifecycleStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QuizSessionType =
+  | "daily"
+  | "filtered"
+  | "error_review"
+  | "due_review"
+  | "flashcard_generated"
+  | "custom";
+
+export type QuizSessionStatus = "in_progress" | "completed" | "abandoned";
+export type QuizFeedbackMode = "immediate" | "end_of_session";
+
+export type QuizSessionConfigRecord = {
+  type: QuizSessionType;
+  questionLimit?: number;
+  category?: string;
+  difficulty?: QuizDifficulty;
+  questionType?: QuizQuestionType;
+  group?: string;
+  week?: number;
+  tag?: string;
+  feedbackMode: QuizFeedbackMode;
+};
+
+export type QuizSessionRecord = {
+  id: string;
+  type: QuizSessionType;
+  status: QuizSessionStatus;
+  dailyDate?: string;
+  questionIds: string[];
+  currentIndex: number;
+  config: QuizSessionConfigRecord;
+  startedAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  abandonedAt?: string;
+  elapsedSeconds: number;
+};
+
+export type QuizSelfAssessment = "incorrect" | "partial" | "correct";
+
+export type QuizAnswerValue =
+  | { kind: "single"; optionId: string }
+  | { kind: "multiple"; optionIds: string[] }
+  | { kind: "boolean"; value: boolean }
+  | { kind: "text"; value: string };
+
+export type QuizAnswerRecord = {
+  id: string;
+  sessionId: string;
+  questionId: string;
+  answer: QuizAnswerValue | null;
+  draft?: string;
+  isSubmitted: boolean;
+  isCorrect: boolean | null;
+  score: number | null;
+  selfAssessment?: QuizSelfAssessment;
+  timeSeconds: number;
+  submittedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QuizMarkedQuestionRecord = {
+  id: string;
+  questionId: string;
+  createdAt: string;
+};
+
 export type QuizAttemptRecord = {
   id: string;
   quizId: string | null;

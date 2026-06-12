@@ -31,9 +31,7 @@ export function findPotentialDuplicateFlashcards(
   const normFront = normalizeForComparison(front);
   const normBack = normalizeForComparison(back);
 
-  const candidates = existing.filter(
-    (c) => c.lifecycleStatus !== "archived" && c.id !== excludeId,
-  );
+  const candidates = existing.filter((c) => c.lifecycleStatus !== "archived" && c.id !== excludeId);
 
   const exactDuplicates: FlashcardRecord[] = [];
   const potentialDuplicates: FlashcardRecord[] = [];

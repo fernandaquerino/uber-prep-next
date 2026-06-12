@@ -60,9 +60,7 @@ export function createFlashcardsRepository(db: UberPrepDatabase): FlashcardsRepo
 
   async function listActive(): Promise<FlashcardRecord[]> {
     try {
-      return await db.flashcards
-        .filter((c) => c.lifecycleStatus !== "archived")
-        .toArray();
+      return await db.flashcards.filter((c) => c.lifecycleStatus !== "archived").toArray();
     } catch (err) {
       throw new DatabaseError("Failed to list active flashcards", err);
     }
@@ -70,10 +68,7 @@ export function createFlashcardsRepository(db: UberPrepDatabase): FlashcardsRepo
 
   async function listArchived(): Promise<FlashcardRecord[]> {
     try {
-      return await db.flashcards
-        .where("lifecycleStatus")
-        .equals("archived")
-        .toArray();
+      return await db.flashcards.where("lifecycleStatus").equals("archived").toArray();
     } catch (err) {
       throw new DatabaseError("Failed to list archived flashcards", err);
     }

@@ -28,7 +28,17 @@ describe("validateFlashcardInput", () => {
   });
 
   it("accepts all valid categories", () => {
-    const valid = ["algo", "system", "js", "fe_coding", "mock", "behavioral", "react", "english", "general"];
+    const valid = [
+      "algo",
+      "system",
+      "js",
+      "fe_coding",
+      "mock",
+      "behavioral",
+      "react",
+      "english",
+      "general",
+    ];
     for (const category of valid) {
       const errors = validateFlashcardInput({ category });
       expect(errors.some((e) => e.field === "category")).toBe(false);

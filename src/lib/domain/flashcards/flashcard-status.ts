@@ -17,7 +17,9 @@ export function getLearningState(summary: FlashcardReviewSummary | null): Flashc
   return "reviewing";
 }
 
-export function getFlashcardReviewSummary(review: ReviewRecord | undefined): FlashcardReviewSummary | null {
+export function getFlashcardReviewSummary(
+  review: ReviewRecord | undefined,
+): FlashcardReviewSummary | null {
   if (!review) return null;
   return {
     cycleIndex: review.cycleIndex,

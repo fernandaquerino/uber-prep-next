@@ -3,17 +3,21 @@ import {
   METADATA_ID,
   SEED_ID_FLASHCARDS,
   SEED_ID_METADATA,
+  SEED_ID_QUIZ_QUESTIONS,
   SEED_ID_SETTINGS,
   SETTINGS_ID,
 } from "./constants";
 import { DATABASE_VERSION } from "./constants";
 import { INITIAL_FLASHCARDS } from "@/lib/data/initial-flashcards";
+import { INITIAL_QUIZ_QUESTIONS } from "@/lib/data/quizzes";
+import { normalizeLegacyQuizQuestion, validateQuizQuestion } from "@/lib/domain/quizzes";
 import type { MetadataRecord, SettingsRecord } from "@/types/database";
 
 export async function runSeeds(db: UberPrepDatabase): Promise<void> {
   await seedMetadata(db);
   await seedSettings(db);
   await seedFlashcards(db);
+  await seedQuizQuestions(db);
 }
 
 async function hasSeedRun(db: UberPrepDatabase, seedId: string): Promise<boolean> {
@@ -101,4 +105,24 @@ async function seedFlashcards(db: UberPrepDatabase): Promise<void> {
     await db.flashcards.bulkAdd(seeded);
   });
   await markSeedRun(db, SEED_ID_FLASHCARDS);
+}
+
+async function seedQuizQuestions(db: UberPrepDatabase): Promise<void> {
+  if (await hasSeedRun(db, SEED_ID_QUIZ_QUESTIONS)) return;
+
+  const now = new Date().toISOString();
+  const normalized = INITIAL_QUIZ_QUESTIONS.map((question) =>
+    normalizeLegacyQuizQuestion(question, now),
+  ).filter((question) => validateQuizQuestion(question).length === 0);
+
+  await db.transaction("rw", db.quizQuestions, async () => {
+    for (const question of normalized) {
+      const existing = await db.quizQuestions.get(question.id);
+      if (!existing) {
+        await db.quizQuestions.put(question);
+      }
+    }
+  });
+
+  await markSeedRun(db, SEED_ID_QUIZ_QUESTIONS);
 }

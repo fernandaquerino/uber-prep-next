@@ -31,31 +31,34 @@ function SummaryCard({
       onClick={onClick}
       className={cn(
         "flex min-h-20 flex-col gap-1 rounded-lg border p-3 text-left",
-        onClick ? "cursor-pointer transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" : "",
+        onClick
+          ? "hover:border-primary/60 focus-visible:ring-ring cursor-pointer transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          : "",
         isActive ? "border-primary bg-primary/5" : "",
-        highlight && value > 0 ? "border-orange-300 bg-orange-50 dark:border-orange-700 dark:bg-orange-900/20" : "",
+        highlight && value > 0
+          ? "border-orange-300 bg-orange-50 dark:border-orange-700 dark:bg-orange-900/20"
+          : "",
         className,
       )}
       aria-pressed={onClick ? isActive : undefined}
     >
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
         {icon}
         <span>{label}</span>
       </div>
-      <span className={cn("text-xl font-bold", highlight && value > 0 ? "text-orange-600 dark:text-orange-400" : "")}>
+      <span
+        className={cn(
+          "text-xl font-bold",
+          highlight && value > 0 ? "text-orange-600 dark:text-orange-400" : "",
+        )}
+      >
         {value}
       </span>
     </Component>
   );
 }
 
-type SummaryFilter =
-  | "due"
-  | "new"
-  | "learning"
-  | "reviewing"
-  | "mastered"
-  | "archived";
+type SummaryFilter = "due" | "new" | "learning" | "reviewing" | "mastered" | "archived";
 
 export function FlashcardSummaryCards({
   summary,

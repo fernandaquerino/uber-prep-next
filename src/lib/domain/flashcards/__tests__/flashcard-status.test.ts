@@ -23,7 +23,11 @@ describe("getLearningState", () => {
   });
 
   it("returns 'learning' when last result was 'again' regardless of cycleIndex", () => {
-    const summary: FlashcardReviewSummary = { cycleIndex: 3, lastResult: "again", historyLength: 4 };
+    const summary: FlashcardReviewSummary = {
+      cycleIndex: 3,
+      lastResult: "again",
+      historyLength: 4,
+    };
     expect(getLearningState(summary)).toBe("learning");
   });
 

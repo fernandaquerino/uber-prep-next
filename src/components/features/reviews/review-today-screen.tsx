@@ -14,7 +14,6 @@ import { WeeklyReflection } from "./weekly-reflection";
 import { ManualReviewDialog } from "./manual-review-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/feedback/page-header";
 import { ErrorState } from "@/components/feedback/error-state";
 import { RefreshCw, Loader2, Calendar } from "lucide-react";
 import Link from "next/link";

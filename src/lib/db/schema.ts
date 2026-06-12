@@ -11,8 +11,12 @@ import type {
   PlanProgressRecord,
   ProgressEventRecord,
   PlaygroundSolutionRecord,
+  QuizAnswerRecord,
   QuizAttemptRecord,
+  QuizMarkedQuestionRecord,
+  QuizQuestionRecord,
   QuizReviewRecord,
+  QuizSessionRecord,
   ReviewRecord,
   ScheduleOverrideRecord,
   SettingsRecord,
@@ -27,6 +31,10 @@ export class UberPrepDatabase extends Dexie {
   scheduleOverrides!: Table<ScheduleOverrideRecord, string>;
   reviews!: Table<ReviewRecord, string>;
   flashcards!: Table<FlashcardRecord, string>;
+  quizQuestions!: Table<QuizQuestionRecord, string>;
+  quizSessions!: Table<QuizSessionRecord, string>;
+  quizAnswers!: Table<QuizAnswerRecord, string>;
+  quizMarkedQuestions!: Table<QuizMarkedQuestionRecord, string>;
   quizAttempts!: Table<QuizAttemptRecord, string>;
   quizReviews!: Table<QuizReviewRecord, string>;
   timerSessions!: Table<TimerSessionRecord, string>;
@@ -70,7 +78,7 @@ export class UberPrepDatabase extends Dexie {
 
     this.version(2).stores(storesV3);
     this.version(3).stores(storesV3);
-    this.version(DATABASE_VERSION)
+    this.version(4)
       .stores(storesV4)
       .upgrade((tx) => {
         // Backfill lifecycleStatus for all existing flashcards
@@ -83,5 +91,16 @@ export class UberPrepDatabase extends Dexie {
             }
           });
       });
+
+    const storesV5 = {
+      ...storesV4,
+      quizQuestions:
+        "id, category, difficulty, type, group, week, lifecycleStatus, sourceType, *tags, *topicIds",
+      quizSessions: "id, type, status, dailyDate, startedAt, updatedAt",
+      quizAnswers: "id, sessionId, questionId, isSubmitted, submittedAt",
+      quizMarkedQuestions: "id, questionId, createdAt",
+    };
+
+    this.version(DATABASE_VERSION).stores(storesV5);
   }
 }

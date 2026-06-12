@@ -4,10 +4,7 @@ import type { FlashcardListItem } from "./flashcard.types";
  * Simple text search across front, back, and tags.
  * Returns items that match ALL space-separated tokens.
  */
-export function searchFlashcards(
-  cards: FlashcardListItem[],
-  query: string,
-): FlashcardListItem[] {
+export function searchFlashcards(cards: FlashcardListItem[], query: string): FlashcardListItem[] {
   const trimmed = query.trim().toLowerCase();
   if (!trimmed) return cards;
 

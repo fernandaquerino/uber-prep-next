@@ -1,11 +1,6 @@
 import type { FlashcardListItem, FlashcardLearningState } from "./flashcard.types";
 
-export type FlashcardSortField =
-  | "nextReview"
-  | "createdAt"
-  | "updatedAt"
-  | "front"
-  | "category";
+export type FlashcardSortField = "nextReview" | "createdAt" | "updatedAt" | "front" | "category";
 
 export type FlashcardSortDirection = "asc" | "desc";
 

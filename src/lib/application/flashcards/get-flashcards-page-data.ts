@@ -39,9 +39,7 @@ export async function getFlashcardsPageData(
 
   const activeCards = allCards.filter((c) => c.lifecycleStatus === "active");
 
-  const dueCount = activeCards.filter(
-    (c) => c.isDueToday || c.daysOverdue > 0,
-  ).length;
+  const dueCount = activeCards.filter((c) => c.isDueToday || c.daysOverdue > 0).length;
 
   const newCount = activeCards.filter((c) => c.learningState === "new").length;
   const masteredCount = activeCards.filter((c) => c.learningState === "mastered").length;
