@@ -71,10 +71,10 @@ export function AppSidebar() {
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "hover:text-text-primary hover:bg-surface-muted flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition-colors",
+                    "flex items-center gap-2.5 rounded-lg p-2.5 text-xs font-medium transition-colors",
                     isActive
                       ? "text-primary bg-primary-subtle"
-                      : "text-text-secondary bg-transparent",
+                      : "text-text-secondary hover:bg-surface-muted hover:text-text-primary bg-transparent",
                     collapsed ? "justify-center px-2" : "gap-3 px-3",
                   )}
                 >
