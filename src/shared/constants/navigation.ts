@@ -18,6 +18,7 @@ import {
 
 export type NavItem = {
   id: string;
+  key?: string;
   label: string;
   href: string;
   icon: LucideIcon;
@@ -138,3 +139,7 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((group) =>
+  group.items.map((item) => ({ ...item, key: item.id })),
+);
