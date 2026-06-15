@@ -132,7 +132,7 @@ export function SystemDesignTab({ onRefresh }: { onRefresh: () => void }) {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
               onClick={async () => {
                 await resetDraft(activeTemplate.id);
                 setResetConfirm(false);
