@@ -1,5 +1,6 @@
 import type { CalendarDate } from "@/lib/domain/schedule";
 import {
+  addCalendarDays,
   buildStudySchedule,
   groupScheduleByCalendarWeek,
   parseCalendarDate,
@@ -150,7 +151,7 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     // Non-fatal: if reviews module fails, dashboard still loads
   }
 
-  const [timer, analytics] = await Promise.all([
+  const [timerResult, todayActivity, analytics] = await Promise.all([
     (async () => {
       try {
         const [{ getTimerDailySummary, getTimerWeeklySummary }, { getWeekRange }] =
@@ -163,29 +164,64 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
         const todaySummary = getTimerDailySummary(sessions, today);
         const weekSummary = getTimerWeeklySummary(sessions, weekRange.start, weekRange.end);
 
+        // Minutes studied per weekday in the current week (for the week chart).
+        const weekDailyMinutes: Record<string, number> = {};
+        let cursor = parseCalendarDate(weekRange.start);
+        const end = parseCalendarDate(weekRange.end);
+        while (cursor <= end) {
+          weekDailyMinutes[cursor] = Math.round(getTimerDailySummary(sessions, cursor).totalSeconds / 60);
+          cursor = addCalendarDays(cursor, 1);
+        }
+
         return {
-          activeTitle: activeTimer?.title ?? null,
-          activeStatus: activeTimer?.status ?? null,
-          activeCategory: activeTimer?.category ?? null,
-          todaySeconds: todaySummary.totalSeconds,
-          todaySessionCount: todaySummary.sessionCount,
-          weekSeconds: weekSummary.totalSeconds,
-          weekSessionCount: weekSummary.sessionCount,
+          timer: {
+            activeTitle: activeTimer?.title ?? null,
+            activeStatus: activeTimer?.status ?? null,
+            activeCategory: activeTimer?.category ?? null,
+            todaySeconds: todaySummary.totalSeconds,
+            todaySessionCount: todaySummary.sessionCount,
+            weekSeconds: weekSummary.totalSeconds,
+            weekSessionCount: weekSummary.sessionCount,
+          },
+          weekDailyMinutes,
         };
       } catch {
         return {
-          activeTitle: null,
-          activeStatus: null,
-          activeCategory: null,
-          todaySeconds: 0,
-          todaySessionCount: 0,
-          weekSeconds: 0,
-          weekSessionCount: 0,
+          timer: {
+            activeTitle: null,
+            activeStatus: null,
+            activeCategory: null,
+            todaySeconds: 0,
+            todaySessionCount: 0,
+            weekSeconds: 0,
+            weekSessionCount: 0,
+          },
+          weekDailyMinutes: {} as Record<string, number>,
         };
+      }
+    })(),
+    (async () => {
+      try {
+        const [attempts, flashcards] = await Promise.all([
+          db.quizAttempts.toArray(),
+          db.flashcards.toArray(),
+        ]);
+        const questionsAnswered = attempts
+          .filter((a) => a.finishedAt?.slice(0, 10) === today)
+          .reduce((sum, a) => sum + a.totalQuestions, 0);
+        const flashcardsReviewed = flashcards.reduce(
+          (sum, card) => sum + card.reviews.filter((r) => r.date.slice(0, 10) === today).length,
+          0,
+        );
+        return { questionsAnswered, flashcardsReviewed };
+      } catch {
+        return { questionsAnswered: 0, flashcardsReviewed: 0 };
       }
     })(),
     getDashboardAnalytics(db, today),
   ]);
+
+  const { timer, weekDailyMinutes } = timerResult;
 
   const viewModel = buildDashboardViewModel({
     today,
@@ -199,6 +235,9 @@ export async function getDashboardData(): Promise<GetDashboardDataResult> {
     dueReviewCount,
     timer,
     analytics,
+    weekDailyMinutes,
+    todayQuestionsAnswered: todayActivity.questionsAnswered,
+    todayFlashcardsReviewed: todayActivity.flashcardsReviewed,
   });
 
   return { kind: "ready", viewModel };

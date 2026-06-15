@@ -26,6 +26,9 @@ import type {
   DashboardActivityViewModel,
   DashboardConsistencyViewModel,
   DashboardTimerViewModel,
+  DashboardTodayPlanViewModel,
+  DashboardTodaySummaryViewModel,
+  DashboardWeekChartViewModel,
   WeekDayStatus,
   ActivityDayViewModel,
 } from "@/lib/presentation/dashboard/dashboard-view-model";
@@ -180,7 +183,7 @@ function buildPriorities(
       title: "Plano concluído",
       description: "Você concluiu todos os blocos. Revise os tópicos marcados.",
       actionLabel: "Ver revisões",
-      actionHref: "/revisar",
+      actionHref: "/revisoes",
       severity: "positive",
     });
     return priorities.slice(0, 3);
@@ -211,7 +214,7 @@ function buildPriorities(
           ? "Há um conteúdo para revisar hoje."
           : `${n} conteúdos para revisar. Revise antes de avançar no plano.`,
       actionLabel: "Revisar agora",
-      actionHref: "/revisar",
+      actionHref: "/revisoes",
       severity: "high",
     });
   }
@@ -395,6 +398,78 @@ function buildConsistency(
   };
 }
 
+function buildTodayPlan(
+  today: CalendarDate,
+  effectiveSchedule: EffectiveScheduledDay[],
+  currentBlockId: string | null,
+): DashboardTodayPlanViewModel {
+  const todayDay = effectiveSchedule.find((d) => d.date === today);
+  const items = todayDay?.items ?? [];
+  const completed = items.filter((i) => i.executionStatus === "completed").length;
+  const plannedMinutes = items.reduce((sum, i) => sum + i.estimatedMinutes, 0);
+
+  return {
+    items: items.map((item) => ({
+      blockId: item.blockId,
+      title: item.title,
+      category: item.category,
+      categoryLabel: getCategoryLabel(item.category),
+      typeLabel: getBlockTypeLabel(item.type),
+      startTime: item.startTime ?? null,
+      durationFormatted: formatMinutes(item.estimatedMinutes),
+      executionStatus: item.executionStatus,
+      isCurrent: item.blockId === currentBlockId,
+    })),
+    completed,
+    total: items.length,
+    plannedMinutesFormatted: formatMinutes(plannedMinutes),
+    isRestDay: todayDay?.isRestDay ?? false,
+  };
+}
+
+function buildTodaySummary(
+  today: CalendarDate,
+  effectiveSchedule: EffectiveScheduledDay[],
+  timer: DashboardTimerViewModel,
+  dueReviewCount: number,
+  questionsAnswered: number,
+  flashcardsReviewed: number,
+): DashboardTodaySummaryViewModel {
+  const todayDay = effectiveSchedule.find((d) => d.date === today);
+  const goalMinutes = todayDay?.items.reduce((sum, i) => sum + i.estimatedMinutes, 0) ?? 0;
+
+  return {
+    studiedMinutes: Math.round(timer.todaySeconds / 60),
+    goalMinutes,
+    reviewsPending: dueReviewCount,
+    questionsAnswered,
+    flashcardsReviewed,
+  };
+}
+
+function buildWeekChart(
+  today: CalendarDate,
+  effectiveSchedule: EffectiveScheduledDay[],
+  weekDailyMinutes: Record<string, number>,
+): DashboardWeekChartViewModel {
+  const weekDays = getCurrentWeekDays(effectiveSchedule, today);
+
+  let goalMinutes = 0;
+  const days = weekDays.map((d) => {
+    const dayInSchedule = effectiveSchedule.find((s) => s.date === d.date);
+    goalMinutes += dayInSchedule?.availableMinutes ?? 0;
+    return {
+      weekdayShort: WEEKDAY_SHORT[d.weekday] ?? d.weekday.slice(0, 3),
+      minutes: weekDailyMinutes[d.date] ?? 0,
+      isToday: d.isToday,
+    };
+  });
+
+  const totalMinutes = days.reduce((sum, d) => sum + d.minutes, 0);
+
+  return { days, totalMinutes, goalMinutes };
+}
+
 // ─── Main builder ─────────────────────────────────────────────────────────────
 
 export type BuildDashboardViewModelInput = {
@@ -409,6 +484,9 @@ export type BuildDashboardViewModelInput = {
   dueReviewCount?: number;
   timer: DashboardTimerViewModel;
   analytics: AnalyticsSnapshot;
+  weekDailyMinutes?: Record<string, number>;
+  todayQuestionsAnswered?: number;
+  todayFlashcardsReviewed?: number;
 };
 
 export function buildDashboardViewModel(input: BuildDashboardViewModelInput): DashboardViewModel {
@@ -424,6 +502,9 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     dueReviewCount = 0,
     timer,
     analytics,
+    weekDailyMinutes = {},
+    todayQuestionsAnswered = 0,
+    todayFlashcardsReviewed = 0,
   } = input;
 
   const planEnd = effectiveSchedule.at(-1)?.date ?? startDate;
@@ -447,7 +528,18 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
 
   const categoryProgress = buildCategoryProgress(effectiveSchedule);
   const currentWeek = buildCurrentWeek(today, effectiveSchedule);
-  const upcoming = buildUpcoming(effectiveSchedule, currentStudyState.currentItem?.blockId ?? null);
+  const currentBlockId = currentStudyState.currentItem?.blockId ?? null;
+  const todayPlan = buildTodayPlan(today, effectiveSchedule, currentBlockId);
+  const todaySummary = buildTodaySummary(
+    today,
+    effectiveSchedule,
+    timer,
+    dueReviewCount,
+    todayQuestionsAnswered,
+    todayFlashcardsReviewed,
+  );
+  const weekChart = buildWeekChart(today, effectiveSchedule, weekDailyMinutes);
+  const upcoming = buildUpcoming(effectiveSchedule, currentBlockId);
   const activity = buildActivity(effectiveSchedule, today, activityDays);
   const consistency = buildConsistency(streak, activityDays, weekDayInfos);
 
@@ -459,6 +551,9 @@ export function buildDashboardViewModel(input: BuildDashboardViewModelInput): Da
     progress,
     categoryProgress,
     currentWeek,
+    todayPlan,
+    todaySummary,
+    weekChart,
     upcoming,
     activity,
     consistency,

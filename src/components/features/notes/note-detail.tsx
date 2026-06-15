@@ -1,7 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Download, History, MoreVertical, Pencil, Save, Trash2 } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  Download,
+  Edit3,
+  Eye,
+  History,
+  MoreVertical,
+  Pencil,
+  Save,
+  SplitSquareHorizontal,
+  Trash2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +26,7 @@ import { getCategoryVisual } from "@/lib/presentation/category-visuals";
 import { cn } from "@/lib/utils";
 import type { NoteRecord, NoteVersion } from "@/types/database";
 import { NoteMarkdown } from "./note-markdown";
+import { NoteToolbar } from "./note-toolbar";
 import { NoteHistoryDialog } from "./note-history-dialog";
 
 type NoteDetailProps = {
@@ -45,11 +56,13 @@ function NoteDetailInner({
   onDelete,
 }: NoteDetailProps) {
   const [mode, setMode] = useState<"view" | "edit">(initialMode);
+  const [editorMode, setEditorMode] = useState<"edit" | "split" | "preview">("edit");
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tagsInput, setTagsInput] = useState(note.tags.join(", "));
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const editorRef = useRef<HTMLTextAreaElement | null>(null);
 
   const visual = getCategoryVisual(note.category ?? "general");
   const noteVersions = versions.filter((v) => v.noteId === note.id);
@@ -86,7 +99,7 @@ function NoteDetailInner({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Título da nota"
               aria-label="Título da nota"
-              className="h-auto border-none bg-transparent px-0 text-xl font-bold shadow-none focus-visible:ring-0"
+              className="h-auto border-none bg-transparent px-2 text-xl font-bold shadow-none focus-visible:ring-0"
             />
           ) : (
             <h2 className="text-text-primary truncate text-xl font-bold">{note.title}</h2>
@@ -122,6 +135,37 @@ function NoteDetailInner({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1.5">
+          {mode === "edit" && (
+            <div className="border-border flex overflow-hidden rounded-md border">
+              {(["edit", "split", "preview"] as const).map((m) => {
+                const icons = {
+                  edit: <Edit3 className="h-3.5 w-3.5" />,
+                  split: <SplitSquareHorizontal className="h-3.5 w-3.5" />,
+                  preview: <Eye className="h-3.5 w-3.5" />,
+                };
+                const labels = { edit: "Editar", split: "Dividir", preview: "Preview" };
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setEditorMode(m)}
+                    title={labels[m]}
+                    aria-label={labels[m]}
+                    aria-pressed={editorMode === m}
+                    className={cn(
+                      "px-2 py-1 text-xs transition-colors",
+                      editorMode === m
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {icons[m]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {mode === "edit" ? (
             <Button size="sm" onClick={() => void handleSave()} disabled={saving}>
               <Save aria-hidden />
@@ -163,21 +207,39 @@ function NoteDetailInner({
           </DropdownMenu>
         </div>
       </div>
+      {/* Toolbar */}
+      {mode === "edit" && editorMode !== "preview" && (
+        <NoteToolbar editorRef={editorRef} value={content} onChange={setContent} />
+      )}
 
       {/* Body */}
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
-        {mode === "edit" ? (
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Comece a escrever em markdown…"
-            aria-label="Conteúdo da nota"
-            className="bg-surface-muted/40 h-full min-h-[60vh] w-full resize-none rounded-xl font-mono text-sm leading-relaxed"
-          />
-        ) : (
+      {mode === "edit" ? (
+        <div className="flex min-h-0 flex-1 overflow-hidden">
+          {(editorMode === "edit" || editorMode === "split") && (
+            <Textarea
+              ref={editorRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Comece a escrever em markdown…"
+              aria-label="Conteúdo da nota"
+              className={cn(
+                "bg-surface-muted/40 h-full min-h-[60vh] flex-1 resize-none rounded-none border-none px-6 py-5 font-mono text-sm leading-relaxed shadow-none focus-visible:ring-0",
+                editorMode === "split" && "border-border border-r",
+              )}
+            />
+          )}
+
+          {(editorMode === "split" || editorMode === "preview") && (
+            <div className="flex-1 overflow-y-auto px-6 py-5">
+              <NoteMarkdown content={content} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
           <NoteMarkdown content={note.content} />
-        )}
-      </div>
+        </div>
+      )}
 
       <NoteHistoryDialog
         open={showHistory}

@@ -74,12 +74,6 @@ export const NAV_GROUPS: NavGroup[] = [
         href: "/flashcards",
       },
       {
-        id: "english",
-        icon: Globe,
-        label: "Inglês técnico",
-        href: "/english",
-      },
-      {
         id: "playground",
         icon: Terminal,
         label: "Playground",
@@ -90,12 +84,6 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     group: "Conteúdo",
     items: [
-      {
-        id: "skill-tree",
-        icon: GitBranch,
-        label: "Skill Tree",
-        href: "/skill-tree",
-      },
       {
         id: "notes",
         icon: FileText,

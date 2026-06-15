@@ -240,7 +240,7 @@ function NoteEditorInner({
           value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           placeholder="Título da nota"
-          className="h-8 border-none bg-transparent px-0 text-base font-medium shadow-none focus-visible:ring-0"
+          className="h-8 border-none bg-transparent px-2 text-base font-medium shadow-none focus-visible:ring-0"
           aria-label="Título da nota"
         />
 
