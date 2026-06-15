@@ -50,7 +50,7 @@ export function TimerDisplay({
     }
   }, [activeTimer, now, onCountdownComplete]);
 
-  const className = size === "large" ? "text-5xl" : size === "compact" ? "text-sm" : "text-3xl";
+  const className = size === "large" ? "text-5xl" : size === "compact" ? "text-xs" : "text-3xl";
 
   return (
     <time

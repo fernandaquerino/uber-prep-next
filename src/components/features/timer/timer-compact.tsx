@@ -1,20 +1,22 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { Clock3, Pause, Play } from "lucide-react";
+import { Timer, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { useTimer } from "@/hooks/use-timer";
 import { playTimerDing } from "@/lib/utils/timerSound";
 import { getCategoryVisual } from "@/lib/presentation/category-visuals";
 import { TimerDisplay } from "./timer-display";
-import { TimerPanel } from "./timer-panel";
+import { TimerFocusForm } from "./timer-focus-form";
+import { TimerFocusExpanded } from "./timer-focus-expanded";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 export function TimerCompact() {
   const { data, panelOpen, setPanelOpen, actions } = useTimer();
@@ -47,62 +49,75 @@ export function TimerCompact() {
 
   const visual = active ? getCategoryVisual(active.category) : null;
 
+  console.log({ active, visual });
+
   return (
     <>
       <div className="flex items-center gap-1">
         {active ? (
-          <div className="border-border bg-background hidden items-center gap-2 rounded-md border px-2 py-1 md:flex">
-            <span className={`h-2 w-2 rounded-full ${visual?.dot ?? "bg-muted-foreground"}`} />
-            <button
-              type="button"
-              className="max-w-[180px] truncate text-left text-xs font-medium"
-              onClick={() => setPanelOpen(true)}
-              aria-label={`Abrir timer: ${active.title}`}
-            >
-              {active.title}
-            </button>
+          <button
+            type="button"
+            onClick={() => setPanelOpen(true)}
+            aria-label={`Abrir timer: ${active.title}`}
+            className={cn(
+              "bg-primary-subtle border-primary text-primary hover:bg-primary-active flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 font-mono text-xs font-semibold transition-all",
+              active.status === "paused" &&
+                "bg-warning-subtle border-warning text-warning hover:bg-warning-subtle",
+            )}
+          >
+            <Timer size={13} />
             <TimerDisplay
               activeTimer={active}
               size="compact"
               onCountdownComplete={handleCountdownComplete}
             />
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() =>
-                active.status === "running" ? void actions.pause() : void actions.resume()
-              }
-              aria-label={active.status === "running" ? "Pausar timer" : "Retomar timer"}
-            >
-              {active.status === "running" ? (
-                <Pause className="h-3.5 w-3.5" aria-hidden />
-              ) : (
-                <Play className="h-3.5 w-3.5" aria-hidden />
-              )}
-            </Button>
-          </div>
-        ) : null}
-
-        <Button
-          variant={active ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setPanelOpen(true)}
-          aria-label={active ? "Abrir timer ativo" : "Abrir timer"}
-        >
-          <Clock3 className="h-4 w-4" aria-hidden />
-          <span className="hidden sm:inline">{active ? "Timer" : "Foco"}</span>
-        </Button>
+            <span className="max-w-20 truncate text-[10px] opacity-70">· {visual?.label}</span>
+            {active.status === "paused" && (
+              <span className="text-[10px] opacity-70">· pausado</span>
+            )}
+          </button>
+        ) : (
+          <Button size="sm" onClick={() => setPanelOpen(true)} aria-label="Abrir timer">
+            <Zap className="h-4 w-4" aria-hidden />
+            <span className="hidden sm:inline">{active ? "Timer" : "Foco"}</span>
+          </Button>
+        )}
       </div>
 
-      <Sheet open={panelOpen} onOpenChange={setPanelOpen}>
-        <SheetContent side="right" className="w-[min(440px,100vw)] overflow-y-auto p-0">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Timer e foco</SheetTitle>
-            <SheetDescription>Painel global do timer de estudo.</SheetDescription>
-          </SheetHeader>
-          <TimerPanel />
-        </SheetContent>
-      </Sheet>
+      <Dialog open={panelOpen} onOpenChange={(open) => !open && setPanelOpen(false)}>
+        <DialogContent className={cn("gap-0 p-0", active ? "sm:max-w-lg" : "sm:max-w-md")}>
+          {active ? (
+            <>
+              <DialogTitle className="sr-only">Sessão de foco em andamento</DialogTitle>
+              <DialogDescription className="sr-only">
+                Controle a sessão de foco ativa: pausar, retomar ou finalizar.
+              </DialogDescription>
+              <TimerFocusExpanded
+                activeTimer={active}
+                onMinimize={() => setPanelOpen(false)}
+                onFinished={() => setPanelOpen(false)}
+              />
+            </>
+          ) : (
+            <>
+              <DialogHeader className="border-border flex-row items-center gap-2.5 border-b px-6 py-4">
+                <span className="bg-primary/10 flex h-9 w-9 items-center justify-center rounded-[9px]">
+                  <Zap className="text-primary h-[18px] w-[18px]" aria-hidden />
+                </span>
+                <div className="grid gap-0.5">
+                  <DialogTitle>Modo Foco</DialogTitle>
+                  <DialogDescription className="text-[11px]">
+                    Configure sua sessão
+                  </DialogDescription>
+                </div>
+              </DialogHeader>
+              <div className="px-6 pt-5 pb-6">
+                <TimerFocusForm onStarted={() => setPanelOpen(false)} />
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

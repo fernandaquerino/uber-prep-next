@@ -1,75 +1,83 @@
 "use client";
 
-import type { PlanCompletionSummary, CurrentStudyState } from "@/lib/domain/progress";
-import { Progress } from "@/components/ui/progress";
+import type { WeekStats } from "@/lib/presentation/plan-view-models";
+import { CalendarIcon, CheckCircle2Icon, AlertTriangleIcon, ActivityIcon } from "lucide-react";
+import { formatMinutes } from "./plan-utils";
+import { cn } from "@/lib/utils";
 
 type PlanSummaryProps = {
-  summary: PlanCompletionSummary;
-  currentStudyState: CurrentStudyState;
+  stats: WeekStats;
 };
 
-export function PlanSummary({ summary, currentStudyState }: PlanSummaryProps) {
-  const { overdueItems } = currentStudyState;
-
+export function PlanSummary({ stats }: PlanSummaryProps) {
   return (
-    <div className="rounded-lg border px-4 py-3">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3 text-xs">
-          <StatChip
-            label="Concluídos"
-            value={summary.completed}
-            total={summary.total}
-            highlight="green"
-          />
-          {summary.inProgress > 0 && (
-            <StatChip label="Em andamento" value={summary.inProgress} highlight="blue" />
-          )}
-          {summary.stuck > 0 && (
-            <StatChip label="Travados" value={summary.stuck} highlight="amber" />
-          )}
-          {overdueItems.length > 0 && (
-            <StatChip label="Atrasados" value={overdueItems.length} highlight="red" />
-          )}
-          {summary.skipped > 0 && (
-            <StatChip label="Pulados" value={summary.skipped} highlight="muted" />
-          )}
-        </div>
-        <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-          {summary.completionPercentage}%
-        </span>
-      </div>
-
-      <Progress
-        value={summary.completionPercentage}
-        aria-label={`${summary.completionPercentage}% do plano concluído`}
-        className="h-1.5"
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <StatCard
+        icon={<CalendarIcon className="h-4 w-4" aria-hidden />}
+        value={formatMinutes(stats.plannedMinutes)}
+        label="Planejado"
+        tone="neutral"
+      />
+      <StatCard
+        icon={<CheckCircle2Icon className="h-4 w-4" aria-hidden />}
+        value={formatMinutes(stats.completedMinutes)}
+        label="Concluído"
+        tone="success"
+      />
+      <StatCard
+        icon={<AlertTriangleIcon className="h-4 w-4" aria-hidden />}
+        value={`${stats.overdueCount} ${stats.overdueCount === 1 ? "bloco" : "blocos"}`}
+        label="Atrasado"
+        tone={stats.overdueCount > 0 ? "danger" : "neutral"}
+      />
+      <StatCard
+        icon={<ActivityIcon className="h-4 w-4" aria-hidden />}
+        value={stats.adherencePercent === null ? "—" : `${stats.adherencePercent}%`}
+        label="Aderência"
+        tone="neutral"
       />
     </div>
   );
 }
 
-type Highlight = "green" | "blue" | "amber" | "red" | "muted";
+type Tone = "neutral" | "success" | "danger";
 
-const HIGHLIGHT_CLASSES: Record<Highlight, string> = {
-  green: "text-green-700 dark:text-green-400",
-  blue: "text-blue-700 dark:text-blue-400",
-  amber: "text-amber-700 dark:text-amber-400",
-  red: "text-red-700 dark:text-red-400",
-  muted: "text-muted-foreground",
+const TONE_VALUE: Record<Tone, string> = {
+  neutral: "text-text-primary",
+  success: "text-success",
+  danger: "text-danger",
 };
 
-type StatChipProps = {
+const TONE_ICON: Record<Tone, string> = {
+  neutral: "bg-surface-muted text-text-secondary",
+  success: "bg-success-subtle text-success",
+  danger: "bg-danger-subtle text-danger",
+};
+
+type StatCardProps = {
+  icon: React.ReactNode;
+  value: string;
   label: string;
-  value: number;
-  total?: number;
-  highlight: Highlight;
+  tone: Tone;
 };
 
-function StatChip({ label, value, total, highlight }: StatChipProps) {
+function StatCard({ icon, value, label, tone }: StatCardProps) {
   return (
-    <span className={HIGHLIGHT_CLASSES[highlight]}>
-      <span className="font-semibold tabular-nums">{value}</span>
-      {total !== undefined && <span className="text-muted-foreground">/{total}</span>} {label}
-    </span>
+    <div className="border-border bg-surface flex items-center gap-3 rounded-xl border p-4">
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+          TONE_ICON[tone],
+        )}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className={cn("truncate text-lg leading-tight font-bold tabular-nums", TONE_VALUE[tone])}>
+          {value}
+        </p>
+        <p className="text-muted text-xs">{label}</p>
+      </div>
+    </div>
   );
 }

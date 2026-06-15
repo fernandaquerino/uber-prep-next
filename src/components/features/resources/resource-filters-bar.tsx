@@ -218,7 +218,7 @@ export function ResourceFiltersBar({
           className={`rounded border px-2 py-1 text-xs transition-colors ${
             filters.isFavorite
               ? "border-amber-300 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-              : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
+              : "bg-surface text-muted-foreground border-border hover:bg-muted/80"
           }`}
         >
           ⭐ Favoritos
@@ -232,7 +232,7 @@ export function ResourceFiltersBar({
             className={`rounded border px-2 py-1 text-xs transition-colors ${
               filters.tag === tag
                 ? "bg-primary text-primary-foreground border-primary"
-                : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
+                : "bg-surface text-muted-foreground border-border hover:bg-muted/80"
             }`}
           >
             #{tag}

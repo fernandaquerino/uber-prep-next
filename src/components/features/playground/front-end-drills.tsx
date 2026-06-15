@@ -18,9 +18,9 @@ export default function FrontEndDrills({ loadDrill }: FrontEndDrillsProps) {
           <p className="text-sm font-bold">{drill.title}</p>
           <p className="text-xs leading-[1.5]">{drill.prompt}</p>
           <div className="flex gap-2">
-            <Badge className="bg-[#60A5FA]/15 text-[#60A5FA]">{drill.topic}</Badge>
-            <Badge className="bg-[#FFB547]/15 text-[#FFB547]">{drill.difficulty}</Badge>
-            <Badge className="bg-[#7C6FF7]/15 text-[#7C6FF7]">{drill.tests.length} teste</Badge>
+            <Badge className="bg-info/15 text-info">{drill.topic}</Badge>
+            <Badge className="bg-warning/15 text-warning">{drill.difficulty}</Badge>
+            <Badge className="bg-brand-purple/15 text-brand-purple">{drill.tests.length} teste</Badge>
           </div>
           <Button variant="secondary" onClick={() => loadDrill(drill)}>
             Praticar drill

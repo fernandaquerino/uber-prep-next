@@ -32,10 +32,8 @@ function NotesSkeleton() {
 
 export default function NotasPage() {
   return (
-    <PageContainer>
-      <Suspense fallback={<NotesSkeleton />}>
-        <NotesScreen />
-      </Suspense>
-    </PageContainer>
+    <Suspense fallback={<NotesSkeleton />}>
+      <NotesScreen />
+    </Suspense>
   );
 }

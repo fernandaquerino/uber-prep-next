@@ -7,6 +7,16 @@ import type {
 } from "@/lib/domain/notes/note.types";
 import { toNoteListItem } from "@/lib/domain/notes/note.types";
 
+// ─── Read ─────────────────────────────────────────────────────────────────────
+
+/** Load a single note with its full content (page data only carries excerpts). */
+export async function getNoteById(
+  db: UberPrepDatabase,
+  id: string,
+): Promise<NoteRecord | null> {
+  return (await db.notes.get(id)) ?? null;
+}
+
 // ─── Create ───────────────────────────────────────────────────────────────────
 
 export async function createNote(db: UberPrepDatabase, input: CreateNoteInput): Promise<string> {

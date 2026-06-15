@@ -54,6 +54,11 @@ export function formatMinutes(minutes: number): string {
   return `${h}h ${m}min`;
 }
 
+/** Compact minutes label for dense UI (week grid headers/cards): "125min". */
+export function formatMinutesCompact(minutes: number): string {
+  return `${minutes}min`;
+}
+
 export function getStatusLabel(status: PlanBlockExecutionStatus): string {
   const labels: Record<PlanBlockExecutionStatus, string> = {
     pending: "Pendente",

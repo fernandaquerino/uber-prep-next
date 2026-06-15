@@ -1,36 +1,17 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { Download, FileText, Plus, Search } from "lucide-react";
+import { Bookmark, FileText, Plus, SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NotesNavigation } from "./notes-navigation";
-import { NoteEditor } from "./note-editor";
 import { useNotes } from "@/hooks/use-notes";
+import { useNote } from "@/hooks/use-note";
 import { useNoteActions } from "@/hooks/use-note-actions";
-import { getTopicById } from "@/lib/data/note-topics";
-import { getCategoryLabel } from "@/lib/presentation/category-visuals";
+import { getCategoryVisual } from "@/lib/presentation/category-visuals";
+import { cn } from "@/lib/utils";
 import type { NoteListItem } from "@/lib/domain/notes/note.types";
 import type { NoteRecord, NoteVersion } from "@/types/database";
-import { cn } from "@/lib/utils";
-
-type NavMode = "areas" | "topics";
-
-function formatRelativeDate(iso: string): string {
-  try {
-    const date = new Date(iso);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return "hoje";
-    if (diffDays === 1) return "ontem";
-    if (diffDays < 7) return `há ${diffDays} dias`;
-    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  } catch {
-    return iso.slice(0, 10);
-  }
-}
+import { NoteDetail } from "./note-detail";
 
 function exportNote(note: NoteRecord) {
   const content = `# ${note.title}\n\n${note.content}`;
@@ -47,102 +28,79 @@ export function NotesScreen() {
   const { data, isLoading, error, refresh } = useNotes();
   const actions = useNoteActions(refresh);
 
-  const [navMode, setNavMode] = useState<NavMode>("areas");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [editingNewId, setEditingNewId] = useState<string | null>(null);
+  const [noteRev, setNoteRev] = useState(0);
 
-  // Get the full NoteRecord from the DB snapshot
-  const selectedNote = useMemo<NoteRecord | null>(() => {
-    if (!data || !selectedNoteId) return null;
-    const item = data.notes.find((n) => n.id === selectedNoteId);
-    if (!item) return null;
-    // Reconstruct NoteRecord from NoteListItem — the page data stores all fields
-    return item as unknown as NoteRecord;
-  }, [data, selectedNoteId]);
+  const selectedNote = useNote(selectedNoteId, noteRev);
 
-  // Notes for current context
-  const contextNotes = useMemo<NoteListItem[]>(() => {
+  const notes = useMemo<NoteListItem[]>(() => {
     if (!data) return [];
-    let notes = data.notes.filter((n) => n.lifecycleStatus === "active");
+    let list = data.notes.filter((n) => n.lifecycleStatus === "active");
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      notes = notes.filter(
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
         (n) =>
           n.title.toLowerCase().includes(q) ||
           n.excerpt.toLowerCase().includes(q) ||
-          n.tags.some((t) => t.includes(q)),
+          n.tags.some((t) => t.toLowerCase().includes(q)),
       );
-      return notes;
     }
 
-    if (navMode === "areas" && selectedCategory) {
-      notes = notes.filter((n) => n.category === selectedCategory);
-    } else if (navMode === "topics" && selectedTopicId) {
-      notes = notes.filter((n) => n.topicId === selectedTopicId);
-    } else if (navMode === "areas" && !selectedCategory) {
-      // show all active notes when no category selected
-    } else if (navMode === "topics" && !selectedTopicId) {
-      notes = [];
-    }
+    return [...list].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }, [data, search]);
 
-    return notes;
-  }, [data, search, navMode, selectedCategory, selectedTopicId]);
-
-  const handleCreateNote = useCallback(async () => {
-    const defaultTitle =
-      navMode === "topics" && selectedTopicId
-        ? (getTopicById(selectedTopicId)?.label ?? "Nova nota")
-        : navMode === "areas" && selectedCategory
-          ? getCategoryLabel(selectedCategory)
-          : "Nova nota";
-
+  const handleCreate = useCallback(async () => {
     const id = await actions.createNote({
-      type: navMode === "topics" && selectedTopicId ? "topic" : "category",
-      title: defaultTitle,
-      category: selectedCategory ?? undefined,
-      topicId: selectedTopicId ?? undefined,
+      type: "category",
+      title: "Nova nota",
       tags: [],
       content: "",
-      isPrimary: true,
+      isPrimary: false,
     });
-
     if (id) {
       setSelectedNoteId(id);
+      setEditingNewId(id);
     }
-  }, [actions, navMode, selectedCategory, selectedTopicId]);
+  }, [actions]);
 
-  const handleSaveNote = useCallback(
-    async (id: string, title: string, content: string) => {
-      await actions.updateNote(id, { title, content });
+  const handleSave = useCallback(
+    async (id: string, input: { title: string; content: string; tags: string[] }) => {
+      await actions.updateNote(id, input);
+      setNoteRev((r) => r + 1);
     },
     [actions],
   );
 
   const handleCreateVersion = useCallback(
-    async (noteId: string, reason: NoteVersion["reason"]) => {
-      await actions.saveNoteVersion(noteId, reason);
-    },
+    (noteId: string, reason: NoteVersion["reason"]) => actions.saveNoteVersion(noteId, reason),
     [actions],
   );
 
   const handleRestoreVersion = useCallback(
     async (noteId: string, versionId: string) => {
       await actions.restoreNoteVersion(noteId, versionId);
+      setNoteRev((r) => r + 1);
     },
     [actions],
   );
 
-  const handleExportNote = useCallback(() => {
-    if (!selectedNote) return;
-    exportNote(selectedNote as NoteRecord);
+  const handleDelete = useCallback(async () => {
+    if (!selectedNoteId) return;
+    await actions.deleteNote(selectedNoteId);
+    setSelectedNoteId(null);
+    setEditingNewId(null);
+  }, [actions, selectedNoteId]);
+
+  const handleExport = useCallback(() => {
+    if (selectedNote) exportNote(selectedNote);
   }, [selectedNote]);
 
   if (error) {
     return (
-      <div className="border-destructive/50 bg-destructive/10 rounded-lg border p-6 text-center">
+      <div className="border-destructive/50 bg-destructive/10 m-6 rounded-lg border p-6 text-center">
         <p className="text-destructive text-sm">{error}</p>
         <Button variant="outline" size="sm" className="mt-3" onClick={refresh}>
           Tentar novamente
@@ -151,162 +109,144 @@ export function NotesScreen() {
     );
   }
 
-  const noteCounts = data
-    ? { byCategory: data.countsByCategory, byTopic: data.countsByTopic }
-    : { byCategory: {}, byTopic: {} };
-
-  const hasContext = !!(
-    search.trim() ||
-    (navMode === "areas" && selectedCategory !== null) ||
-    (navMode === "topics" && selectedTopicId !== null)
-  );
-
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-xl font-bold">Notas</h1>
-          <p className="text-muted-foreground text-sm">
-            Anotações de estudo em markdown por área e tópico.
-          </p>
+    <div className="flex h-full min-h-0">
+      {/* List panel */}
+      <div className="border-r-border bg-surface flex w-80 shrink-0 flex-col border-r">
+        <div className="border-b-border border-b p-3.5">
+          <div className="relative">
+            <SearchIcon
+              className="text-text-muted absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2"
+              aria-hidden
+            />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar notas…"
+              aria-label="Buscar notas"
+              className="text-text-primary placeholder:text-text-muted bg-surface-muted border-border focus:border-primary h-9 w-full rounded-lg border py-2 pr-3 pl-8 text-sm transition-all outline-none focus:shadow-[0_0_0_3px_var(--primary-subtle)]"
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          {selectedNote && (
-            <Button variant="outline" size="sm" onClick={handleExportNote} className="gap-1.5">
-              <Download className="h-3.5 w-3.5" />
-              Exportar
-            </Button>
+
+        <div className="min-h-0 flex-1 overflow-y-auto p-2">
+          {isLoading ? (
+            <div className="space-y-2 p-1">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ) : notes.length === 0 ? (
+            <div className="text-text-muted flex flex-col items-center gap-2 px-4 py-12 text-center">
+              <FileText className="size-7 opacity-40" aria-hidden />
+              <p className="text-sm">
+                {search.trim() ? "Nenhuma nota encontrada." : "Nenhuma nota ainda."}
+              </p>
+            </div>
+          ) : (
+            <ul className="space-y-1">
+              {notes.map((note) => (
+                <li key={note.id}>
+                  <NoteCard
+                    note={note}
+                    selected={note.id === selectedNoteId}
+                    onSelect={() => {
+                      setSelectedNoteId(note.id);
+                      setEditingNewId(null);
+                    }}
+                  />
+                </li>
+              ))}
+            </ul>
           )}
-          <Button size="sm" onClick={handleCreateNote} className="gap-1.5">
-            <Plus className="h-3.5 w-3.5" />
+        </div>
+
+        <div className="border-t-border border-t p-3">
+          <Button className="w-full" onClick={() => void handleCreate()}>
+            <Plus aria-hidden />
             Nova nota
           </Button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
-        <Input
-          placeholder="Buscar em todas as notas..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-          aria-label="Buscar notas"
-        />
+      {/* Detail panel */}
+      <div className="bg-background min-w-0 flex-1">
+        {selectedNote ? (
+          <NoteDetail
+            note={selectedNote}
+            versions={data?.versions ?? []}
+            initialMode={selectedNote.id === editingNewId ? "edit" : "view"}
+            onSave={handleSave}
+            onCreateVersion={handleCreateVersion}
+            onRestoreVersion={handleRestoreVersion}
+            onExport={handleExport}
+            onDelete={() => void handleDelete()}
+          />
+        ) : (
+          <div className="text-text-muted flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+            <FileText className="size-10 opacity-30" aria-hidden />
+            <div>
+              <p className="text-text-secondary text-sm font-medium">Selecione uma nota</p>
+              <p className="text-xs">Escolha uma nota à esquerda ou crie uma nova.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function NoteCard({
+  note,
+  selected,
+  onSelect,
+}: {
+  note: NoteListItem;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const visual = getCategoryVisual(note.category ?? "general");
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={cn(
+        "w-full rounded-lg border-l-2 px-3 py-3 text-left transition-colors",
+        selected
+          ? "border-l-primary bg-primary-subtle"
+          : "hover:bg-surface-muted border-l-transparent",
+      )}
+    >
+      <div className="flex items-start gap-1.5">
+        {note.isPrimary && (
+          <Bookmark
+            className={cn("mt-0.5 size-3.5 shrink-0", selected ? "text-primary" : "text-text-muted")}
+            aria-hidden
+          />
+        )}
+        <p
+          className={cn(
+            "min-w-0 flex-1 truncate text-sm font-semibold",
+            selected ? "text-primary" : "text-text-primary",
+          )}
+        >
+          {note.title}
+        </p>
       </div>
 
-      {/* Navigation */}
-      {!search.trim() && (
-        <NotesNavigation
-          mode={navMode}
-          onModeChange={(m) => {
-            setNavMode(m);
-            setSelectedCategory(null);
-            setSelectedTopicId(null);
-          }}
-          selectedCategory={selectedCategory}
-          selectedTopicId={selectedTopicId}
-          onSelectCategory={(cat) => {
-            setSelectedCategory(cat);
-            setSelectedNoteId(null);
-          }}
-          onSelectTopic={(id) => {
-            setSelectedTopicId(id);
-            setSelectedNoteId(null);
-          }}
-          noteCounts={noteCounts}
-        />
+      {note.excerpt && (
+        <p className="text-text-muted mt-1 line-clamp-2 text-xs leading-relaxed">{note.excerpt}</p>
       )}
 
-      {isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-3/4" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
-          {/* Note list sidebar */}
-          <div className="space-y-1">
-            {!hasContext && !search.trim() && navMode === "topics" && !selectedTopicId ? (
-              <p className="text-muted-foreground py-4 text-center text-sm">
-                Selecione um tópico para ver as notas.
-              </p>
-            ) : contextNotes.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 py-8 text-center">
-                <FileText className="text-muted-foreground h-8 w-8 opacity-40" />
-                <p className="text-muted-foreground text-sm">
-                  {search.trim() ? "Nenhuma nota corresponde à busca." : "Nenhuma nota aqui ainda."}
-                </p>
-                {!search.trim() && hasContext && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleCreateNote}
-                    className="gap-1.5"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Criar nota
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <>
-                {contextNotes.map((note) => {
-                  const isSelected = note.id === selectedNoteId;
-                  return (
-                    <button
-                      key={note.id}
-                      type="button"
-                      onClick={() => setSelectedNoteId(isSelected ? null : note.id)}
-                      className={cn(
-                        "w-full rounded-md border px-3 py-2.5 text-left transition-colors",
-                        isSelected ? "border-primary bg-primary/5" : "border-border hover:bg-muted",
-                      )}
-                      aria-pressed={isSelected}
-                    >
-                      <p className="truncate text-sm font-medium">{note.title}</p>
-                      {note.excerpt && (
-                        <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
-                          {note.excerpt}
-                        </p>
-                      )}
-                      <p className="text-muted-foreground mt-1 text-xs">
-                        {formatRelativeDate(note.updatedAt)}
-                      </p>
-                    </button>
-                  );
-                })}
-
-                {hasContext && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground mt-1 w-full gap-1.5"
-                    onClick={handleCreateNote}
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Nova nota
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Editor */}
-          <div className="min-h-[400px]">
-            <NoteEditor
-              note={selectedNote}
-              versions={data?.versions ?? []}
-              onSave={handleSaveNote}
-              onCreateVersion={handleCreateVersion}
-              onRestoreVersion={handleRestoreVersion}
-            />
-          </div>
-        </div>
-      )}
-    </div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="bg-surface-muted text-text-secondary inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px]">
+          <span className={cn("size-1.5 rounded-full", visual.dot)} aria-hidden />
+          {visual.label}
+        </span>
+        <span className="text-text-muted text-[11px]">{note.updatedAt.slice(0, 10)}</span>
+      </div>
+    </button>
   );
 }

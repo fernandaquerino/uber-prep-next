@@ -4,41 +4,142 @@ import {
   RotateCcw,
   Layers,
   HelpCircle,
-  Mic,
-  Code2,
-  Clock3,
   FileText,
-  Library,
-  BarChart3,
   Settings,
   type LucideIcon,
+  Calendar,
+  Users,
+  Globe,
+  Terminal,
+  GitBranch,
+  BarChart2,
+  FileBarChart,
 } from "lucide-react";
 
 export type NavItem = {
-  key: string;
+  id: string;
+  key?: string;
   label: string;
   href: string;
   icon: LucideIcon;
-  delivery: number;
 };
 
-export const NAV_ITEMS: NavItem[] = [
-  { key: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, delivery: 6 },
-  { key: "plano", label: "Plano", href: "/plano", icon: BookOpen, delivery: 5 },
-  { key: "revisar", label: "Revisar Hoje", href: "/revisar", icon: RotateCcw, delivery: 7 },
-  { key: "flashcards", label: "Flashcards", href: "/flashcards", icon: Layers, delivery: 8 },
-  { key: "quizzes", label: "Quizzes", href: "/quizzes", icon: HelpCircle, delivery: 9 },
-  { key: "timer", label: "Timer", href: "/timer", icon: Clock3, delivery: 10 },
-  { key: "mocks", label: "Mocks", href: "/mocks", icon: Mic, delivery: 12 },
-  { key: "playground", label: "Playground", href: "/playground", icon: Code2, delivery: 11 },
-  { key: "notas", label: "Notas", href: "/notas", icon: FileText, delivery: 13 },
-  { key: "recursos", label: "Recursos", href: "/recursos", icon: Library, delivery: 13 },
-  { key: "relatorios", label: "Relatórios", href: "/relatorios", icon: BarChart3, delivery: 16 },
+export type NavGroup = {
+  group: string;
+  items: NavItem[];
+};
+export const NAV_GROUPS: NavGroup[] = [
   {
-    key: "configuracoes",
-    label: "Configurações",
-    href: "/configuracoes",
-    icon: Settings,
-    delivery: 14,
+    group: "Visão geral",
+    items: [
+      {
+        id: "dashboard",
+        icon: LayoutDashboard,
+        label: "Dashboard",
+        href: "/dashboard",
+      },
+      {
+        id: "plan",
+        icon: Calendar,
+        label: "Plano",
+        href: "/plano",
+      },
+    ],
+  },
+  {
+    group: "Prática",
+    items: [
+      {
+        id: "reviews",
+        icon: RotateCcw,
+        label: "Revisões",
+        href: "/revisoes",
+      },
+      {
+        id: "quizzes",
+        icon: HelpCircle,
+        label: "Quizzes",
+        href: "/quizzes",
+      },
+      {
+        id: "mocks",
+        icon: Users,
+        label: "Mocks",
+        href: "/mocks",
+      },
+      {
+        id: "flashcards",
+        icon: Layers,
+        label: "Flashcards",
+        href: "/flashcards",
+      },
+      {
+        id: "english",
+        icon: Globe,
+        label: "Inglês técnico",
+        href: "/english",
+      },
+      {
+        id: "playground",
+        icon: Terminal,
+        label: "Playground",
+        href: "/playground",
+      },
+    ],
+  },
+  {
+    group: "Conteúdo",
+    items: [
+      {
+        id: "skill-tree",
+        icon: GitBranch,
+        label: "Skill Tree",
+        href: "/skill-tree",
+      },
+      {
+        id: "notes",
+        icon: FileText,
+        label: "Notas",
+        href: "/notas",
+      },
+      {
+        id: "resources",
+        icon: BookOpen,
+        label: "Recursos",
+        href: "/recursos",
+      },
+    ],
+  },
+  {
+    group: "Desempenho",
+    items: [
+      {
+        id: "statistics",
+        icon: BarChart2,
+        label: "Estatísticas",
+        href: "/estatisticas",
+      },
+      {
+        id: "reports",
+        icon: FileBarChart,
+        label: "Relatórios",
+        href: "/relatorios",
+      },
+    ],
+  },
+  {
+    group: "Sistema",
+    items: [
+      {
+        id: "settings",
+        icon: Settings,
+        label: "Configurações",
+        href: "/configuracoes",
+      },
+    ],
   },
 ];
+
+export const NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((group) =>
+  group.items.map((item) => ({ ...item, key: item.id })),
+);

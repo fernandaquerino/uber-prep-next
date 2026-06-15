@@ -467,7 +467,7 @@ export function MockRecordsTab({ mocks, evidence, onRefresh }: Props) {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              variant="destructive"
               onClick={async () => {
                 if (deleteTarget) await deleteMock(deleteTarget);
                 setDeleteTarget(null);

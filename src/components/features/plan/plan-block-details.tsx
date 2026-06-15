@@ -3,20 +3,25 @@
 import { useState, useEffect } from "react";
 import type { EffectiveScheduledBlock } from "@/lib/domain/progress";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clock3, ExternalLinkIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ExternalLinkIcon,
+  Trash2Icon,
+  ZapIcon,
+} from "lucide-react";
 import { PlanBlockForm } from "./plan-block-form";
 import { formatCalendarDate, formatMinutes, getStatusLabel } from "./plan-utils";
 import { getCategoryVisual, getBlockTypeLabel } from "@/lib/presentation/category-visuals";
+import { getGridStatusVisual } from "@/lib/presentation/plan-view-models";
 import type { UsePlanActionsResult } from "@/hooks/use-plan-actions";
 import { useTimerActions } from "@/hooks/use-timer-actions";
 import { cn } from "@/lib/utils";
@@ -25,19 +30,26 @@ type PlanBlockDetailsProps = {
   block: EffectiveScheduledBlock | null;
   open: boolean;
   onClose: () => void;
+  onReschedule: (blockId: string) => void;
   actions: UsePlanActionsResult;
 };
 
 type InnerView = "details" | "complete" | "stuck";
 type Tab = "status" | "notes" | "solution";
 
-export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDetailsProps) {
+export function PlanBlockDetails({
+  block,
+  open,
+  onClose,
+  onReschedule,
+  actions,
+}: PlanBlockDetailsProps) {
   const [view, setView] = useState<InnerView>("details");
   const [activeTab, setActiveTab] = useState<Tab>("status");
   const [loading, setLoading] = useState(false);
   const [hasActiveReview, setHasActiveReview] = useState(false);
 
-  // Check review status when dialog opens
+  // Check review status when the panel opens
   useEffect(() => {
     if (!open || !block) return;
     let cancelled = false;
@@ -68,9 +80,9 @@ export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDet
     setLoading(true);
     try {
       await fn();
-      // Return from sub-forms (complete/stuck) to main details view.
-      // Do NOT call handleClose() — modal must stay open after every action.
-      // Refresh is already triggered by usePlanActions.wrap → onSuccess.
+      // Return from sub-forms (complete/stuck) to the main details view.
+      // The panel stays open after every action; refresh is triggered by
+      // usePlanActions.wrap → onSuccess.
       setView("details");
     } finally {
       setLoading(false);
@@ -80,121 +92,140 @@ export function PlanBlockDetails({ block, open, onClose, actions }: PlanBlockDet
   if (!block) return null;
 
   const visual = getCategoryVisual(block.category);
+  const status = getGridStatusVisual(block.executionStatus, block.isOverdue);
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent
-        className={cn(
-          "transition-[max-width]",
-          activeTab === "notes" || activeTab === "solution" ? "sm:max-w-xl" : "sm:max-w-lg",
-        )}
-        aria-describedby="block-desc"
-      >
-        <DialogHeader>
-          <DialogTitle className="text-base">{block.title}</DialogTitle>
-          <DialogDescription id="block-desc" className="flex flex-wrap items-center gap-2 pt-1">
+    <Sheet open={open} onOpenChange={(o) => !o && handleClose()}>
+      <SheetContent side="right" className="w-full gap-0 p-0 sm:max-w-md">
+        <SheetHeader className="border-b">
+          <SheetTitle>Detalhes do bloco</SheetTitle>
+        </SheetHeader>
+
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Topic */}
+          <p className="text-muted text-xs">Tópico</p>
+          <h2 className="text-text-primary mt-0.5 text-xl leading-tight font-semibold">
+            {block.title}
+          </h2>
+
+          {/* Badges */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <span
               className={cn(
-                "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium",
                 visual.badge,
               )}
             >
+              <span className={cn("h-1.5 w-1.5 rounded-full", visual.dot)} aria-hidden />
               {visual.label}
             </span>
-            <span className="text-muted-foreground text-xs">{getBlockTypeLabel(block.type)}</span>
-            <span className="text-muted-foreground text-xs">·</span>
-            <span className="text-muted-foreground text-xs">
-              {formatMinutes(block.estimatedMinutes)} estimados
+            <span className="border-border bg-surface-muted text-text-secondary inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium">
+              {getBlockTypeLabel(block.type)}
             </span>
-          </DialogDescription>
-        </DialogHeader>
+            <span
+              className={cn(
+                "border-border bg-surface-muted inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                status.text,
+              )}
+            >
+              <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} aria-hidden />
+              {status.label}
+            </span>
+          </div>
 
-        {view === "details" && (
-          <>
-            <TabBar activeTab={activeTab} onChange={setActiveTab} />
+          <div className="mt-5">
+            {view === "details" && (
+              <>
+                <TabBar activeTab={activeTab} onChange={setActiveTab} />
 
-            {activeTab === "status" && (
-              <StatusTab
-                block={block}
+                <div className="mt-4">
+                  {activeTab === "status" && (
+                    <StatusTab
+                      block={block}
+                      loading={loading}
+                      hasActiveReview={hasActiveReview}
+                      onShowComplete={() => setView("complete")}
+                      onShowStuck={() => setView("stuck")}
+                      onStart={() => doAction(() => actions.startBlock(block.blockId))}
+                      onReturnToPending={() =>
+                        doAction(() => actions.returnToPending(block.blockId))
+                      }
+                      onSkip={() => doAction(() => actions.skipBlock(block.blockId))}
+                      onRestore={() => doAction(() => actions.restoreBlock(block.blockId))}
+                      onReschedule={() => onReschedule(block.blockId)}
+                      onMarkForReview={() =>
+                        doAction(async () => {
+                          await actions.markForReview(block.blockId);
+                          setHasActiveReview(true);
+                        })
+                      }
+                      onUnmarkForReview={() =>
+                        doAction(async () => {
+                          await actions.unmarkForReview(block.blockId);
+                          setHasActiveReview(false);
+                        })
+                      }
+                    />
+                  )}
+
+                  {activeTab === "notes" && (
+                    <NotesTab
+                      block={block}
+                      loading={loading}
+                      onSave={(notes, patternUsed) =>
+                        doAction(() =>
+                          actions.updateBlockDetails({ blockId: block.blockId, notes, patternUsed }),
+                        )
+                      }
+                      onClose={handleClose}
+                    />
+                  )}
+
+                  {activeTab === "solution" && (
+                    <SolutionTab
+                      block={block}
+                      loading={loading}
+                      onSave={(solution, timeComplexity, spaceComplexity, solutionNotes) =>
+                        doAction(() =>
+                          actions.updateBlockDetails({
+                            blockId: block.blockId,
+                            solution,
+                            timeComplexity,
+                            spaceComplexity,
+                            solutionNotes,
+                          }),
+                        )
+                      }
+                      onClose={handleClose}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+
+            {view === "complete" && (
+              <PlanBlockForm
+                onSubmit={(data) =>
+                  doAction(() => actions.completeBlock({ blockId: block.blockId, ...data }))
+                }
+                onCancel={() => setView("details")}
                 loading={loading}
-                hasActiveReview={hasActiveReview}
-                onClose={handleClose}
-                onShowComplete={() => setView("complete")}
-                onShowStuck={() => setView("stuck")}
-                onStart={() => doAction(() => actions.startBlock(block.blockId))}
-                onReturnToPending={() => doAction(() => actions.returnToPending(block.blockId))}
-                onSkip={() => doAction(() => actions.skipBlock(block.blockId))}
-                onRestore={() => doAction(() => actions.restoreBlock(block.blockId))}
-                onMarkForReview={() =>
-                  doAction(async () => {
-                    await actions.markForReview(block.blockId);
-                    setHasActiveReview(true);
-                  })
-                }
-                onUnmarkForReview={() =>
-                  doAction(async () => {
-                    await actions.unmarkForReview(block.blockId);
-                    setHasActiveReview(false);
-                  })
-                }
               />
             )}
 
-            {activeTab === "notes" && (
-              <NotesTab
-                block={block}
-                loading={loading}
-                onSave={(notes, patternUsed) =>
-                  doAction(() =>
-                    actions.updateBlockDetails({ blockId: block.blockId, notes, patternUsed }),
-                  )
+            {view === "stuck" && (
+              <StuckForm
+                onSubmit={(notes, difficulty) =>
+                  doAction(() => actions.markStuck({ blockId: block.blockId, notes, difficulty }))
                 }
-                onClose={handleClose}
+                onCancel={() => setView("details")}
+                loading={loading}
               />
             )}
-
-            {activeTab === "solution" && (
-              <SolutionTab
-                block={block}
-                loading={loading}
-                onSave={(solution, timeComplexity, spaceComplexity, solutionNotes) =>
-                  doAction(() =>
-                    actions.updateBlockDetails({
-                      blockId: block.blockId,
-                      solution,
-                      timeComplexity,
-                      spaceComplexity,
-                      solutionNotes,
-                    }),
-                  )
-                }
-                onClose={handleClose}
-              />
-            )}
-          </>
-        )}
-
-        {view === "complete" && (
-          <PlanBlockForm
-            onSubmit={(data) =>
-              doAction(() => actions.completeBlock({ blockId: block.blockId, ...data }))
-            }
-            onCancel={() => setView("details")}
-            loading={loading}
-          />
-        )}
-
-        {view === "stuck" && (
-          <StuckForm
-            onSubmit={(notes, difficulty) =>
-              doAction(() => actions.markStuck({ blockId: block.blockId, notes, difficulty }))
-            }
-            onCancel={() => setView("details")}
-            loading={loading}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -213,7 +244,7 @@ function TabBar({ activeTab, onChange }: TabBarProps) {
   ];
 
   return (
-    <div className="border-b" role="tablist" aria-label="Seções do bloco">
+    <div className="border-border border-b" role="tablist" aria-label="Seções do bloco">
       <div className="flex gap-0">
         {tabs.map(({ key, label }) => (
           <button
@@ -225,8 +256,8 @@ function TabBar({ activeTab, onChange }: TabBarProps) {
             className={cn(
               "border-b-2 px-4 py-2 text-sm font-medium transition-colors",
               activeTab === key
-                ? "border-primary text-foreground"
-                : "text-muted-foreground hover:text-foreground border-transparent",
+                ? "border-primary text-text-primary"
+                : "text-muted hover:text-text-primary border-transparent",
             )}
           >
             {label}
@@ -243,13 +274,13 @@ type StatusTabProps = {
   block: EffectiveScheduledBlock;
   loading: boolean;
   hasActiveReview: boolean;
-  onClose: () => void;
   onShowComplete: () => void;
   onShowStuck: () => void;
   onStart: () => void;
   onReturnToPending: () => void;
   onSkip: () => void;
   onRestore: () => void;
+  onReschedule: () => void;
   onMarkForReview: () => void;
   onUnmarkForReview: () => void;
 };
@@ -258,13 +289,13 @@ function StatusTab({
   block,
   loading,
   hasActiveReview,
-  onClose,
   onShowComplete,
   onShowStuck,
   onStart,
   onReturnToPending,
   onSkip,
   onRestore,
+  onReschedule,
   onMarkForReview,
   onUnmarkForReview,
 }: StatusTabProps) {
@@ -295,125 +326,153 @@ function StatusTab({
           href={block.resourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:bg-muted flex items-center justify-between rounded-md border px-3 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:outline-none"
+          className="border-border hover:bg-surface-muted flex items-center justify-between rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none"
         >
           <span>Abrir recurso</span>
           <ExternalLinkIcon className="h-4 w-4 shrink-0" aria-hidden />
         </a>
       )}
 
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <Row label="Status" value={getStatusLabel(block.executionStatus)} />
-        <Row label="Data original" value={formatCalendarDate(block.originalScheduledDate)} />
+      {/* Key facts */}
+      <dl className="flex flex-col gap-1.5">
+        <InfoRow label="Duração planejada" value={`${block.estimatedMinutes} minutos`} />
+        <InfoRow label="Tipo de atividade" value={getBlockTypeLabel(block.type)} />
+        {/* TODO: prioridade ainda não existe no domínio do bloco */}
+        <InfoRow label="Prioridade" value="Normal" muted />
+        <InfoRow label="Status" value={getStatusLabel(block.executionStatus)} />
+        <InfoRow label="Data original" value={formatCalendarDate(block.originalScheduledDate)} />
         {block.isRescheduled && (
-          <Row label="Data efetiva" value={formatCalendarDate(block.scheduledDate)} />
+          <InfoRow label="Data efetiva" value={formatCalendarDate(block.scheduledDate)} />
         )}
-        {block.isOverdue && <Row label="Situação" value="Atrasado" />}
+        {block.isOverdue && <InfoRow label="Situação" value="Atrasado" />}
         {block.actualMinutes !== undefined && (
-          <Row label="Tempo real" value={formatMinutes(block.actualMinutes)} />
+          <InfoRow label="Tempo real" value={formatMinutes(block.actualMinutes)} />
         )}
         {block.difficulty !== undefined && (
-          <Row label="Dificuldade" value={`${block.difficulty}/5`} />
+          <InfoRow label="Dificuldade" value={`${block.difficulty}/5`} />
         )}
         {block.confidence !== undefined && (
-          <Row label="Confiança" value={`${block.confidence}/5`} />
+          <InfoRow label="Confiança" value={`${block.confidence}/5`} />
         )}
-        {block.patternUsed && <Row label="Padrão" value={block.patternUsed} />}
+        {block.patternUsed && <InfoRow label="Padrão" value={block.patternUsed} />}
       </dl>
 
       {block.notes && (
         <div>
-          <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
-            Notas
-          </p>
+          <p className="text-muted mb-1 text-xs font-medium tracking-wide uppercase">Notas</p>
           <p className="text-sm leading-relaxed">{block.notes}</p>
         </div>
       )}
 
-      {/* Footer: Fechar (left) | secondary actions | primary action (right) */}
-      <div className="flex items-center gap-2 border-t pt-3">
-        <Button size="sm" variant="ghost" onClick={onClose}>
-          Fechar
-        </Button>
+      {/* Actions */}
+      <div className="flex flex-col gap-2 border-t pt-4">
+        {!isCompleted && !isSkipped && (
+          <Button className="w-full" onClick={startFocus} disabled={loading}>
+            <ZapIcon aria-hidden />
+            Iniciar no Modo Foco
+          </Button>
+        )}
+
+        {isPending && (
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="secondary" onClick={onShowComplete} disabled={loading}>
+              Marcar concluído
+            </Button>
+            <Button variant="secondary" onClick={onReschedule} disabled={loading}>
+              <CalendarIcon aria-hidden />
+              Reagendar
+            </Button>
+            <Button variant="secondary" onClick={onStart} disabled={loading}>
+              Iniciar
+            </Button>
+            <Button variant="secondary" onClick={onShowStuck} disabled={loading}>
+              Travei
+            </Button>
+          </div>
+        )}
+
+        {isInProgress && (
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="secondary" onClick={onShowComplete} disabled={loading}>
+              Concluir
+            </Button>
+            <Button variant="secondary" onClick={onReschedule} disabled={loading}>
+              <CalendarIcon aria-hidden />
+              Reagendar
+            </Button>
+            <Button variant="secondary" onClick={onReturnToPending} disabled={loading}>
+              Pausar
+            </Button>
+            <Button variant="secondary" onClick={onShowStuck} disabled={loading}>
+              Travei
+            </Button>
+          </div>
+        )}
+
+        {isStuck && (
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="secondary" onClick={onReturnToPending} disabled={loading}>
+              Retomar
+            </Button>
+            <Button variant="secondary" onClick={onReschedule} disabled={loading}>
+              <CalendarIcon aria-hidden />
+              Reagendar
+            </Button>
+            <Button
+              variant="secondary"
+              className="col-span-2"
+              onClick={onShowComplete}
+              disabled={loading}
+            >
+              Concluir mesmo assim
+            </Button>
+          </div>
+        )}
+
+        {isCompleted && (
+          <Button variant="secondary" onClick={onReturnToPending} disabled={loading}>
+            Desfazer conclusão
+          </Button>
+        )}
+
+        {isSkipped && (
+          <Button variant="secondary" onClick={onRestore} disabled={loading}>
+            Restaurar bloco
+          </Button>
+        )}
 
         {isReviewable && (
           <Button
-            size="sm"
             variant="ghost"
             onClick={hasActiveReview ? onUnmarkForReview : onMarkForReview}
             disabled={loading}
-            className={
-              hasActiveReview ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
-            }
+            className={hasActiveReview ? "text-warning" : "text-text-secondary"}
           >
             {hasActiveReview ? "Remover da revisão" : "Marcar para revisar"}
           </Button>
         )}
 
         {!isCompleted && !isSkipped && (
-          <Button size="sm" variant="ghost" onClick={startFocus} disabled={loading}>
-            <Clock3 className="h-3.5 w-3.5" aria-hidden />
-            Foco
+          <Button
+            variant="ghost"
+            onClick={onSkip}
+            disabled={loading}
+            className="text-text-secondary w-full justify-start"
+          >
+            Pular bloco
           </Button>
         )}
 
-        <span className="flex-1" />
-
-        {isPending && (
-          <>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={onSkip}
-              disabled={loading}
-              className="text-destructive hover:text-destructive"
-            >
-              Pular
-            </Button>
-            <Button size="sm" variant="outline" onClick={onShowStuck} disabled={loading}>
-              Travei
-            </Button>
-            <Button size="sm" variant="outline" onClick={onShowComplete} disabled={loading}>
-              Concluir
-            </Button>
-            <Button size="sm" onClick={onStart} disabled={loading}>
-              Iniciar
-            </Button>
-          </>
-        )}
-        {isInProgress && (
-          <>
-            <Button size="sm" variant="ghost" onClick={onReturnToPending} disabled={loading}>
-              Pausar
-            </Button>
-            <Button size="sm" variant="outline" onClick={onShowStuck} disabled={loading}>
-              Travei
-            </Button>
-            <Button size="sm" onClick={onShowComplete} disabled={loading}>
-              Concluir
-            </Button>
-          </>
-        )}
-        {isStuck && (
-          <>
-            <Button size="sm" variant="outline" onClick={onReturnToPending} disabled={loading}>
-              Retomar
-            </Button>
-            <Button size="sm" onClick={onShowComplete} disabled={loading}>
-              Concluir mesmo assim
-            </Button>
-          </>
-        )}
-        {isCompleted && (
-          <Button size="sm" variant="ghost" onClick={onReturnToPending} disabled={loading}>
-            Desfazer conclusão
-          </Button>
-        )}
-        {isSkipped && (
-          <Button size="sm" variant="outline" onClick={onRestore} disabled={loading}>
-            Restaurar
-          </Button>
-        )}
+        {/* TODO: implementar remoção de bloco (use case ausente no domínio) */}
+        <Button
+          variant="ghost"
+          disabled
+          title="Em breve"
+          className="text-danger w-full justify-start"
+        >
+          <Trash2Icon aria-hidden />
+          Remover bloco
+        </Button>
       </div>
     </div>
   );
@@ -593,7 +652,7 @@ function StuckForm({ onSubmit, onCancel, loading }: StuckFormProps) {
         onSubmit(notes.trim() || undefined, difficulty);
       }}
     >
-      <p className="text-muted-foreground text-sm">Registre o que travou para revisitar depois.</p>
+      <p className="text-muted text-sm">Registre o que travou para revisitar depois.</p>
 
       <fieldset>
         <legend className="mb-2 text-sm font-medium">Dificuldade (opcional)</legend>
@@ -605,9 +664,10 @@ function StuckForm({ onSubmit, onCancel, loading }: StuckFormProps) {
               onClick={() => setDifficulty(difficulty === v ? undefined : v)}
               aria-pressed={difficulty === v}
               aria-label={`Dificuldade ${v}`}
-              className={`border-border hover:bg-muted flex h-8 w-8 items-center justify-center rounded-md border text-sm font-medium ${
-                difficulty === v ? "bg-primary text-primary-foreground border-primary" : ""
-              }`}
+              className={cn(
+                "border-border hover:bg-surface-muted flex h-8 w-8 items-center justify-center rounded-md border text-sm font-medium",
+                difficulty === v && "bg-primary text-text-primary border-primary",
+              )}
             >
               {v}
             </button>
@@ -641,11 +701,13 @@ function StuckForm({ onSubmit, onCancel, loading }: StuckFormProps) {
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
   return (
-    <>
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-medium">{value}</dd>
-    </>
+    <div className="bg-surface-muted flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+      <dt className="text-text-secondary text-sm">{label}</dt>
+      <dd className={cn("text-sm font-medium", muted ? "text-muted" : "text-text-primary")}>
+        {value}
+      </dd>
+    </div>
   );
 }

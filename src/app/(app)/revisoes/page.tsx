@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Fila de revisão priorizada para hoje.",
 };
 
-export default function RevisarPage() {
+export default function RevisoesPage() {
   return (
     <PageContainer>
       <ReviewTodayScreen />
