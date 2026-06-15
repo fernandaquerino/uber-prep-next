@@ -21,13 +21,16 @@ import {
 import { useDashboard } from "@/hooks/use-dashboard";
 import type { DashboardViewModel } from "@/lib/presentation/dashboard/dashboard-view-model";
 import { DashboardFocus } from "./dashboard-focus";
+import { DashboardTodayPlan } from "./dashboard-today-plan";
+import { DashboardTodaySummary } from "./dashboard-today-summary";
+import { DashboardWeekChart } from "./dashboard-week-chart";
 import { DashboardPriorities } from "./dashboard-priorities";
 import { DashboardProgressSection } from "./dashboard-progress-section";
 import { DashboardWeekDays } from "./dashboard-week-days";
 import { DashboardUpcomingEnhanced } from "./dashboard-upcoming-enhanced";
 import { DashboardActivityEnhanced } from "./dashboard-activity-enhanced";
 import { DashboardConsistency } from "./dashboard-consistency";
-import { DashboardReadiness } from "./dashboard-readiness";
+import { DashboardReadinessCompact } from "./dashboard-readiness-compact";
 import { DashboardSkillTree } from "./dashboard-skill-tree";
 import { DashboardRiskTopics } from "./dashboard-risk-topics";
 import { DashboardKnowledgeHeatmap } from "./dashboard-knowledge-heatmap";
@@ -243,36 +246,50 @@ function DashboardTimerSummary({ timer }: { timer: DashboardViewModel["timer"] }
 function DashboardContent({ vm }: { vm: DashboardViewModel }) {
   return (
     <div className="space-y-6">
-      {/* 1. Foco do dia + resumo rápido da semana */}
-      <DashboardFocus focus={vm.focus} weekSummary={vm.weekQuickSummary} />
+      {/* 1. Foco + plano de hoje (esquerda) · Resumo, prontidão e semana (direita) */}
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="flex flex-col gap-5">
+          <DashboardFocus
+            focus={vm.focus}
+            weekSummary={vm.weekQuickSummary}
+            layout="compact"
+          />
+          <DashboardTodayPlan todayPlan={vm.todayPlan} />
+        </div>
+        <div className="flex flex-col gap-4">
+          <DashboardTodaySummary todaySummary={vm.todaySummary} />
+          <DashboardReadinessCompact analytics={vm.analytics} />
+          <DashboardWeekChart weekChart={vm.weekChart} />
+        </div>
+      </div>
 
       {/* 2. Prioridades compactas */}
       <DashboardPriorities priorities={vm.priorities} />
 
       {/* 3. Timer de foco */}
-      <DashboardTimerSummary timer={vm.timer} />
+      {/* <DashboardTimerSummary timer={vm.timer} /> */}
 
       {/* 4. Progresso geral + por área */}
-      <DashboardProgressSection progress={vm.progress} categoryProgress={vm.categoryProgress} />
+      {/* <DashboardProgressSection progress={vm.progress} categoryProgress={vm.categoryProgress} /> */}
 
       {/* 5. Semana atual — 7 dias */}
       <DashboardWeekDays currentWeek={vm.currentWeek} weekLabel={vm.weekQuickSummary.weekLabel} />
 
       {/* 6. Próximos estudos + Atividade */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {/* <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DashboardUpcomingEnhanced upcoming={vm.upcoming} />
         <DashboardActivityEnhanced activity={vm.activity} />
-      </div>
+      </div> */}
 
       {/* 7. Consistência */}
       <DashboardConsistency consistency={vm.consistency} />
 
       {/* 8. Analytics consolidados */}
-      <DashboardReadiness analytics={vm.analytics} />
+      {/* <DashboardReadiness analytics={vm.analytics} /> */}
       <DashboardRiskTopics analytics={vm.analytics} />
       <DashboardSkillTree analytics={vm.analytics} />
       <DashboardKnowledgeHeatmap analytics={vm.analytics} />
-      <DashboardStatistics analytics={vm.analytics} />
+      {/* <DashboardStatistics analytics={vm.analytics} /> */}
     </div>
   );
 }

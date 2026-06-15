@@ -181,6 +181,52 @@ export type DashboardTimerViewModel = {
   weekSessionCount: number;
 };
 
+// ─── Today's plan list ───────────────────────────────────────────────────────
+
+export type DashboardTodayPlanItemViewModel = {
+  blockId: string;
+  title: string;
+  category: string;
+  categoryLabel: string;
+  typeLabel: string;
+  startTime: string | null;
+  durationFormatted: string;
+  executionStatus: PlanBlockExecutionStatus;
+  isCurrent: boolean;
+};
+
+export type DashboardTodayPlanViewModel = {
+  items: DashboardTodayPlanItemViewModel[];
+  completed: number;
+  total: number;
+  plannedMinutesFormatted: string;
+  isRestDay: boolean;
+};
+
+// ─── Today summary (compact stats) ───────────────────────────────────────────
+
+export type DashboardTodaySummaryViewModel = {
+  studiedMinutes: number;
+  goalMinutes: number;
+  reviewsPending: number;
+  questionsAnswered: number;
+  flashcardsReviewed: number;
+};
+
+// ─── Week chart (minutes per weekday) ────────────────────────────────────────
+
+export type DashboardWeekChartDayViewModel = {
+  weekdayShort: string;
+  minutes: number;
+  isToday: boolean;
+};
+
+export type DashboardWeekChartViewModel = {
+  days: DashboardWeekChartDayViewModel[];
+  totalMinutes: number;
+  goalMinutes: number;
+};
+
 // ─── Full view model ─────────────────────────────────────────────────────────
 
 export type DashboardViewModel = {
@@ -191,6 +237,9 @@ export type DashboardViewModel = {
   progress: DashboardProgressViewModel;
   categoryProgress: DashboardCategoryProgressViewModel[];
   currentWeek: DashboardCurrentWeekViewModel;
+  todayPlan: DashboardTodayPlanViewModel;
+  todaySummary: DashboardTodaySummaryViewModel;
+  weekChart: DashboardWeekChartViewModel;
   upcoming: DashboardUpcomingItemViewModel[];
   activity: DashboardActivityViewModel;
   consistency: DashboardConsistencyViewModel;
