@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Clock3, Loader2, RefreshCw } from "lucide-react";
+import { CalendarDays, Clock3, Flame, Loader2, RefreshCw, Target } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +12,12 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { formatTimerDuration } from "@/lib/domain/timer";
 import { getCategoryVisual } from "@/lib/presentation/category-visuals";
+import { getGreetingWithName } from "@/lib/presentation/greeting";
+import {
+  differenceInCalendarDates,
+  isValidCalendarDate,
+  parseCalendarDate,
+} from "@/lib/domain/schedule/calendar-date";
 import { useDashboard } from "@/hooks/use-dashboard";
 import type { DashboardViewModel } from "@/lib/presentation/dashboard/dashboard-view-model";
 import { DashboardFocus } from "./dashboard-focus";
@@ -26,6 +32,7 @@ import { DashboardSkillTree } from "./dashboard-skill-tree";
 import { DashboardRiskTopics } from "./dashboard-risk-topics";
 import { DashboardKnowledgeHeatmap } from "./dashboard-knowledge-heatmap";
 import { DashboardStatistics } from "./dashboard-statistics";
+import { useSettings } from "@/hooks/use-settings";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
@@ -64,23 +71,83 @@ function DashboardSkeleton() {
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 
+function getDaysUntilInterview(targetInterviewDate?: string): number | null {
+  if (!targetInterviewDate || !isValidCalendarDate(targetInterviewDate)) return null;
+  const today = new Date();
+  const todayDate = parseCalendarDate(
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(
+      today.getDate(),
+    ).padStart(2, "0")}`,
+  );
+  const days = differenceInCalendarDates(parseCalendarDate(targetInterviewDate), todayDate);
+  return days >= 0 ? days : null;
+}
+
+function HeaderChip({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <span className="border-border bg-card/60 text-text-secondary inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium">
+      {icon}
+      {children}
+    </span>
+  );
+}
+
 function DashboardHeader({
   header,
+  userName,
+  mainFocus,
+  targetInterviewDate,
+  currentStreak,
   onRefresh,
   isRefreshing,
 }: {
   header: DashboardViewModel["header"];
+  userName?: string;
+  mainFocus?: string;
+  targetInterviewDate?: string;
+  currentStreak: number;
   onRefresh: () => void;
   isRefreshing: boolean;
 }) {
+  const daysUntilInterview = getDaysUntilInterview(targetInterviewDate);
+  const hasChips = Boolean(mainFocus) || daysUntilInterview !== null || currentStreak > 0;
+
   return (
     <div className="space-y-3">
       <div className="flex items-start justify-between gap-3">
-        <div className="space-y-0.5">
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm">
-            {header.todayFormatted} · {header.weekLabel} · {header.planPeriodFormatted}
-          </p>
+        <div className="space-y-2">
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tight">
+              {getGreetingWithName(userName)} 👋🏾
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              {header.todayFormatted} · {header.weekLabel} · {header.planPeriodFormatted}
+            </p>
+          </div>
+
+          {hasChips && (
+            <div className="flex flex-wrap items-center gap-2">
+              {mainFocus && (
+                <HeaderChip icon={<Target className="text-primary h-3.5 w-3.5" aria-hidden />}>
+                  {mainFocus}
+                </HeaderChip>
+              )}
+              {daysUntilInterview !== null && (
+                <HeaderChip icon={<CalendarDays className="text-info h-3.5 w-3.5" aria-hidden />}>
+                  {daysUntilInterview === 0
+                    ? "Entrevista é hoje"
+                    : `${daysUntilInterview} ${
+                        daysUntilInterview === 1 ? "dia" : "dias"
+                      } para a entrevista`}
+                </HeaderChip>
+              )}
+              {currentStreak > 0 && (
+                <HeaderChip icon={<Flame className="h-3.5 w-3.5 text-orange-500" aria-hidden />}>
+                  {currentStreak} {currentStreak === 1 ? "dia" : "dias"} de sequência
+                </HeaderChip>
+              )}
+            </div>
+          )}
         </div>
         <TooltipProvider>
           <Tooltip>
@@ -214,6 +281,10 @@ function DashboardContent({ vm }: { vm: DashboardViewModel }) {
 
 export function DashboardScreen() {
   const { state, refresh, isRefreshing } = useDashboard();
+  const { data } = useSettings();
+  const userName = data?.settings.displayName;
+  const mainFocus = data?.settings.mainFocus;
+  const targetInterviewDate = data?.settings.targetInterviewDate;
 
   return (
     <PageContainer>
@@ -247,6 +318,10 @@ export function DashboardScreen() {
           <>
             <DashboardHeader
               header={state.viewModel.header}
+              userName={userName}
+              mainFocus={mainFocus}
+              targetInterviewDate={targetInterviewDate}
+              currentStreak={state.viewModel.consistency.currentStreak}
               onRefresh={refresh}
               isRefreshing={isRefreshing}
             />
