@@ -77,7 +77,8 @@ describe("withSettingsDefaults", () => {
 
     expect(result.weekdayAvailability.monday).toEqual({
       enabled: true,
-      availableMinutes: 480,
+      availableMinutes: 120,
+      startTime: "19:00",
     });
     expect(result.weekdayAvailability.sunday.enabled).toBe(false);
   });
@@ -93,15 +94,15 @@ describe("withSettingsDefaults", () => {
     });
 
     expect(result.weekdayAvailability.monday.availableMinutes).toBe(90);
-    expect(result.weekdayAvailability.tuesday.availableMinutes).toBe(480);
+    expect(result.weekdayAvailability.tuesday.availableMinutes).toBe(120);
   });
 });
 
 describe("getTotalWeeklyMinutes", () => {
   it("sums minutes for enabled days only", () => {
     const total = getTotalWeeklyMinutes(DEFAULT_WEEKDAY_AVAILABILITY);
-    // Mon-Fri: 5 × 480 = 2400, Sat: 240, Sun: disabled
-    expect(total).toBe(5 * 480 + 240);
+    // Mon-Fri: 5 × 120 = 600, Sat + Sun: rest
+    expect(total).toBe(5 * 120);
   });
 
   it("returns 0 when all days disabled", () => {
@@ -117,8 +118,8 @@ describe("getTotalWeeklyMinutes", () => {
 });
 
 describe("getEnabledDaysCount", () => {
-  it("counts Mon-Sat as 6 enabled days in default config", () => {
-    expect(getEnabledDaysCount(DEFAULT_WEEKDAY_AVAILABILITY)).toBe(6);
+  it("counts Mon-Fri as 5 enabled days in default config", () => {
+    expect(getEnabledDaysCount(DEFAULT_WEEKDAY_AVAILABILITY)).toBe(5);
   });
 });
 
@@ -145,13 +146,17 @@ describe("SETTINGS_DEFAULTS", () => {
     expect(SETTINGS_DEFAULTS.reviewIntervals).toEqual([1, 3, 7, 14, 30]);
   });
 
-  it("has saturday enabled with 240 minutes", () => {
-    expect(SETTINGS_DEFAULTS.weekdayAvailability.saturday.enabled).toBe(true);
-    expect(SETTINGS_DEFAULTS.weekdayAvailability.saturday.availableMinutes).toBe(240);
+  it("rests on the weekend by default (Saturday + Sunday disabled)", () => {
+    expect(SETTINGS_DEFAULTS.weekdayAvailability.saturday.enabled).toBe(false);
+    expect(SETTINGS_DEFAULTS.weekdayAvailability.sunday.enabled).toBe(false);
   });
 
-  it("has sunday disabled", () => {
-    expect(SETTINGS_DEFAULTS.weekdayAvailability.sunday.enabled).toBe(false);
+  it("enables weekdays at 120 minutes starting 19:00", () => {
+    expect(SETTINGS_DEFAULTS.weekdayAvailability.monday).toEqual({
+      enabled: true,
+      availableMinutes: 120,
+      startTime: "19:00",
+    });
   });
 
   it("has reviewAutoCreate.onBlockComplete true", () => {

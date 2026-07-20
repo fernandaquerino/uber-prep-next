@@ -67,7 +67,7 @@ describe("getSettings", () => {
     } as Parameters<typeof db.settings.put>[0]);
 
     const settings = await getSettings(db);
-    expect(settings.weekdayAvailability.monday.availableMinutes).toBe(480);
+    expect(settings.weekdayAvailability.monday.availableMinutes).toBe(120);
     expect(settings.weekdayAvailability.sunday.enabled).toBe(false);
   });
 });

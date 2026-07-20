@@ -82,13 +82,16 @@ export type UpdateSettingsInput = Partial<
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
+/** Default study start time for enabled weekdays (evening study). */
+export const DEFAULT_START_TIME = "19:00";
+
 export const DEFAULT_WEEKDAY_AVAILABILITY: SettingsWeekdayAvailability = {
-  monday: { enabled: true, availableMinutes: 480 },
-  tuesday: { enabled: true, availableMinutes: 480 },
-  wednesday: { enabled: true, availableMinutes: 480 },
-  thursday: { enabled: true, availableMinutes: 480 },
-  friday: { enabled: true, availableMinutes: 480 },
-  saturday: { enabled: true, availableMinutes: 240 },
+  monday: { enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME },
+  tuesday: { enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME },
+  wednesday: { enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME },
+  thursday: { enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME },
+  friday: { enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME },
+  saturday: { enabled: false, availableMinutes: 0 },
   sunday: { enabled: false, availableMinutes: 0 },
 };
 
