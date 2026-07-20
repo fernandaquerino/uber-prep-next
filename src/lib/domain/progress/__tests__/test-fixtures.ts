@@ -1,21 +1,38 @@
 import {
   buildStudySchedule,
-  DEFAULT_WEEKDAY_AVAILABILITY,
   parseCalendarDate,
   PRODUCT_TIMEZONE,
   type StudyCalendarConfig,
   type StudyPlan,
   type StudyPlanDay,
+  type WeekdayAvailability,
 } from "@/lib/domain/schedule";
 import { initializePlanProgress, type PlanBlockProgress } from "@/lib/domain/progress";
 
 export const NOW = "2026-06-11T12:00:00.000Z";
 
+/**
+ * Continuous-week availability for progress-mechanics tests: every weekday and
+ * Saturday enabled at 120 min (so each 120-min fixture block maps 1:1 to a
+ * calendar day), Sunday as the only rest day. Decoupled from the product
+ * default (which rests on weekends) so shifting/reschedule scenarios can rely
+ * on a predictable, gap-of-one-day week.
+ */
+export const TEST_AVAILABILITY: WeekdayAvailability = {
+  monday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  tuesday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  wednesday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  thursday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  friday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  saturday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  sunday: { enabled: false, availableMinutes: 0 },
+};
+
 export function createConfig(startDate: string): StudyCalendarConfig {
   return {
     startDate: parseCalendarDate(startDate),
     timezone: PRODUCT_TIMEZONE,
-    weekdayAvailability: DEFAULT_WEEKDAY_AVAILABILITY,
+    weekdayAvailability: TEST_AVAILABILITY,
   };
 }
 

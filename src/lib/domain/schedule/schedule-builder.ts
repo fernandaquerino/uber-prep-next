@@ -1,6 +1,7 @@
 import { addCalendarDays, getWeekday, parseCalendarDate } from "./calendar-date";
 import { validateWeekdayAvailability } from "./availability";
 import { InvalidAvailabilityError, InvalidStudyPlanError } from "./schedule.errors";
+import { DEFAULT_START_TIME, addMinutesToTime } from "./time-of-day";
 import type {
   CalendarDate,
   CapacityStatus,
@@ -8,9 +9,31 @@ import type {
   ScheduledStudyDay,
   StudyCalendarConfig,
   StudyPlan,
+  StudyPlanBlock,
   StudyPlanDay,
 } from "./schedule.types";
 
+/** A plan block flattened out of its plan day, keeping the day as provenance. */
+type FlattenedBlock = {
+  block: StudyPlanBlock;
+  planDay: StudyPlanDay;
+};
+
+/**
+ * Builds the effective study calendar by reflowing every plan block into a
+ * single ordered stream and packing it across available weekdays by capacity.
+ *
+ * Reflow rules:
+ * - Blocks keep their original order (plan day sequence, then block order).
+ * - A block is never split: if it does not fit the day's remaining minutes it
+ *   slides whole to the next available day.
+ * - A block larger than a full day is placed alone on its own day
+ *   (`over_capacity`) so the stream never stalls.
+ * - Each block's `startTime` is recomputed from the day's configured start time
+ *   plus the durations already placed that day.
+ * - Rest days (disabled weekdays) carry no blocks; trailing rest days after the
+ *   last content are not emitted.
+ */
 export function buildStudySchedule(
   plan: StudyPlan,
   config: StudyCalendarConfig,
@@ -22,12 +45,17 @@ export function buildStudySchedule(
     return [];
   }
 
-  const orderedPlanDays = [...plan.days].sort((a, b) => a.sequence - b.sequence);
+  const stream = flattenPlanBlocks(plan);
+
+  if (stream.length === 0) {
+    return [];
+  }
+
   const schedule: ScheduledStudyDay[] = [];
   let currentDate = config.startDate;
-  let planDayIndex = 0;
+  let streamIndex = 0;
 
-  while (planDayIndex < orderedPlanDays.length) {
+  while (streamIndex < stream.length) {
     const weekday = getWeekday(currentDate);
     const availability = config.weekdayAvailability[weekday];
 
@@ -37,9 +65,26 @@ export function buildStudySchedule(
       continue;
     }
 
-    const planDay = orderedPlanDays[planDayIndex];
-    const items = mapPlanDayToScheduledBlocks(planDay);
-    const totalEstimatedMinutes = sumEstimatedMinutes(items);
+    const dayStartTime = availability.startTime ?? DEFAULT_START_TIME;
+    const items: ScheduledStudyBlock[] = [];
+    let usedMinutes = 0;
+
+    while (streamIndex < stream.length) {
+      const next = stream[streamIndex];
+      const duration = next.block.estimatedMinutes;
+      const fitsInDay = usedMinutes + duration <= availability.availableMinutes;
+      const dayIsEmpty = items.length === 0;
+
+      // Place the block if it fits, or if the day is still empty and the block
+      // is larger than a whole day (place it alone rather than stalling).
+      if (!fitsInDay && !dayIsEmpty) {
+        break;
+      }
+
+      items.push(toScheduledBlock(next, addMinutesToTime(dayStartTime, usedMinutes)));
+      usedMinutes += duration;
+      streamIndex += 1;
+    }
 
     schedule.push({
       date: currentDate,
@@ -47,16 +92,35 @@ export function buildStudySchedule(
       availableMinutes: availability.availableMinutes,
       isRestDay: false,
       items,
-      totalEstimatedMinutes,
-      remainingMinutes: availability.availableMinutes - totalEstimatedMinutes,
-      capacityStatus: getCapacityStatus(totalEstimatedMinutes, availability.availableMinutes),
+      totalEstimatedMinutes: usedMinutes,
+      remainingMinutes: availability.availableMinutes - usedMinutes,
+      capacityStatus: getCapacityStatus(usedMinutes, availability.availableMinutes),
     });
 
-    planDayIndex += 1;
     currentDate = addCalendarDays(currentDate, 1);
   }
 
   return schedule;
+}
+
+function flattenPlanBlocks(plan: StudyPlan): FlattenedBlock[] {
+  return [...plan.days]
+    .sort((a, b) => a.sequence - b.sequence)
+    .flatMap((planDay) => planDay.blocks.map((block) => ({ block, planDay })));
+}
+
+function toScheduledBlock({ block, planDay }: FlattenedBlock, startTime: string): ScheduledStudyBlock {
+  return {
+    blockId: block.id,
+    planDayId: planDay.id,
+    planDaySequence: planDay.sequence,
+    title: block.title,
+    category: block.category,
+    estimatedMinutes: block.estimatedMinutes,
+    type: block.type,
+    startTime,
+    resourceUrl: block.resourceUrl,
+  };
 }
 
 export function validateStudyCalendarConfig(config: StudyCalendarConfig): void {
@@ -121,24 +185,6 @@ function createRestDay(date: CalendarDate): ScheduledStudyDay {
     remainingMinutes: 0,
     capacityStatus: "rest",
   };
-}
-
-function mapPlanDayToScheduledBlocks(planDay: StudyPlanDay): ScheduledStudyBlock[] {
-  return planDay.blocks.map((block) => ({
-    blockId: block.id,
-    planDayId: planDay.id,
-    planDaySequence: planDay.sequence,
-    title: block.title,
-    category: block.category,
-    estimatedMinutes: block.estimatedMinutes,
-    type: block.type,
-    startTime: block.startTime,
-    resourceUrl: block.resourceUrl,
-  }));
-}
-
-function sumEstimatedMinutes(items: ScheduledStudyBlock[]): number {
-  return items.reduce((total, item) => total + item.estimatedMinutes, 0);
 }
 
 function getCapacityStatus(

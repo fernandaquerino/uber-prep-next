@@ -4,4 +4,5 @@ export * from "./schedule-builder";
 export * from "./schedule-selectors";
 export * from "./schedule.errors";
 export * from "./schedule.types";
+export * from "./time-of-day";
 export * from "./weekdays";

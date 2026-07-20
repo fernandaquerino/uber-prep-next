@@ -1,15 +1,16 @@
 import { addCalendarDays, getWeekday } from "./calendar-date";
 import { InvalidAvailabilityError, NoStudyDaysEnabledError } from "./schedule.errors";
 import type { CalendarDate, DayAvailability, Weekday, WeekdayAvailability } from "./schedule.types";
+import { DEFAULT_START_TIME, isValidTimeOfDay } from "./time-of-day";
 import { WEEKDAYS } from "./weekdays";
 
 export const DEFAULT_WEEKDAY_AVAILABILITY: Readonly<WeekdayAvailability> = Object.freeze({
-  monday: Object.freeze({ enabled: true, availableMinutes: 480 }),
-  tuesday: Object.freeze({ enabled: true, availableMinutes: 480 }),
-  wednesday: Object.freeze({ enabled: true, availableMinutes: 480 }),
-  thursday: Object.freeze({ enabled: true, availableMinutes: 480 }),
-  friday: Object.freeze({ enabled: true, availableMinutes: 480 }),
-  saturday: Object.freeze({ enabled: true, availableMinutes: 240 }),
+  monday: Object.freeze({ enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME }),
+  tuesday: Object.freeze({ enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME }),
+  wednesday: Object.freeze({ enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME }),
+  thursday: Object.freeze({ enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME }),
+  friday: Object.freeze({ enabled: true, availableMinutes: 120, startTime: DEFAULT_START_TIME }),
+  saturday: Object.freeze({ enabled: false, availableMinutes: 0 }),
   sunday: Object.freeze({ enabled: false, availableMinutes: 0 }),
 });
 
@@ -111,6 +112,10 @@ function validateDayAvailability(
 
   if (availability.enabled && availability.availableMinutes === 0) {
     throw new InvalidAvailabilityError(`Enabled weekday ${weekday} must have available minutes.`);
+  }
+
+  if (availability.startTime !== undefined && !isValidTimeOfDay(availability.startTime)) {
+    throw new InvalidAvailabilityError(`Invalid start time for ${weekday}: ${availability.startTime}.`);
   }
 }
 

@@ -24,8 +24,9 @@ describe("schedule selectors", () => {
   });
 
   it("returns first and last study days", () => {
+    // 5 plan days from Thu 06-11 rest across Sat/Sun and end on Wed 06-17.
     expect(getFirstStudyDay(schedule)?.date).toBe("2026-06-11");
-    expect(getLastStudyDay(schedule)?.date).toBe("2026-06-16");
+    expect(getLastStudyDay(schedule)?.date).toBe("2026-06-17");
     expect(getFirstStudyDay([])).toBeUndefined();
     expect(getLastStudyDay([])).toBeUndefined();
   });
@@ -34,9 +35,13 @@ describe("schedule selectors", () => {
     expect(getNextScheduledStudyDay(schedule, parseCalendarDate("2026-06-13"))?.date).toBe(
       "2026-06-15",
     );
-    expect(getNextScheduledStudyDay(schedule, parseCalendarDate("2026-06-16"))).toBeUndefined();
+    expect(getNextScheduledStudyDay(schedule, parseCalendarDate("2026-06-16"))?.date).toBe(
+      "2026-06-17",
+    );
+    expect(getNextScheduledStudyDay(schedule, parseCalendarDate("2026-06-17"))).toBeUndefined();
+    // 06-13 (Sat) and 06-14 (Sun) rest, so the previous study day is Fri 06-12.
     expect(getPreviousScheduledStudyDay(schedule, parseCalendarDate("2026-06-15"))?.date).toBe(
-      "2026-06-13",
+      "2026-06-12",
     );
     expect(getPreviousScheduledStudyDay(schedule, parseCalendarDate("2026-06-11"))).toBeUndefined();
   });
@@ -46,7 +51,7 @@ describe("schedule selectors", () => {
       "2026-06-11",
     );
     expect(getPreviousScheduledStudyDay(schedule, parseCalendarDate("2026-06-30"))?.date).toBe(
-      "2026-06-16",
+      "2026-06-17",
     );
   });
 
@@ -61,7 +66,7 @@ describe("schedule selectors", () => {
   it("returns the schedule range", () => {
     expect(getScheduleRange(schedule)).toEqual({
       startDate: "2026-06-11",
-      endDate: "2026-06-16",
+      endDate: "2026-06-17",
     });
     expect(getScheduleRange([])).toEqual({ startDate: null, endDate: null });
   });
@@ -84,7 +89,7 @@ describe("schedule selectors", () => {
       weekStart: "2026-06-15",
       weekEnd: "2026-06-21",
     });
-    expect(weeks[1].days.map((day) => day.weekday)).toEqual(["monday", "tuesday"]);
+    expect(weeks[1].days.map((day) => day.weekday)).toEqual(["monday", "tuesday", "wednesday"]);
   });
 
   it("groups a schedule that starts on Monday in one week", () => {
