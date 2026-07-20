@@ -182,12 +182,41 @@ export async function undoProgressAction(
   );
 }
 
+/**
+ * Cria registros de progresso `pending` para blocos do plano que ainda não têm
+ * um. Sem esses registros a agenda efetiva exibe o bloco como pendente, mas
+ * toda ação de progresso (concluir, iniciar, pular) falha com
+ * `ProgressRecordNotFoundError`. Idempotente: só escreve quando há blocos novos.
+ */
+export async function ensurePlanProgressInitialized(input: {
+  db: UberPrepDatabase;
+  baseSchedule: ScheduledStudyDay[];
+  now?: string;
+}): Promise<void> {
+  const existing = await input.db.planProgress.toArray();
+  const known = new Set(existing.map((record) => record.blockId));
+  const hasNewBlocks = input.baseSchedule.some((day) =>
+    day.items.some((item) => !known.has(item.blockId)),
+  );
+  if (!hasNewBlocks) return;
+
+  await initializePlanProgress({
+    db: input.db,
+    baseSchedule: input.baseSchedule,
+    now: input.now ?? new Date().toISOString(),
+  });
+}
+
 export async function getEffectiveSchedule(input: {
   db: UberPrepDatabase;
   baseSchedule: ScheduledStudyDay[];
   today: CalendarDate;
   availability: WeekdayAvailability;
 }): Promise<EffectiveScheduledDay[]> {
+  // Único funil de leitura da agenda: garante que todo bloco visível tenha um
+  // registro de progresso para as ações do plano funcionarem.
+  await ensurePlanProgressInitialized({ db: input.db, baseSchedule: input.baseSchedule });
+
   const [progressRecords, overrideRecords] = await Promise.all([
     input.db.planProgress.toArray(),
     input.db.scheduleOverrides.toArray(),
