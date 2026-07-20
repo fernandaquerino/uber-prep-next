@@ -45,10 +45,21 @@ async function getDb() {
   return loadDb();
 }
 
-function isEditableTarget(target: EventTarget | null): boolean {
+/**
+ * Alvos onde os atalhos globais do timer (espaço, "t") não devem disparar.
+ *
+ * Além dos campos nativos, cobre o Monaco: quando a EditContext API está
+ * disponível o alvo do teclado é um `<div class="native-edit-context">` dentro
+ * de `.monaco-editor` — não é input nem contentEditable, então sem esta
+ * verificação o espaço pausava o timer em vez de digitar no Playground.
+ */
+export function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   const tagName = target.tagName.toLowerCase();
-  return target.isContentEditable || ["input", "textarea", "select"].includes(tagName);
+  if (target.isContentEditable || ["input", "textarea", "select"].includes(tagName)) {
+    return true;
+  }
+  return target.closest(".monaco-editor, [role='textbox']") !== null;
 }
 
 export function GlobalTimerProvider({ children }: { children: ReactNode }) {
