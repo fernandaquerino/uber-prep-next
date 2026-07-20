@@ -2,7 +2,10 @@ import type { StudyPlan, StudyPlanBlock, StudyPlanDay } from "@/lib/domain/sched
 import { WEEKS } from "./plan";
 
 type RawBlock = {
-  time: string;
+  // `time` still exists in the raw plan data but is intentionally ignored: block
+  // start times are now computed by the reflow engine from the Agenda settings,
+  // never stored on the plan.
+  time?: string;
   duration: number;
   type: string;
   category: string | null;
@@ -47,7 +50,6 @@ function mapBlock(
     type: block.type,
     description,
     tags,
-    startTime: block.time,
     resourceUrl,
   };
 }
