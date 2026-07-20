@@ -25,23 +25,23 @@ export type ToolbarProps = {
   onInsertTemplate?: () => void;
 };
 
-type WrapConfig = {
+export type WrapConfig = {
   before: string;
   after: string;
   defaultText?: string;
 };
 
-type InsertConfig = {
+export type InsertConfig = {
   text: string;
 };
 
-type FormatConfig = WrapConfig | InsertConfig;
+export type FormatConfig = WrapConfig | InsertConfig;
 
 function isInsert(config: FormatConfig): config is InsertConfig {
   return "text" in config;
 }
 
-function applyFormat(
+export function applyFormat(
   value: string,
   selStart: number,
   selEnd: number,
@@ -86,6 +86,12 @@ function useFormatAction(
     });
   };
 }
+
+/** Formatações disparadas por atalho de teclado dentro do textarea. */
+export const KEYBOARD_FORMATS: Record<string, FormatConfig> = {
+  b: { before: "**", after: "**", defaultText: "negrito" },
+  i: { before: "_", after: "_", defaultText: "itálico" },
+};
 
 type ToolbarButton = {
   icon: React.ReactNode;

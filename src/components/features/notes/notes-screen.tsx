@@ -56,6 +56,7 @@ export function NotesScreen() {
     const id = await actions.createNote({
       type: "category",
       title: "Nova nota",
+      category: "general",
       tags: [],
       content: "",
       isPrimary: false,
@@ -67,7 +68,10 @@ export function NotesScreen() {
   }, [actions]);
 
   const handleSave = useCallback(
-    async (id: string, input: { title: string; content: string; tags: string[] }) => {
+    async (
+      id: string,
+      input: { title: string; content: string; tags: string[]; category: string },
+    ) => {
       await actions.updateNote(id, input);
       setNoteRev((r) => r + 1);
     },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 import {
   Download,
   Edit3,
@@ -22,18 +23,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getCategoryVisual } from "@/lib/presentation/category-visuals";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getCategoryLabel,
+  getCategoryVisual,
+  getSelectableCategoryVisuals,
+} from "@/lib/presentation/category-visuals";
 import { cn } from "@/lib/utils";
 import type { NoteRecord, NoteVersion } from "@/types/database";
 import { NoteMarkdown } from "./note-markdown";
-import { NoteToolbar } from "./note-toolbar";
+import { applyFormat, KEYBOARD_FORMATS, NoteToolbar } from "./note-toolbar";
 import { NoteHistoryDialog } from "./note-history-dialog";
 
 type NoteDetailProps = {
   note: NoteRecord;
   versions: NoteVersion[];
   initialMode?: "view" | "edit";
-  onSave: (id: string, input: { title: string; content: string; tags: string[] }) => Promise<void>;
+  onSave: (
+    id: string,
+    input: { title: string; content: string; tags: string[]; category: string },
+  ) => Promise<void>;
   onCreateVersion: (noteId: string, reason: NoteVersion["reason"]) => Promise<void>;
   onRestoreVersion: (noteId: string, versionId: string) => Promise<void>;
   onExport: () => void;
@@ -60,6 +75,7 @@ function NoteDetailInner({
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tagsInput, setTagsInput] = useState(note.tags.join(", "));
+  const [category, setCategory] = useState(note.category ?? "general");
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const editorRef = useRef<HTMLTextAreaElement | null>(null);
@@ -75,11 +91,41 @@ function NoteDetailInner({
       .filter(Boolean);
     try {
       await onCreateVersion(note.id, "manual");
-      await onSave(note.id, { title: title.trim() || "Sem título", content, tags });
+      await onSave(note.id, { title: title.trim() || "Sem título", content, tags, category });
       setMode("view");
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleEditorKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (!e.metaKey && !e.ctrlKey) return;
+    if (e.altKey) return;
+
+    const key = e.key.toLowerCase();
+
+    if (key === "s") {
+      e.preventDefault();
+      void handleSave();
+      return;
+    }
+
+    const config = KEYBOARD_FORMATS[key];
+    if (!config) return;
+
+    e.preventDefault();
+    const el = e.currentTarget;
+    const { newValue, newStart, newEnd } = applyFormat(
+      content,
+      el.selectionStart,
+      el.selectionEnd,
+      config,
+    );
+    setContent(newValue);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(newStart, newEnd);
+    });
   }
 
   function handleRestore(versionId: string) {
@@ -107,10 +153,33 @@ function NoteDetailInner({
 
           {/* Category + tags */}
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="border-border text-text-secondary inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs">
-              <span className={cn("size-1.5 rounded-full", visual.dot)} aria-hidden />
-              {visual.label}
-            </span>
+            {mode === "edit" ? (
+              <Select
+                value={category}
+                onValueChange={(v) => {
+                  if (v) setCategory(String(v));
+                }}
+              >
+                <SelectTrigger className="h-7 w-auto min-w-40 text-xs" aria-label="Categoria">
+                  <SelectValue>{(v) => getCategoryLabel(String(v ?? "general"))}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {getSelectableCategoryVisuals().map((c) => (
+                    <SelectItem key={c.key} value={c.key}>
+                      <span className="flex items-center gap-1.5">
+                        <span className={cn("size-1.5 rounded-full", c.dot)} aria-hidden />
+                        {c.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <span className="border-border text-text-secondary inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs">
+                <span className={cn("size-1.5 rounded-full", visual.dot)} aria-hidden />
+                {visual.label}
+              </span>
+            )}
 
             {mode === "edit" ? (
               <Input
@@ -220,6 +289,7 @@ function NoteDetailInner({
               ref={editorRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              onKeyDown={handleEditorKeyDown}
               placeholder="Comece a escrever em markdown…"
               aria-label="Conteúdo da nota"
               className={cn(

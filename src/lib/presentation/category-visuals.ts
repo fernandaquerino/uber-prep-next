@@ -81,6 +81,11 @@ const FALLBACK_VISUAL: CategoryVisualConfig = {
   dot: "bg-muted-foreground",
 };
 
+/** Todas as categorias selecionáveis, com "Geral" como primeira opção. */
+export function getSelectableCategoryVisuals(): CategoryVisualConfig[] {
+  return [FALLBACK_VISUAL, ...CATEGORY_VISUALS];
+}
+
 export function getCategoryVisual(category: string): CategoryVisualConfig {
   return CATEGORY_VISUALS.find((c) => c.key === category) ?? FALLBACK_VISUAL;
 }
