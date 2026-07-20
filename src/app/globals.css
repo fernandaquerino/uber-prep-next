@@ -308,13 +308,18 @@
   @apply my-1;
 }
 
+/* Código: fundo escuro em ambos os temas, com destaque avermelhado no inline. */
 .note-prose code {
-  @apply bg-muted text-foreground rounded px-1.5 py-0.5 font-mono text-sm;
+  background-color: #1e1e24;
+  color: #f87171;
+  @apply rounded px-1.5 py-0.5 font-mono text-sm;
 }
 .note-prose pre {
-  @apply bg-muted my-4 overflow-x-auto rounded-md p-4;
+  background-color: #1e1e24;
+  @apply my-4 overflow-x-auto rounded-md p-4;
 }
 .note-prose pre code {
+  color: #e5e7eb;
   @apply bg-transparent p-0 text-sm;
 }
 
