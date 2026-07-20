@@ -45,7 +45,7 @@ const report = {
       id: "next",
       title: "Revisar Big O",
       reason: "Uma revisão está atrasada.",
-      href: "/revisar",
+      href: "/revisoes",
       priority: 1,
     },
   ],

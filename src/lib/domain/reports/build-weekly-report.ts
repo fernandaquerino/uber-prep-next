@@ -97,7 +97,7 @@ function buildRecommendations(
       id: `risk:${risk.topicId}`,
       title: risk.recommendedAction,
       reason: risk.reasons.join("; "),
-      href: risk.reasons.some((reason) => reason.includes("atrasada")) ? "/revisar" : "/plano",
+      href: risk.reasons.some((reason) => reason.includes("atrasada")) ? "/revisoes" : "/plano",
       priority: 90 - recommendations.length,
     });
   }
