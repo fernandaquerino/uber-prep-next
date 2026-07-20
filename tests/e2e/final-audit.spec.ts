@@ -5,7 +5,7 @@ test.describe("Entrega 17 — auditoria final", () => {
     const routes = [
       "/dashboard",
       "/plano",
-      "/revisar",
+      "/revisoes",
       "/flashcards",
       "/quizzes",
       "/timer",

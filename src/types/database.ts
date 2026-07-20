@@ -726,6 +726,8 @@ export type NotesDefaultView = "edit" | "split" | "preview";
 export type SettingsDayAvailability = {
   enabled: boolean;
   availableMinutes: number;
+  /** Optional "HH:mm" start time for study sessions on this weekday. */
+  startTime?: string;
 };
 
 export type SettingsWeekdayAvailability = {

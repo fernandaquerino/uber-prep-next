@@ -14,6 +14,8 @@ export type Weekday =
 export type DayAvailability = {
   enabled: boolean;
   availableMinutes: number;
+  /** Optional "HH:mm" start time; falls back to DEFAULT_START_TIME when absent. */
+  startTime?: string;
 };
 
 export type WeekdayAvailability = Record<Weekday, DayAvailability>;

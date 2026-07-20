@@ -8,8 +8,8 @@ import {
   reschedulePlanBlock,
   skipPlanBlock,
 } from "../index";
-import { DEFAULT_WEEKDAY_AVAILABILITY, parseCalendarDate } from "@/lib/domain/schedule";
-import { createBaseSchedule, NOW } from "./test-fixtures";
+import { parseCalendarDate } from "@/lib/domain/schedule";
+import { createBaseSchedule, NOW, TEST_AVAILABILITY } from "./test-fixtures";
 
 describe("effective schedule and selectors", () => {
   it("initializes progress idempotently and preserves existing records", () => {
@@ -37,13 +37,13 @@ describe("effective schedule and selectors", () => {
         blockId: "block-2",
         targetDate: parseCalendarDate("2026-06-16"),
         today: parseCalendarDate("2026-06-12"),
-        availability: DEFAULT_WEEKDAY_AVAILABILITY,
+        availability: TEST_AVAILABILITY,
         now: "2026-06-12T10:00:00.000Z",
       },
     );
     const effective = buildEffectiveSchedule(baseSchedule, result.progress, result.overrides, {
       today: parseCalendarDate("2026-06-12"),
-      availability: DEFAULT_WEEKDAY_AVAILABILITY,
+      availability: TEST_AVAILABILITY,
     });
     const item = effective
       .flatMap((day) => day.items)
@@ -67,7 +67,7 @@ describe("effective schedule and selectors", () => {
 
     const effective = buildEffectiveSchedule(baseSchedule, progress, [], {
       today: parseCalendarDate("2026-06-16"),
-      availability: DEFAULT_WEEKDAY_AVAILABILITY,
+      availability: TEST_AVAILABILITY,
     });
 
     expect(getOverduePlanItems(effective).map((item) => item.blockId)).toEqual([
@@ -85,7 +85,7 @@ describe("effective schedule and selectors", () => {
     }).progress;
     const effective = buildEffectiveSchedule(baseSchedule, progress, [], {
       today: parseCalendarDate("2026-06-13"),
-      availability: DEFAULT_WEEKDAY_AVAILABILITY,
+      availability: TEST_AVAILABILITY,
     });
 
     expect(getCurrentStudyState(effective).currentItem?.blockId).toBe("block-1");

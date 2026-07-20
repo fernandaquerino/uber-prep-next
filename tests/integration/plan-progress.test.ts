@@ -15,7 +15,7 @@ import {
 import {
   buildStudySchedule,
   parseCalendarDate,
-  DEFAULT_WEEKDAY_AVAILABILITY,
+  type WeekdayAvailability,
 } from "@/lib/domain/schedule";
 import { getPlanCompletionSummary } from "@/lib/domain/progress";
 import { STUDY_PLAN } from "@/lib/data/study-plan";
@@ -24,7 +24,18 @@ import type { UberPrepDatabase } from "@/lib/db/db";
 const START = parseCalendarDate("2026-06-11");
 const TODAY = parseCalendarDate("2026-06-12");
 const NOW = "2026-06-12T10:00:00.000Z";
-const AVAILABILITY = DEFAULT_WEEKDAY_AVAILABILITY;
+// Explicit "classic" availability (full weekdays + Saturday half-day) so this
+// suite exercises Saturday-when-enabled behaviour, independent of the product
+// default (which now rests on weekends).
+const AVAILABILITY: WeekdayAvailability = {
+  monday: { enabled: true, availableMinutes: 480, startTime: "08:00" },
+  tuesday: { enabled: true, availableMinutes: 480, startTime: "08:00" },
+  wednesday: { enabled: true, availableMinutes: 480, startTime: "08:00" },
+  thursday: { enabled: true, availableMinutes: 480, startTime: "08:00" },
+  friday: { enabled: true, availableMinutes: 480, startTime: "08:00" },
+  saturday: { enabled: true, availableMinutes: 240, startTime: "09:00" },
+  sunday: { enabled: false, availableMinutes: 0 },
+};
 
 function getBaseSchedule() {
   return buildStudySchedule(STUDY_PLAN, {

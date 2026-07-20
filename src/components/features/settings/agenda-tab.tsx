@@ -10,6 +10,7 @@ import type { UpdateSettingsInput } from "@/lib/domain/settings";
 import {
   WEEKDAY_LABELS,
   WEEKDAY_SHORT_LABELS,
+  DEFAULT_START_TIME,
   getTotalWeeklyMinutes,
   getEnabledDaysCount,
   formatMinutes,
@@ -49,6 +50,13 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
     setAvailability((prev) => ({
       ...prev,
       [day]: { ...prev[day], availableMinutes: minutes },
+    }));
+  }
+
+  function setStartTime(day: WeekdayKey, value: string) {
+    setAvailability((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], startTime: value },
     }));
   }
 
@@ -121,7 +129,7 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
                   {WEEKDAY_LABELS[day]}
                 </span>
 
-                <div className="flex flex-1 items-center gap-2">
+                <div className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
                   <Input
                     type="number"
                     min={0}
@@ -130,12 +138,24 @@ export function AgendaTab({ settings, onUpdate }: AgendaTabProps) {
                     value={config.enabled ? config.availableMinutes : 0}
                     onChange={(e) => setMinutes(day, e.target.value)}
                     disabled={!config.enabled}
-                    className="h-8 w-24 text-sm"
+                    className="h-8 w-20 text-sm"
                     aria-label={`Minutos para ${WEEKDAY_LABELS[day]}`}
                   />
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-muted-foreground w-16 text-xs">
                     {config.enabled ? formatMinutes(config.availableMinutes) : "Descanso"}
                   </span>
+                  {config.enabled && (
+                    <label className="text-muted-foreground flex items-center gap-1.5 text-xs">
+                      <span className="hidden sm:inline">Início</span>
+                      <Input
+                        type="time"
+                        value={config.startTime ?? DEFAULT_START_TIME}
+                        onChange={(e) => setStartTime(day, e.target.value)}
+                        className="h-8 w-28 text-sm"
+                        aria-label={`Horário de início para ${WEEKDAY_LABELS[day]}`}
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
             );

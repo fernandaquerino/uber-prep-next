@@ -11,8 +11,8 @@ test.describe("Navegação principal", () => {
     await expect(page).toHaveTitle(/Dashboard.*Uber Prep/);
   });
 
-  test("navega para /revisar", async ({ page }) => {
-    await page.goto("/revisar");
+  test("navega para /revisoes", async ({ page }) => {
+    await page.goto("/revisoes");
     await expect(page.getByRole("heading", { name: "Revisar Hoje" })).toBeVisible();
   });
 
@@ -25,7 +25,7 @@ test.describe("Navegação principal", () => {
     const routes = [
       "/dashboard",
       "/plano",
-      "/revisar",
+      "/revisoes",
       "/flashcards",
       "/quizzes",
       "/mocks",

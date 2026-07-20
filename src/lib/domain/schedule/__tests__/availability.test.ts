@@ -13,18 +13,21 @@ import { InvalidAvailabilityError, NoStudyDaysEnabledError } from "../schedule.e
 
 describe("availability", () => {
   it("returns default weekday availability", () => {
+    // Monday — enabled evening study (2h)
     expect(
       getAvailabilityForDate(parseCalendarDate("2026-06-15"), DEFAULT_WEEKDAY_AVAILABILITY),
     ).toEqual({
       enabled: true,
-      availableMinutes: 480,
+      availableMinutes: 120,
     });
+    // Saturday — rest by default
     expect(
       getAvailabilityForDate(parseCalendarDate("2026-06-13"), DEFAULT_WEEKDAY_AVAILABILITY),
     ).toEqual({
-      enabled: true,
-      availableMinutes: 240,
+      enabled: false,
+      availableMinutes: 0,
     });
+    // Sunday — rest by default
     expect(
       getAvailabilityForDate(parseCalendarDate("2026-06-14"), DEFAULT_WEEKDAY_AVAILABILITY),
     ).toEqual({
@@ -34,7 +37,7 @@ describe("availability", () => {
   });
 
   it("detects study and rest dates", () => {
-    expect(isStudyDate(parseCalendarDate("2026-06-13"), DEFAULT_WEEKDAY_AVAILABILITY)).toBe(true);
+    expect(isStudyDate(parseCalendarDate("2026-06-15"), DEFAULT_WEEKDAY_AVAILABILITY)).toBe(true);
     expect(isStudyDate(parseCalendarDate("2026-06-14"), DEFAULT_WEEKDAY_AVAILABILITY)).toBe(false);
   });
 
@@ -48,11 +51,12 @@ describe("availability", () => {
   });
 
   it("supports includeCurrentDate for next and previous study dates", () => {
+    // 2026-06-15 is a Monday (enabled), so includeCurrentDate returns it as-is.
     expect(
-      getNextStudyDate(parseCalendarDate("2026-06-13"), DEFAULT_WEEKDAY_AVAILABILITY, {
+      getNextStudyDate(parseCalendarDate("2026-06-15"), DEFAULT_WEEKDAY_AVAILABILITY, {
         includeCurrentDate: true,
       }),
-    ).toBe("2026-06-13");
+    ).toBe("2026-06-15");
     expect(
       getPreviousStudyDate(parseCalendarDate("2026-06-15"), DEFAULT_WEEKDAY_AVAILABILITY, {
         includeCurrentDate: true,

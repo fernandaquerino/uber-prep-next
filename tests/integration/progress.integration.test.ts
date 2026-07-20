@@ -2,10 +2,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createTestDatabase, _resetDbSingleton } from "@/test/indexed-db";
 import {
   buildStudySchedule,
-  DEFAULT_WEEKDAY_AVAILABILITY,
   parseCalendarDate,
   PRODUCT_TIMEZONE,
   type StudyPlan,
+  type WeekdayAvailability,
 } from "@/lib/domain/schedule";
 import {
   completePlanBlock,
@@ -18,6 +18,18 @@ import {
 import { createProgressRepository } from "@/lib/repositories/progress.repository";
 import { createProgressHistoryRepository } from "@/lib/repositories/progress-history.repository";
 import { createScheduleOverridesRepository } from "@/lib/repositories/schedule-overrides.repository";
+
+// Continuous week (Mon-Sat enabled at 120 min, Sunday rest) so 120-min fixture
+// blocks map 1:1 to calendar days and shift scenarios stay predictable.
+const CONTINUOUS_AVAILABILITY: WeekdayAvailability = {
+  monday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  tuesday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  wednesday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  thursday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  friday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  saturday: { enabled: true, availableMinutes: 120, startTime: "09:00" },
+  sunday: { enabled: false, availableMinutes: 0 },
+};
 
 afterEach(() => {
   _resetDbSingleton();
@@ -62,7 +74,7 @@ describe("plan progress integration", () => {
       blockId: "block-2",
       targetDate: parseCalendarDate("2026-06-16"),
       today: parseCalendarDate("2026-06-12"),
-      availability: DEFAULT_WEEKDAY_AVAILABILITY,
+      availability: CONTINUOUS_AVAILABILITY,
       now: "2026-06-12T10:00:00.000Z",
     });
 
@@ -73,7 +85,7 @@ describe("plan progress integration", () => {
       db,
       baseSchedule,
       fromDate: parseCalendarDate("2026-06-12"),
-      availability: DEFAULT_WEEKDAY_AVAILABILITY,
+      availability: CONTINUOUS_AVAILABILITY,
       now: "2026-06-12T18:00:00.000Z",
     });
 
@@ -86,7 +98,7 @@ describe("plan progress integration", () => {
       db,
       baseSchedule,
       today: parseCalendarDate("2026-06-13"),
-      availability: DEFAULT_WEEKDAY_AVAILABILITY,
+      availability: CONTINUOUS_AVAILABILITY,
     });
 
     expect(
@@ -159,6 +171,6 @@ function createBaseSchedule() {
   return buildStudySchedule(plan, {
     startDate: parseCalendarDate("2026-06-11"),
     timezone: PRODUCT_TIMEZONE,
-    weekdayAvailability: DEFAULT_WEEKDAY_AVAILABILITY,
+    weekdayAvailability: CONTINUOUS_AVAILABILITY,
   });
 }

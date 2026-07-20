@@ -7,13 +7,13 @@ import {
   skipPlanBlock,
   undoProgressAction,
 } from "../index";
-import { DEFAULT_WEEKDAY_AVAILABILITY, parseCalendarDate } from "@/lib/domain/schedule";
+import { parseCalendarDate } from "@/lib/domain/schedule";
 import {
   CannotRescheduleCompletedBlockError,
   CannotRescheduleSkippedBlockError,
   InvalidRescheduleDateError,
 } from "../progress.errors";
-import { createBaseSchedule, createInitializedProgress } from "./test-fixtures";
+import { createBaseSchedule, createInitializedProgress, TEST_AVAILABILITY } from "./test-fixtures";
 
 describe("rescheduling, missed days, shifting and undo", () => {
   it("blocks completed, skipped, rest-day, and past-date reschedules by default", () => {
@@ -32,7 +32,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           blockId: "block-1",
           targetDate: parseCalendarDate("2026-06-16"),
           today: parseCalendarDate("2026-06-12"),
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           now: "2026-06-12T14:00:00.000Z",
         },
       ),
@@ -44,7 +44,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           blockId: "block-2",
           targetDate: parseCalendarDate("2026-06-16"),
           today: parseCalendarDate("2026-06-12"),
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           now: "2026-06-12T14:00:00.000Z",
         },
       ),
@@ -56,7 +56,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           blockId: "block-3",
           targetDate: parseCalendarDate("2026-06-14"),
           today: parseCalendarDate("2026-06-12"),
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           now: "2026-06-12T14:00:00.000Z",
         },
       ),
@@ -68,7 +68,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           blockId: "block-3",
           targetDate: parseCalendarDate("2026-06-11"),
           today: parseCalendarDate("2026-06-12"),
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           now: "2026-06-12T14:00:00.000Z",
         },
       ),
@@ -84,7 +84,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
         blockId: "block-3",
         targetDate: parseCalendarDate("2026-06-14"),
         today: parseCalendarDate("2026-06-12"),
-        availability: DEFAULT_WEEKDAY_AVAILABILITY,
+        availability: TEST_AVAILABILITY,
         allowRestDay: true,
         now: "2026-06-12T14:00:00.000Z",
       },
@@ -107,7 +107,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
       { baseSchedule, progress },
       {
         fromDate: parseCalendarDate("2026-06-12"),
-        availability: DEFAULT_WEEKDAY_AVAILABILITY,
+        availability: TEST_AVAILABILITY,
         now: "2026-06-12T18:00:00.000Z",
       },
     );
@@ -134,7 +134,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           missedDate: parseCalendarDate("2026-06-12"),
           today: parseCalendarDate("2026-06-13"),
           strategy: "keep_overdue",
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           now: "2026-06-13T10:00:00.000Z",
         },
       ).progress,
@@ -147,7 +147,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           missedDate: parseCalendarDate("2026-06-12"),
           today: parseCalendarDate("2026-06-13"),
           strategy: "skip_items",
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           now: "2026-06-13T10:00:00.000Z",
         },
       ).progress.find((record) => record.blockId === "block-2")?.status,
@@ -160,7 +160,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
           missedDate: parseCalendarDate("2026-06-12"),
           today: parseCalendarDate("2026-06-13"),
           strategy: "reschedule_items",
-          availability: DEFAULT_WEEKDAY_AVAILABILITY,
+          availability: TEST_AVAILABILITY,
           rescheduleTargets: { "block-2": parseCalendarDate("2026-06-16") },
           now: "2026-06-13T10:00:00.000Z",
         },
@@ -187,7 +187,7 @@ describe("rescheduling, missed days, shifting and undo", () => {
       { baseSchedule, progress: createInitializedProgress() },
       {
         fromDate: parseCalendarDate("2026-06-12"),
-        availability: DEFAULT_WEEKDAY_AVAILABILITY,
+        availability: TEST_AVAILABILITY,
         now: "2026-06-12T18:00:00.000Z",
       },
     );
