@@ -1,205 +1,205 @@
-# Reconstrução do Uber Prep em Next.js
+# Rebuilding Uber Prep in Next.js
 
-Quero reconstruir do zero o projeto **Uber Prep**, migrando a aplicação atual em React para uma nova aplicação em **Next.js com App Router e TypeScript**.
+I want to rebuild the **Uber Prep** project from scratch, migrating the current React application to a new application in **Next.js with the App Router and TypeScript**.
 
-A aplicação atual deve ser utilizada como:
+The current application should be used as:
 
-- referência funcional;
-- fonte de conteúdo;
-- fonte de dados iniciais;
-- referência visual;
-- inventário de funcionalidades.
+- a functional reference;
+- a content source;
+- an initial data source;
+- a visual reference;
+- a feature inventory.
 
-Não quero simplesmente converter os componentes React atuais para Next.js.
+I don't want to simply convert the current React components to Next.js.
 
-Quero reconstruir a aplicação com:
+I want to rebuild the application with:
 
-- arquitetura mais limpa;
-- regras de negócio centralizadas;
-- calendário realmente dinâmico;
-- progresso confiável;
-- revisão consistente;
-- melhor experiência de uso;
-- persistência robusta;
-- testes automatizados;
-- possibilidade de evolução futura.
+- a cleaner architecture;
+- centralized business rules;
+- a genuinely dynamic calendar;
+- reliable progress;
+- consistent review;
+- a better user experience;
+- robust persistence;
+- automated tests;
+- room for future evolution.
 
-## Regra de execução
+## Execution rule
 
-Não implemente todo o projeto de uma vez.
+Don't implement the whole project at once.
 
-Divida o trabalho nas entregas descritas neste documento e execute **uma entrega por vez**.
+Split the work into the deliveries described in this document and execute **one delivery at a time**.
 
-Antes de cada entrega:
+Before each delivery:
 
-1. Analise o projeto atual.
-2. Liste os arquivos relevantes encontrados.
-3. Explique o que será reaproveitado.
-4. Explique o que será refeito.
-5. Liste os arquivos que serão criados ou modificados.
-6. Aguarde aprovação antes de implementar, caso esteja trabalhando de forma interativa.
+1. Analyze the current project.
+2. List the relevant files found.
+3. Explain what will be reused.
+4. Explain what will be redone.
+5. List the files that will be created or modified.
+6. Wait for approval before implementing, if working interactively.
 
-Depois de cada entrega:
+After each delivery:
 
-1. Execute TypeScript.
-2. Execute lint.
-3. Execute testes.
-4. Execute build.
-5. Corrija todos os erros encontrados.
-6. Apresente um resumo do que foi concluído.
-7. Não avance automaticamente para a próxima entrega.
+1. Run TypeScript.
+2. Run lint.
+3. Run tests.
+4. Run the build.
+5. Fix all the errors found.
+6. Present a summary of what was completed.
+7. Don't automatically advance to the next delivery.
 
-## Objetivo do produto
+## Product goal
 
-O Uber Prep é uma aplicação local-first para organizar uma preparação intensiva de seis semanas para entrevistas de Frontend Engineer, com foco em processos semelhantes ao da Uber.
+Uber Prep is a local-first application to organize an intensive six-week preparation for Frontend Engineer interviews, focused on processes similar to Uber's.
 
-A preparação abrange:
+The preparation covers:
 
-- algoritmos e estruturas de dados;
-- JavaScript profundo;
+- algorithms and data structures;
+- deep JavaScript;
 - React;
 - frontend coding;
 - frontend system design;
 - behavioral interviews;
-- inglês técnico;
+- technical English;
 - mock interviews;
-- revisão espaçada;
-- acompanhamento de progresso.
+- spaced repetition;
+- progress tracking.
 
-O aplicativo deve responder com clareza:
+The app must clearly answer:
 
-1. O que preciso estudar hoje?
-2. O que ficou pendente?
-3. O que preciso revisar?
-4. Qual é o próximo conteúdo?
-5. Quanto já avancei?
-6. Em quais assuntos estou tendo mais dificuldade?
-7. Como meu desempenho evoluiu ao longo das semanas?
+1. What do I need to study today?
+2. What's still pending?
+3. What do I need to review?
+4. What's the next content?
+5. How much have I progressed?
+6. Which subjects am I struggling with the most?
+7. How has my performance evolved over the weeks?
 
-## Princípios obrigatórios
+## Mandatory principles
 
-### 1. Fonte única de verdade
+### 1. Single source of truth
 
-Dashboard, Plano, Revisar Hoje, relatórios e recomendações devem consumir os mesmos serviços, selectors e regras de domínio.
+Dashboard, Plan, Review Today, reports and recommendations must consume the same services, selectors and domain rules.
 
-Não crie cálculos independentes para:
+Don't create independent calculations for:
 
-- estudo atual;
-- próximo estudo;
-- conteúdos atrasados;
-- revisões vencidas;
-- progresso;
+- current study;
+- next study;
+- overdue content;
+- due reviews;
+- progress;
 - readiness;
-- tópicos fracos.
+- weak topics.
 
-### 2. Separação entre calendário e progresso
+### 2. Separation between calendar and progress
 
-A aplicação deve separar:
+The application must separate:
 
-- data real do calendário;
-- posição sequencial no plano;
-- progresso real da pessoa.
+- the real calendar date;
+- the sequential position in the plan;
+- the person's real progress.
 
-O calendário avança com o tempo.
+The calendar advances with time.
 
-O conteúdo do plano só avança quando a pessoa toma uma decisão explícita:
+The plan content only advances when the person makes an explicit decision:
 
-- concluir;
-- continuar;
-- reagendar;
-- mover para frente;
-- pular.
+- complete;
+- continue;
+- reschedule;
+- move forward;
+- skip.
 
-Nunca avance o plano somente porque mudou o dia.
+Never advance the plan just because the day changed.
 
-### 3. Conteúdo desacoplado da interface
+### 3. Content decoupled from the interface
 
-Questões, flashcards, dias do plano, perguntas STAR, templates e recursos não devem ficar acoplados a componentes React.
+Questions, flashcards, plan days, STAR questions, templates and resources must not be coupled to React components.
 
-### 4. Regras de negócio fora dos componentes
+### 4. Business rules outside the components
 
-Componentes devem renderizar dados e disparar ações.
+Components should render data and trigger actions.
 
-Não coloque nos componentes regras complexas de:
+Don't put complex rules in the components for:
 
-- datas;
-- repetição espaçada;
+- dates;
+- spaced repetition;
 - readiness;
-- retenção;
-- revisão;
-- reagendamento;
-- progresso.
+- retention;
+- review;
+- rescheduling;
+- progress.
 
-### 5. Local-first confiável
+### 5. Reliable local-first
 
-A aplicação deve funcionar sem backend.
+The application must work without a backend.
 
-Entretanto, não utilize várias chaves de `localStorage` sem coordenação como principal banco da nova versão.
+However, don't use several uncoordinated `localStorage` keys as the main database of the new version.
 
-Use uma camada de persistência local estruturada, preferencialmente:
+Use a structured local persistence layer, preferably:
 
 - IndexedDB;
-- Dexie ou solução equivalente;
-- repositórios abstraindo o mecanismo de persistência.
+- Dexie or an equivalent solution;
+- repositories abstracting the persistence mechanism.
 
-O acesso ao armazenamento deve acontecer por interfaces, não diretamente dentro dos componentes.
+Storage access must happen through interfaces, not directly inside the components.
 
-### 6. Migração de dados
+### 6. Data migration
 
-A nova aplicação precisa conseguir importar os dados da versão antiga.
+The new application needs to be able to import the old version's data.
 
-Implemente:
+Implement:
 
-- leitura do backup JSON antigo;
-- conversão para o novo modelo;
-- validação;
-- relatório de dados importados;
-- tratamento de registros incompatíveis;
-- prevenção de duplicidade.
+- reading the old JSON backup;
+- conversion to the new model;
+- validation;
+- a report of imported data;
+- handling of incompatible records;
+- duplicate prevention.
 
-Não dependa de edição manual do `localStorage` pelo DevTools.
+Don't rely on manual `localStorage` editing via DevTools.
 
 ---
 
-# Stack técnica
+# Technical stack
 
-Utilize:
+Use:
 
-- Next.js com App Router;
+- Next.js with the App Router;
 - React;
-- TypeScript em modo estrito;
+- TypeScript in strict mode;
 - Tailwind CSS;
-- shadcn/ui ou componentes acessíveis equivalentes;
+- shadcn/ui or equivalent accessible components;
 - React Hook Form;
 - Zod;
-- Zustand somente para estado de interface ou sessão quando necessário;
-- TanStack Query apenas quando fizer sentido para operações assíncronas e persistência;
-- IndexedDB com Dexie ou equivalente;
-- date-fns para operações de calendário;
+- Zustand only for interface or session state when needed;
+- TanStack Query only when it makes sense for asynchronous operations and persistence;
+- IndexedDB with Dexie or equivalent;
+- date-fns for calendar operations;
 - Vitest;
 - React Testing Library;
 - Playwright;
-- Monaco Editor carregado sob demanda;
-- Web Worker para execução isolada de JavaScript.
+- Monaco Editor loaded on demand;
+- a Web Worker for isolated JavaScript execution.
 
-Não introduza bibliotecas sem justificar a necessidade.
+Don't introduce libraries without justifying the need.
 
-## Regras de Next.js
+## Next.js rules
 
-- Use Server Components por padrão.
-- Use Client Components somente quando houver interação, estado do navegador ou acesso à IndexedDB.
-- Não transforme páginas inteiras em Client Components sem necessidade.
-- Use carregamento dinâmico para módulos pesados.
-- Monaco Editor, relatórios e módulos de mock podem usar lazy loading.
-- Organize os layouts pelo App Router.
-- Implemente estados de loading, empty state e error state.
-- Não acesse `window`, `document`, IndexedDB ou storage durante SSR.
+- Use Server Components by default.
+- Use Client Components only when there's interaction, browser state or IndexedDB access.
+- Don't turn whole pages into Client Components without need.
+- Use dynamic loading for heavy modules.
+- Monaco Editor, reports and mock modules can use lazy loading.
+- Organize the layouts with the App Router.
+- Implement loading, empty-state and error-state states.
+- Don't access `window`, `document`, IndexedDB or storage during SSR.
 
 ---
 
-# Arquitetura sugerida
+# Suggested architecture
 
-Adapte quando necessário, mas mantenha separação por domínio:
+Adapt when needed, but keep separation by domain:
 
 ```text
 src/
@@ -282,39 +282,39 @@ src/
     javascript-runner.worker.ts
 ```
 
-Cada feature deve possuir responsabilidades claras:
+Each feature should have clear responsibilities:
 
 ```text
 domain/
 ```
 
-Tipos, entidades, regras e funções puras.
+Types, entities, rules and pure functions.
 
 ```text
 application/
 ```
 
-Casos de uso e orquestração.
+Use cases and orchestration.
 
 ```text
 infrastructure/
 ```
 
-IndexedDB, repositórios, exportação e integração com APIs do navegador.
+IndexedDB, repositories, export and integration with browser APIs.
 
 ```text
 components/
 ```
 
-Interface da funcionalidade.
+The feature's interface.
 
 ---
 
-# Modelo central do plano
+# Core plan model
 
-Defina uma modelagem explícita para o conteúdo do plano.
+Define an explicit model for the plan content.
 
-Exemplo conceitual:
+Conceptual example:
 
 ```ts
 type StudyPlan = {
@@ -346,26 +346,26 @@ type PlanBlock = {
 };
 ```
 
-O conteúdo original de seis semanas deve ser migrado, preservando:
+The original six-week content must be migrated, preserving:
 
-- títulos;
-- descrições;
-- exercícios;
-- duração estimada;
-- pausas;
+- titles;
+- descriptions;
+- exercises;
+- estimated duration;
+- breaks;
 - mocks;
-- quizzes relacionados;
-- recursos;
-- categorias;
-- links existentes.
+- related quizzes;
+- resources;
+- categories;
+- existing links.
 
 ---
 
-# Modelo de calendário
+# Calendar model
 
-A configuração semanal deve ser editável.
+The weekly configuration must be editable.
 
-Exemplo:
+Example:
 
 ```ts
 type WeekdayAvailability = {
@@ -380,48 +380,48 @@ type StudyCalendarSettings = {
 };
 ```
 
-Configuração inicial sugerida:
+Suggested initial configuration:
 
-- segunda a sexta: 8 horas;
-- sábado: 4 horas;
-- domingo: descanso.
+- Monday to Friday: 8 hours;
+- Saturday: 4 hours;
+- Sunday: rest.
 
-Esses valores não devem ficar hardcoded em componentes.
+These values must not be hardcoded in components.
 
-## Regras do calendário
+## Calendar rules
 
-A data real deve determinar:
+The real date must determine:
 
-- dia correto da semana;
-- disponibilidade daquele dia;
-- se é estudo ou descanso;
-- formatação apresentada na interface.
+- the correct day of the week;
+- that day's availability;
+- whether it's study or rest;
+- the formatting shown in the interface.
 
-Exemplo obrigatório:
+Mandatory example:
 
 ```text
-11/06/2026 = quinta-feira
-12/06/2026 = sexta-feira
-13/06/2026 = sábado
-14/06/2026 = domingo
-15/06/2026 = segunda-feira
+2026-06-11 = Thursday
+2026-06-12 = Friday
+2026-06-13 = Saturday
+2026-06-14 = Sunday
+2026-06-15 = Monday
 ```
 
-Nunca associe datas consecutivas a labels fixos como segunda, terça e quarta.
+Never associate consecutive dates with fixed labels like Monday, Tuesday and Wednesday.
 
-Datas de calendário devem ser armazenadas como:
+Calendar dates must be stored as:
 
 ```text
 YYYY-MM-DD
 ```
 
-Evite usar diretamente:
+Avoid using directly:
 
 ```ts
 new Date("2026-06-11");
 ```
 
-Implemente parse e formatação consistentes considerando:
+Implement consistent parsing and formatting considering:
 
 ```text
 America/Sao_Paulo
@@ -429,11 +429,11 @@ America/Sao_Paulo
 
 ---
 
-# Modelo de progresso
+# Progress model
 
-Implemente registros explícitos para o progresso.
+Implement explicit records for progress.
 
-Exemplo:
+Example:
 
 ```ts
 type PlanBlockStatus =
@@ -461,44 +461,44 @@ type PlanBlockProgress = {
 };
 ```
 
-## Dia perdido
+## Missed day
 
-Quando a pessoa não estudar, permita:
+When the person doesn't study, allow:
 
-### Mover plano para frente
+### Move the plan forward
 
-O conteúdo pendente permanece como próximo conteúdo, deslocando a agenda futura.
+The pending content stays as the next content, shifting the future schedule.
 
-### Reagendar conteúdo
+### Reschedule content
 
-Escolher outra data válida.
+Choose another valid date.
 
-### Pular conteúdo
+### Skip content
 
-Marcar conscientemente como pulado, exigindo confirmação.
+Consciously mark it as skipped, requiring confirmation.
 
-### Manter atrasado
+### Keep it overdue
 
-O conteúdo continua pendente, podendo aparecer junto com a agenda atual.
+The content stays pending and may appear alongside the current schedule.
 
-A interface deve informar as consequências antes de aplicar a ação.
+The interface must inform the consequences before applying the action.
 
 ---
 
-# Agenda efetiva
+# Effective schedule
 
-Crie um scheduler central que combine:
+Create a central scheduler that combines:
 
-- plano original;
-- data inicial;
-- disponibilidade semanal;
-- dias de descanso;
-- progresso;
-- reagendamentos;
-- conteúdos atrasados;
-- conteúdos pulados.
+- the original plan;
+- the start date;
+- the weekly availability;
+- rest days;
+- progress;
+- reschedules;
+- overdue content;
+- skipped content.
 
-Exemplo de saída:
+Example output:
 
 ```ts
 type ScheduledStudyDay = {
@@ -512,9 +512,9 @@ type ScheduledStudyDay = {
 };
 ```
 
-Todos os módulos devem consultar essa agenda.
+All modules must consult this schedule.
 
-Crie funções puras equivalentes a:
+Create pure functions equivalent to:
 
 ```ts
 buildStudySchedule();
@@ -530,13 +530,13 @@ getDailyStudySummary();
 
 ---
 
-# Sistema de revisão
+# Review system
 
-A revisão precisa ser um domínio independente, mas conectado às atividades.
+The review needs to be an independent domain, but connected to the activities.
 
-Não utilize um único booleano para representar todos os estados.
+Don't use a single boolean to represent all the states.
 
-Exemplo:
+Example:
 
 ```ts
 type ReviewSource = "plan" | "flashcard" | "quiz" | "mock" | "manual";
@@ -555,7 +555,7 @@ type ReviewItem = {
 };
 ```
 
-Separe claramente:
+Clearly separate:
 
 ```ts
 isMarkedForReview;
@@ -564,438 +564,438 @@ reviewedAt;
 nextReviewAt;
 ```
 
-## Repetição espaçada
+## Spaced repetition
 
-Preserve os ciclos atuais:
+Preserve the current cycles:
 
-- 1 dia;
-- 3 dias;
-- 7 dias;
-- 14 dias;
-- 30 dias.
+- 1 day;
+- 3 days;
+- 7 days;
+- 14 days;
+- 30 days.
 
-Mas centralize a regra em um único serviço.
+But centralize the rule in a single service.
 
-Resultados devem afetar o próximo intervalo:
+Results must affect the next interval:
 
-- domínio alto: avançar;
-- domínio parcial: manter ou avançar moderadamente;
-- erro ou trava: reduzir intervalo;
-- marcação manual: criar revisão;
-- desmarcação antes da execução: remover da fila;
-- histórico já concluído: preservar como histórico.
+- high mastery: advance;
+- partial mastery: keep or advance moderately;
+- error or stuck: reduce the interval;
+- manual marking: create a review;
+- unmarking before execution: remove from the queue;
+- already-completed history: preserve as history.
 
 ---
 
-# Funcionalidades que devem ser preservadas e melhoradas
+# Features that must be preserved and improved
 
 ## 1. Dashboard
 
-Manter:
+Keep:
 
-- readiness geral;
-- readiness por área;
-- progresso do plano;
+- overall readiness;
+- readiness per area;
+- plan progress;
 - streak;
-- calendário de estudo;
-- metas;
-- recomendações diárias;
-- estatísticas de quizzes;
-- estatísticas de flashcards;
-- tempo estudado;
-- retenção;
-- acesso a relatórios.
+- study calendar;
+- goals;
+- daily recommendations;
+- quiz statistics;
+- flashcard statistics;
+- time studied;
+- retention;
+- access to reports.
 
-Melhorar:
+Improve:
 
-- utilizar exclusivamente dados reais;
-- mostrar claramente como cada indicador é calculado;
-- permitir abrir os dados que originaram a métrica;
-- diferenciar ausência de dados de desempenho ruim;
-- não mostrar readiness artificial antes de existir atividade suficiente;
-- mostrar “Hoje”, “Pendências” e “Revisões” como prioridades principais;
-- garantir consistência com Plano e Revisar Hoje.
+- use exclusively real data;
+- clearly show how each indicator is computed;
+- allow opening the data that originated the metric;
+- distinguish absence of data from poor performance;
+- don't show artificial readiness before there's enough activity;
+- show "Today", "Pending" and "Reviews" as the main priorities;
+- ensure consistency with Plan and Review Today.
 
-## 2. Plano
+## 2. Plan
 
-Manter:
+Keep:
 
-- seis semanas;
-- dias e blocos de estudo;
-- detalhes dos blocos;
+- six weeks;
+- study days and blocks;
+- block details;
 - status;
-- minutos;
-- notas;
-- padrão usado;
-- dificuldade;
-- vínculo com quizzes;
-- vínculo com flashcards;
-- pausas;
+- minutes;
+- notes;
+- pattern used;
+- difficulty;
+- link to quizzes;
+- link to flashcards;
+- breaks;
 - mocks.
 
-Melhorar:
+Improve:
 
-- calendário dinâmico;
-- início em qualquer dia da semana;
-- dias de descanso;
-- reagendamento;
-- recuperação de dias perdidos;
-- divisão automática de conteúdo quando exceder a disponibilidade;
-- edição da disponibilidade semanal;
-- visualização por semana e por agenda;
-- indicação clara de hoje, atrasado, concluído e reagendado;
-- histórico de alterações;
-- ação para concluir o dia;
-- ação para desfazer conclusão;
-- confirmação antes de reiniciar ou recalcular o plano.
+- a dynamic calendar;
+- start on any day of the week;
+- rest days;
+- rescheduling;
+- recovery of missed days;
+- automatic content splitting when it exceeds availability;
+- editing the weekly availability;
+- a per-week and per-schedule view;
+- a clear indication of today, overdue, completed and rescheduled;
+- a change history;
+- an action to complete the day;
+- an action to undo completion;
+- confirmation before restarting or recomputing the plan.
 
-## 3. Revisar Hoje
+## 3. Review Today
 
-Manter:
+Keep:
 
-- fila de revisão do plano;
-- flashcards vencidos;
-- quizzes vencidos;
-- tópicos fracos;
-- gaps de mocks;
-- diário de aprendizagem;
-- reflexão semanal;
-- exercício de explicar sem consultar;
-- sugestão de próximo estudo.
+- the plan's review queue;
+- overdue flashcards;
+- overdue quizzes;
+- weak topics;
+- mock gaps;
+- a learning journal;
+- weekly reflection;
+- an explain-without-looking exercise;
+- a next-study suggestion.
 
-Melhorar:
+Improve:
 
-- usar fila única normalizada;
-- ordenar por prioridade e atraso;
-- explicar por que cada item está na fila;
-- permitir revisar, adiar, dispensar ou reagendar;
-- evitar itens fantasmas;
-- remover marcação cancelada;
-- registrar histórico;
-- mostrar progresso da sessão;
-- mostrar duração estimada;
-- fazer “O que estudar amanhã” consultar a mesma agenda do Plano;
-- usar “Próximo dia de estudo” quando amanhã for descanso;
-- permitir consultar reflexões antigas;
-- permitir editar reflexões já salvas.
+- use a single normalized queue;
+- order by priority and lateness;
+- explain why each item is in the queue;
+- allow reviewing, deferring, dismissing or rescheduling;
+- avoid ghost items;
+- remove canceled markings;
+- record history;
+- show session progress;
+- show estimated duration;
+- make "What to study tomorrow" consult the same schedule as Plan;
+- use "Next study day" when tomorrow is a rest day;
+- allow consulting old reflections;
+- allow editing already-saved reflections.
 
 ## 4. Flashcards
 
-Manter:
+Keep:
 
-- criação;
-- edição;
-- exclusão;
-- categorias;
+- creation;
+- editing;
+- deletion;
+- categories;
 - tags;
-- busca;
-- filtros;
-- sessão de estudo;
-- virar cartão;
-- “sabia”;
-- “não sabia”;
+- search;
+- filters;
+- study session;
+- flip the card;
+- "knew it";
+- "didn't know it";
 - status;
-- repetição espaçada;
-- criação a partir de tópicos.
+- spaced repetition;
+- creation from topics.
 
-Melhorar:
+Improve:
 
-- sessões com quantidade configurável;
-- histórico por cartão;
-- estatísticas de acerto;
-- detecção de cartões duplicados;
-- importação e exportação;
-- vínculo com conteúdos do plano;
-- editor melhor;
-- atalhos de teclado;
-- estados novos, aprendendo e dominados;
-- suporte a Markdown em pergunta e resposta.
+- sessions with a configurable amount;
+- per-card history;
+- hit statistics;
+- duplicate-card detection;
+- import and export;
+- link to plan content;
+- a better editor;
+- keyboard shortcuts;
+- new, learning and mastered states;
+- Markdown support in question and answer.
 
 ## 5. Quizzes
 
-Manter:
+Keep:
 
-- perguntas versionadas;
-- filtros;
-- quiz diário;
-- prática filtrada;
-- revisão de erros;
-- quizzes por flashcards;
-- perguntas marcadas;
-- histórico;
-- tempo total;
-- tempo por questão;
-- correção automática;
-- autoavaliação de questões abertas.
+- versioned questions;
+- filters;
+- daily quiz;
+- filtered practice;
+- mistake review;
+- quizzes from flashcards;
+- flagged questions;
+- history;
+- total time;
+- time per question;
+- automatic grading;
+- self-assessment of open questions.
 
-Melhorar:
+Improve:
 
-- normalizar tipos de questão;
-- mostrar explicação após resposta;
-- histórico por pergunta;
-- métricas por tópico;
-- fila de erros;
-- repetição espaçada centralizada;
-- sessões configuráveis;
-- opção de refazer;
-- evitar repetir questões recentes sem necessidade;
-- salvar respostas parcialmente preenchidas;
-- validar conteúdo de perguntas;
-- permitir importar novos conjuntos.
+- normalize the question types;
+- show an explanation after the answer;
+- per-question history;
+- per-topic metrics;
+- a mistakes queue;
+- centralized spaced repetition;
+- configurable sessions;
+- a redo option;
+- avoid repeating recent questions unnecessarily;
+- save partially filled answers;
+- validate the questions' content;
+- allow importing new sets.
 
 ## 6. Timer
 
-Manter presets:
+Keep the presets:
 
-- 25 minutos;
-- 45 minutos;
-- 60 minutos;
-- 90 minutos.
+- 25 minutes;
+- 45 minutes;
+- 60 minutes;
+- 90 minutes.
 
-Manter categorias:
+Keep the categories:
 
-- algoritmos;
+- algorithms;
 - system design;
 - JavaScript;
 - mock;
-- geral.
+- general.
 
-Melhorar:
+Improve:
 
-- permitir associar a sessão a um bloco do plano;
-- pausar;
-- retomar;
-- encerrar;
-- cancelar;
-- adicionar tempo manual;
-- editar sessão;
-- remover sessão;
-- histórico diário e semanal;
-- funcionar ao navegar entre páginas;
-- recuperar sessão após reload;
-- não contabilizar automaticamente sessão abandonada;
-- notificações acessíveis;
-- modo cronômetro além de contagem regressiva.
+- allow linking the session to a plan block;
+- pause;
+- resume;
+- finish;
+- cancel;
+- add manual time;
+- edit the session;
+- remove the session;
+- daily and weekly history;
+- work while navigating between pages;
+- recover the session after a reload;
+- don't automatically count an abandoned session;
+- accessible notifications;
+- a stopwatch mode in addition to countdown.
 
 ## 7. Playground
 
-Manter:
+Keep:
 
 - Monaco Editor;
-- execução JavaScript;
-- captura de console;
-- testes;
+- JavaScript execution;
+- console capture;
+- tests;
 - timeout;
 - Web Worker;
-- soluções salvas;
-- complexidade;
-- notas;
+- saved solutions;
+- complexity;
+- notes;
 - drills.
 
-Melhorar:
+Improve:
 
 - lazy loading;
 - templates;
-- múltiplos casos de teste;
-- comparação de saída;
-- status por teste;
-- erros legíveis;
-- reinicialização do worker após timeout;
-- prevenção de travamento;
-- histórico de versões;
-- associação ao plano;
-- suporte a TypeScript como evolução opcional;
-- não executar código com acesso direto ao contexto principal da página.
+- multiple test cases;
+- output comparison;
+- per-test status;
+- readable errors;
+- worker restart after a timeout;
+- freeze prevention;
+- version history;
+- a link to the plan;
+- TypeScript support as an optional evolution;
+- don't run code with direct access to the page's main context.
 
 ## 8. Mocks
 
-Manter:
+Keep:
 
 - Coding;
 - System Design;
 - Behavioral;
 - Full Loop;
-- pergunta;
-- solução;
+- question;
+- solution;
 - feedback;
-- pontos fortes;
-- pontos fracos;
-- próximos passos;
-- rubrica;
+- strengths;
+- weaknesses;
+- next steps;
+- rubric;
 - readiness;
-- áudio;
+- audio;
 - STAR;
 - templates;
 - checklist.
 
-Melhorar:
+Improve:
 
-- fluxo guiado de início e conclusão;
-- timer específico;
-- rubricas por tipo;
-- critérios claros de pontuação;
-- histórico;
-- comparação de evolução;
-- gaps convertidos em revisão;
-- áudio armazenado separadamente;
-- controle de tamanho e remoção de áudio;
-- estados de permissão do microfone;
-- opção de mock sem gravação;
-- checklist com propósito claro;
-- “Nova sessão” deve criar uma sessão real e rastreável;
-- permitir continuar uma sessão em andamento.
+- a guided start and finish flow;
+- a specific timer;
+- rubrics per type;
+- clear scoring criteria;
+- history;
+- evolution comparison;
+- gaps converted into review;
+- audio stored separately;
+- size control and audio removal;
+- microphone permission states;
+- an option for a mock without recording;
+- a checklist with a clear purpose;
+- "New session" must create a real, trackable session;
+- allow continuing an in-progress session.
 
-## 9. Notas
+## 9. Notes
 
-Manter:
+Keep:
 
 - Markdown;
-- categorias;
+- categories;
 - toolbar;
 - preview;
 - templates;
-- notas por tópico.
+- notes per topic.
 
-Melhorar:
+Improve:
 
 - autosave;
-- indicador de salvamento;
-- busca;
+- a save indicator;
+- search;
 - tags;
-- favoritos;
-- notas vinculadas ao plano, quiz, mock ou flashcard;
-- histórico mínimo de alterações;
-- exclusão com confirmação;
-- exportação;
-- editor e preview acessíveis.
+- favorites;
+- notes linked to the plan, quiz, mock or flashcard;
+- a minimal change history;
+- deletion with confirmation;
+- export;
+- an accessible editor and preview.
 
-## 10. Recursos
+## 10. Resources
 
-Manter recursos para:
+Keep resources for:
 
-- algoritmos;
-- estruturas de dados;
+- algorithms;
+- data structures;
 - frontend system design;
 - JavaScript;
-- inglês técnico.
+- technical English.
 
-Melhorar:
+Improve:
 
 - tags;
-- busca;
-- status “não iniciado”, “em andamento” e “concluído”;
-- favoritos;
-- associação a tópicos;
-- recomendações com justificativa;
-- evitar recomendar conteúdos já dominados sem razão;
-- permitir adicionar recursos próprios.
+- search;
+- "not started", "in progress" and "completed" status;
+- favorites;
+- a link to topics;
+- recommendations with a justification;
+- avoid recommending already-mastered content without reason;
+- allow adding your own resources.
 
-## 11. Inglês técnico
+## 11. Technical English
 
-Preservar:
+Preserve:
 
-- frases;
-- vocabulário;
-- respostas de entrevista.
+- phrases;
+- vocabulary;
+- interview answers.
 
-Melhorar:
+Improve:
 
-- organização por contexto;
-- favoritos;
-- prática;
-- flashcards gerados;
-- exemplos de uso;
-- registro do que já foi praticado.
+- organization by context;
+- favorites;
+- practice;
+- generated flashcards;
+- usage examples;
+- a record of what has already been practiced.
 
-## 12. Relatórios semanais
+## 12. Weekly reports
 
-Manter:
+Keep:
 
-- comparação entre semanas;
-- horas;
-- blocos;
+- comparison between weeks;
+- hours;
+- blocks;
 - quizzes;
 - readiness;
-- pontos fortes;
-- pontos fracos;
-- recomendações;
+- strengths;
+- weaknesses;
+- recommendations;
 - Markdown;
 - PDF.
 
-Melhorar:
+Improve:
 
-- permitir selecionar semana;
-- consultar relatórios antigos;
-- mostrar origem dos dados;
-- não misturar horas estimadas com horas registradas;
-- diferenciar falta de dados de zero;
-- gerar relatório somente com métricas válidas;
-- manter reflexões semanais associadas ao relatório;
-- evitar métricas duplicadas.
+- allow selecting a week;
+- consult old reports;
+- show the source of the data;
+- don't mix estimated hours with recorded hours;
+- distinguish missing data from zero;
+- generate a report only with valid metrics;
+- keep weekly reflections linked to the report;
+- avoid duplicate metrics.
 
 ## 13. Backup
 
-Manter exportação JSON.
+Keep JSON export.
 
-Adicionar:
+Add:
 
-- importação pela interface;
-- validação com Zod;
-- versionamento do schema;
-- preview antes de importar;
-- importação substituindo ou mesclando;
-- detecção de duplicidade;
-- relatório de erros;
-- backup completo;
-- backup seletivo;
-- migração da versão antiga;
-- opção de limpar todos os dados com confirmação reforçada.
+- import via the interface;
+- validation with Zod;
+- schema versioning;
+- a preview before importing;
+- import replacing or merging;
+- duplicate detection;
+- an error report;
+- a full backup;
+- a selective backup;
+- migration of the old version;
+- an option to clear all data with reinforced confirmation.
 
-## 14. Configurações
+## 14. Settings
 
-Criar uma área própria para:
+Create a dedicated area for:
 
-- data inicial;
+- start date;
 - timezone;
-- disponibilidade por dia da semana;
-- duração padrão;
-- tema;
-- preferências de notificação;
-- metas semanais;
-- regras de reagendamento;
-- preferências do timer;
-- dados e backup;
-- reinício do plano.
+- availability per day of the week;
+- default duration;
+- theme;
+- notification preferences;
+- weekly goals;
+- rescheduling rules;
+- timer preferences;
+- data and backup;
+- plan restart.
 
 ---
 
-# Readiness e tópicos de risco
+# Readiness and risk topics
 
-Não implemente readiness como uma fórmula arbitrária escondida.
+Don't implement readiness as an arbitrary hidden formula.
 
-Crie documentação da fórmula e testes.
+Create documentation of the formula and tests.
 
-A pontuação pode considerar:
+The score can consider:
 
-- conclusão do plano;
-- consistência;
+- plan completion;
+- consistency;
 - quizzes;
 - flashcards;
 - mocks;
-- retenção;
-- revisões atrasadas;
-- tempo real estudado.
+- retention;
+- overdue reviews;
+- real time studied.
 
-Mas deve:
+But it must:
 
-- ter pesos explícitos;
-- exigir quantidade mínima de dados;
-- limitar cada dimensão;
-- não punir áreas ainda não iniciadas como se fossem fracasso;
-- mostrar explicação ao usuário;
-- permitir inspecionar os fatores da pontuação.
+- have explicit weights;
+- require a minimum amount of data;
+- cap each dimension;
+- not punish areas not yet started as if they were a failure;
+- show an explanation to the user;
+- allow inspecting the score's factors.
 
-Exemplo conceitual:
+Conceptual example:
 
 ```ts
 type ReadinessBreakdown = {
@@ -1008,32 +1008,32 @@ type ReadinessBreakdown = {
 
 ## Heatmap
 
-O heatmap deve utilizar dados reais de atividade.
+The heatmap must use real activity data.
 
-Pode representar:
+It can represent:
 
-- minutos registrados por dia;
-- blocos concluídos;
-- sessões realizadas;
-- intensidade combinada.
+- minutes recorded per day;
+- completed blocks;
+- sessions carried out;
+- combined intensity.
 
-Escolha uma definição e deixe isso claro na interface.
+Choose a definition and make it clear in the interface.
 
-Não misture métricas diferentes sem explicação.
+Don't mix different metrics without explanation.
 
-## Tópicos de risco
+## Risk topics
 
-Um tópico pode ser considerado em risco por:
+A topic can be considered at risk due to:
 
-- erros repetidos;
-- baixa confiança;
-- dificuldade alta;
-- revisões vencidas;
-- desempenho ruim em mocks;
-- muitas marcações “Travei”;
-- baixa retenção.
+- repeated errors;
+- low confidence;
+- high difficulty;
+- overdue reviews;
+- poor performance in mocks;
+- many "Stuck" markings;
+- low retention.
 
-A função deve retornar não apenas o score, mas os motivos:
+The function must return not only the score, but the reasons:
 
 ```ts
 type RiskTopic = {
@@ -1046,13 +1046,13 @@ type RiskTopic = {
 
 ---
 
-# Experiência de usuário
+# User experience
 
-A interface deve priorizar clareza.
+The interface must prioritize clarity.
 
-## Navegação principal
+## Main navigation
 
-Sugestão:
+Suggestion:
 
 ```text
 Dashboard
@@ -1068,423 +1068,423 @@ Relatórios
 Configurações
 ```
 
-## Dashboard prioritário
+## Prioritized dashboard
 
-O topo do Dashboard deve mostrar:
+The top of the Dashboard must show:
 
-1. Estudo atual.
-2. Conteúdos pendentes.
-3. Revisões devidas.
-4. Próxima ação recomendada.
+1. Current study.
+2. Pending content.
+3. Due reviews.
+4. The next recommended action.
 
-Métricas secundárias devem aparecer abaixo.
+Secondary metrics should appear below.
 
-## Estados obrigatórios
+## Mandatory states
 
-Toda funcionalidade deve considerar:
+Every feature must consider:
 
 - loading;
-- vazio;
-- erro;
-- sucesso;
-- confirmação;
-- dados insuficientes;
-- operação em andamento.
+- empty;
+- error;
+- success;
+- confirmation;
+- insufficient data;
+- operation in progress.
 
-## Acessibilidade
+## Accessibility
 
-Implemente:
+Implement:
 
-- navegação por teclado;
-- foco visível;
+- keyboard navigation;
+- visible focus;
 - labels;
-- contraste;
-- ARIA quando necessário;
-- dialogs acessíveis;
-- mensagens de erro associadas aos campos;
-- suporte a redução de movimento;
-- atalhos que não interfiram com inputs e editores.
+- contrast;
+- ARIA when needed;
+- accessible dialogs;
+- error messages associated with the fields;
+- reduced-motion support;
+- shortcuts that don't interfere with inputs and editors.
 
-## Responsividade
+## Responsiveness
 
-A aplicação deve funcionar em:
+The application must work on:
 
 - desktop;
 - tablet;
-- celular.
+- mobile.
 
-O timer não pode ocupar espaço excessivo em telas menores.
+The timer must not take up excessive space on smaller screens.
 
 ---
 
-# Entregas
+# Deliveries
 
-## Entrega 0 — Auditoria e planejamento
+## Delivery 0 — Audit and planning
 
-Não escreva código ainda.
+Don't write code yet.
 
-Entregue:
+Deliver:
 
-- inventário de páginas;
-- inventário de componentes;
-- inventário de hooks;
-- inventário de utilitários;
-- inventário de fontes de dados;
-- mapa das chaves atuais do localStorage;
-- mapa de dependências;
-- problemas arquiteturais;
-- regras duplicadas;
-- funcionalidades incompletas;
-- funcionalidades descritas no README que não funcionam como esperado;
-- plano de migração;
-- riscos;
-- proposta da arquitetura nova.
+- a page inventory;
+- a component inventory;
+- a hook inventory;
+- a utility inventory;
+- a data-source inventory;
+- a map of the current localStorage keys;
+- a dependency map;
+- architectural problems;
+- duplicated rules;
+- incomplete features;
+- features described in the README that don't work as expected;
+- a migration plan;
+- risks;
+- a proposal for the new architecture.
 
-Identifique tudo que pode ser reaproveitado:
+Identify everything that can be reused:
 
-- conteúdo;
-- estilos;
-- componentes;
+- content;
+- styles;
+- components;
 - schemas;
-- utilitários;
-- testes;
+- utilities;
+- tests;
 - assets.
 
-## Entrega 1 — Fundação do projeto
+## Delivery 1 — Project foundation
 
-Criar:
+Create:
 
-- novo projeto Next.js;
-- App Router;
+- a new Next.js project;
+- the App Router;
 - TypeScript strict;
 - Tailwind;
-- componentes UI;
-- tema;
+- UI components;
+- a theme;
 - layout;
-- navegação;
-- responsividade;
+- navigation;
+- responsiveness;
 - lint;
-- formatação;
+- formatting;
 - aliases;
 - Vitest;
 - Testing Library;
 - Playwright;
-- tratamento de erros;
-- estrutura de features.
+- error handling;
+- the feature structure.
 
-Criar páginas vazias funcionais para todas as rotas.
+Create empty functional pages for all routes.
 
-Não implementar regras do produto nessa entrega.
+Don't implement product rules in this delivery.
 
-## Entrega 2 — Banco local, schemas e migração
+## Delivery 2 — Local database, schemas and migration
 
-Criar:
+Create:
 
 - IndexedDB;
 - schemas;
-- tabelas;
-- repositórios;
-- versionamento;
+- tables;
+- repositories;
+- versioning;
 - migrations;
 - backup;
-- importação;
-- exportação;
-- leitura do backup antigo;
-- testes de persistência.
+- import;
+- export;
+- reading the old backup;
+- persistence tests.
 
-Definir IDs estáveis para todos os conteúdos.
+Define stable IDs for all content.
 
-## Entrega 3 — Domínio de calendário e agenda
+## Delivery 3 — Calendar and schedule domain
 
-Implementar:
+Implement:
 
-- configurações semanais;
-- datas locais;
+- weekly settings;
+- local dates;
 - timezone;
-- dias de descanso;
-- scheduler;
-- disponibilidade;
-- divisão de conteúdos;
-- próxima data válida;
-- agenda efetiva;
-- testes de calendário.
+- rest days;
+- the scheduler;
+- availability;
+- content splitting;
+- the next valid date;
+- the effective schedule;
+- calendar tests.
 
-Testar obrigatoriamente início em:
+Mandatorily test starting on:
 
-- segunda;
-- quinta;
-- sábado;
-- domingo.
+- Monday;
+- Thursday;
+- Saturday;
+- Sunday.
 
-## Entrega 4 — Progresso e recuperação do plano
+## Delivery 4 — Progress and plan recovery
 
-Implementar:
+Implement:
 
 - status;
-- conclusão;
-- trava;
-- dificuldade;
-- confiança;
-- minutos;
-- notas;
-- reagendamento;
-- dia perdido;
-- mover plano;
-- pular;
-- desfazer;
-- histórico;
-- persistência.
+- completion;
+- stuck;
+- difficulty;
+- confidence;
+- minutes;
+- notes;
+- rescheduling;
+- missed day;
+- move the plan;
+- skip;
+- undo;
+- history;
+- persistence.
 
-## Entrega 5 — Página Plano
+## Delivery 5 — Plan page
 
-Construir a interface completa do Plano utilizando exclusivamente os domínios das entregas anteriores.
+Build the complete Plan interface using exclusively the domains of the previous deliveries.
 
-Não duplicar regras de calendário na página.
+Don't duplicate calendar rules on the page.
 
-## Entrega 6 — Dashboard
+## Delivery 6 — Dashboard
 
-Implementar primeiro:
+Implement first:
 
-- estudo atual;
-- pendências;
-- revisões;
-- progresso;
+- current study;
+- pending;
+- reviews;
+- progress;
 - streak;
-- calendário;
-- recomendações.
+- calendar;
+- recommendations.
 
-Depois adicionar métricas avançadas.
+Then add advanced metrics.
 
-Todos os dados devem ser derivados dos serviços centrais.
+All data must be derived from the central services.
 
-## Entrega 7 — Revisão espaçada e Revisar Hoje
+## Delivery 7 — Spaced repetition and Review Today
 
-Implementar:
+Implement:
 
-- domínio de revisão;
-- geração de ciclos;
-- fila unificada;
-- prioridades;
-- reagendamento;
-- conclusão;
-- histórico;
-- diário;
-- reflexão semanal;
-- próximo estudo.
+- the review domain;
+- cycle generation;
+- a unified queue;
+- priorities;
+- rescheduling;
+- completion;
+- history;
+- a journal;
+- weekly reflection;
+- next study.
 
-## Entrega 8 — Flashcards
+## Delivery 8 — Flashcards
 
-Migrar conteúdo e implementar todos os recursos descritos.
+Migrate the content and implement all the described features.
 
-## Entrega 9 — Quizzes
+## Delivery 9 — Quizzes
 
-Migrar as questões atuais, normalizar o schema e implementar todos os fluxos.
+Migrate the current questions, normalize the schema and implement all the flows.
 
-## Entrega 10 — Timer
+## Delivery 10 — Timer
 
-Criar timer global e associável às atividades.
+Create a global timer that can be linked to activities.
 
-## Entrega 11 — Playground
+## Delivery 11 — Playground
 
-Migrar Monaco, worker, testes e soluções salvas.
+Migrate Monaco, the worker, tests and saved solutions.
 
-## Entrega 12 — Mocks e behavioral
+## Delivery 12 — Mocks and behavioral
 
-Migrar:
+Migrate:
 
-- registros;
+- records;
 - STAR;
 - templates;
 - checklist;
-- rubricas;
-- áudio;
+- rubrics;
+- audio;
 - gaps;
-- readiness por mock.
+- per-mock readiness.
 
-## Entrega 13 — Notas, recursos e inglês técnico
+## Delivery 13 — Notes, resources and technical English
 
-Implementar os três módulos e seus vínculos com os outros domínios.
+Implement the three modules and their links with the other domains.
 
-## Entrega 14 — Readiness, risco e relatórios
+## Delivery 14 — Readiness, risk and reports
 
-Somente implemente após existir uma base real de dados.
+Only implement it once a real data base exists.
 
-Documentar as fórmulas.
+Document the formulas.
 
-Adicionar testes para todos os cálculos.
+Add tests for all the calculations.
 
-## Entrega 15 — Backup completo e migração final
+## Delivery 15 — Full backup and final migration
 
-Implementar:
+Implement:
 
-- importação do app anterior;
+- import from the previous app;
 - merge;
-- substituição;
-- validação;
-- relatório;
-- rollback em caso de erro.
+- replacement;
+- validation;
+- a report;
+- rollback on error.
 
-## Entrega 16 — Qualidade final
+## Delivery 16 — Final quality
 
-Executar:
+Run:
 
-- auditoria de acessibilidade;
-- testes unitários;
-- testes de integração;
-- testes E2E;
-- análise de bundle;
+- an accessibility audit;
+- unit tests;
+- integration tests;
+- E2E tests;
+- bundle analysis;
 - lazy loading;
-- tratamento de erros;
-- responsividade;
-- validação dos fluxos;
-- revisão do README.
+- error handling;
+- responsiveness;
+- flow validation;
+- a README review.
 
 ---
 
-# Testes mínimos
+# Minimum tests
 
-## Unitários
+## Unit
 
-Cobrir:
+Cover:
 
-- calendário;
-- progresso;
+- calendar;
+- progress;
 - scheduler;
-- reagendamento;
-- revisão;
-- repetição espaçada;
+- rescheduling;
+- review;
+- spaced repetition;
 - readiness;
-- tópicos de risco;
+- risk topics;
 - streak;
-- métricas;
-- importação;
-- migração;
-- validações.
+- metrics;
+- import;
+- migration;
+- validations.
 
-## Integração
+## Integration
 
-Garantir que:
+Ensure that:
 
-- Plano e Dashboard mostram o mesmo estudo atual;
-- Plano e Revisar Hoje mostram o mesmo próximo estudo;
-- concluir bloco atualiza o progresso;
-- marcar revisão cria item;
-- desmarcar remove item ainda não executado;
-- quiz errado cria revisão;
-- flashcard respondido atualiza ciclo;
-- gap de mock cria recomendação;
-- sessão do timer atualiza métricas;
-- reflexão salva aparece no relatório correto.
+- Plan and Dashboard show the same current study;
+- Plan and Review Today show the same next study;
+- completing a block updates the progress;
+- marking a review creates an item;
+- unmarking removes an item not yet executed;
+- a wrong quiz creates a review;
+- an answered flashcard updates the cycle;
+- a mock gap creates a recommendation;
+- a timer session updates the metrics;
+- a saved reflection appears in the correct report.
 
 ## E2E
 
-Criar cenários para:
+Create scenarios for:
 
-1. Configurar data inicial.
-2. Começar o plano em uma quinta-feira.
-3. Concluir o primeiro bloco.
-4. Não estudar no dia seguinte.
-5. Mover o conteúdo para frente.
-6. Reagendar outro bloco.
-7. Marcar conteúdo para revisão.
-8. Concluir uma revisão.
-9. Fazer quiz.
-10. Estudar flashcards.
-11. Registrar sessão do timer.
-12. Criar mock.
-13. Salvar reflexão semanal.
-14. Exportar backup.
-15. Limpar dados.
-16. Importar backup.
-17. Confirmar restauração.
-
----
-
-# Critérios globais de aceite
-
-A reconstrução estará concluída quando:
-
-- [ ] O app utiliza Next.js com App Router.
-- [ ] TypeScript está em modo estrito.
-- [ ] Não existe lógica de negócio centralizada em um único componente gigante.
-- [ ] O calendário começa corretamente em qualquer dia.
-- [ ] O sábado usa sua disponibilidade real.
-- [ ] O domingo respeita descanso.
-- [ ] O conteúdo não avança automaticamente com a data.
-- [ ] Dias perdidos podem ser recuperados.
-- [ ] Dashboard, Plano e Revisar Hoje são consistentes.
-- [ ] “O que estudar amanhã” corresponde à agenda.
-- [ ] Revisões não permanecem indevidamente na fila.
-- [ ] Reflexões anteriores podem ser consultadas.
-- [ ] Readiness e risco possuem explicação.
-- [ ] Heatmap possui definição clara.
-- [ ] Timer está ligado às atividades.
-- [ ] Mocks possuem sessões rastreáveis.
-- [ ] Todos os conteúdos antigos foram migrados.
-- [ ] Existe importação e exportação.
-- [ ] Dados antigos podem ser migrados.
-- [ ] Testes passam.
-- [ ] Lint passa.
-- [ ] TypeScript passa.
-- [ ] Build passa.
-- [ ] Fluxos principais possuem testes E2E.
-- [ ] A aplicação funciona em desktop e mobile.
-- [ ] O README representa o comportamento real.
+1. Configure the start date.
+2. Start the plan on a Thursday.
+3. Complete the first block.
+4. Don't study the next day.
+5. Move the content forward.
+6. Reschedule another block.
+7. Mark content for review.
+8. Complete a review.
+9. Take a quiz.
+10. Study flashcards.
+11. Record a timer session.
+12. Create a mock.
+13. Save a weekly reflection.
+14. Export a backup.
+15. Clear the data.
+16. Import a backup.
+17. Confirm the restoration.
 
 ---
 
-# Restrições
+# Global acceptance criteria
 
-Não faça:
+The rebuild will be complete when:
 
-- conversão automática arquivo por arquivo;
-- cópia da arquitetura antiga;
-- componente `App` concentrando toda a aplicação;
-- acesso direto ao storage em componentes;
-- cálculo diferente em cada página;
-- datas baseadas em labels fixos;
-- readiness sem explicação;
-- mocks de dados substituindo funcionalidades reais;
-- entrega de todas as features em um único passo;
-- remoção de conteúdo existente sem documentar;
-- alteração visual completa sem necessidade;
-- criação de backend nesta fase;
-- autenticação desnecessária para um app pessoal local-first.
+- [ ] The app uses Next.js with the App Router.
+- [ ] TypeScript is in strict mode.
+- [ ] There's no business logic centralized in a single giant component.
+- [ ] The calendar starts correctly on any day.
+- [ ] Saturday uses its real availability.
+- [ ] Sunday respects rest.
+- [ ] Content doesn't advance automatically with the date.
+- [ ] Missed days can be recovered.
+- [ ] Dashboard, Plan and Review Today are consistent.
+- [ ] "What to study tomorrow" matches the schedule.
+- [ ] Reviews don't stay in the queue improperly.
+- [ ] Previous reflections can be consulted.
+- [ ] Readiness and risk have an explanation.
+- [ ] The heatmap has a clear definition.
+- [ ] The timer is linked to the activities.
+- [ ] Mocks have trackable sessions.
+- [ ] All the old content was migrated.
+- [ ] There's import and export.
+- [ ] Old data can be migrated.
+- [ ] Tests pass.
+- [ ] Lint passes.
+- [ ] TypeScript passes.
+- [ ] The build passes.
+- [ ] The main flows have E2E tests.
+- [ ] The application works on desktop and mobile.
+- [ ] The README reflects the real behavior.
 
-# Resultado esperado de cada entrega
+---
 
-Ao terminar cada entrega, apresente:
+# Constraints
+
+Don't do:
+
+- automatic file-by-file conversion;
+- a copy of the old architecture;
+- an `App` component concentrating the whole application;
+- direct storage access in components;
+- a different calculation on each page;
+- dates based on fixed labels;
+- readiness without explanation;
+- data mocks replacing real features;
+- delivery of all features in a single step;
+- removal of existing content without documenting it;
+- a complete visual change without need;
+- creating a backend at this stage;
+- unnecessary authentication for a personal local-first app.
+
+# Expected result of each delivery
+
+When finishing each delivery, present:
 
 ```md
-## Entrega concluída
+## Delivery completed
 
-### Implementado
+### Implemented
 
-### Arquivos criados
+### Files created
 
-### Arquivos modificados
+### Files modified
 
-### Decisões técnicas
+### Technical decisions
 
-### Regras de negócio adicionadas
+### Business rules added
 
-### Testes adicionados
+### Tests added
 
-### Comandos executados
+### Commands run
 
-### Resultado do TypeScript
+### TypeScript result
 
-### Resultado do lint
+### Lint result
 
-### Resultado dos testes
+### Test result
 
-### Resultado do build
+### Build result
 
-### Pendências
+### Pending
 
-### Próxima entrega sugerida
+### Suggested next delivery
 ```
 
-Comece exclusivamente pela **Entrega 0 — Auditoria e planejamento**.
+Start exclusively with **Delivery 0 — Audit and planning**.
 
-Não escreva código nesta primeira etapa.
+Don't write code in this first step.
