@@ -1,27 +1,27 @@
-# Entrega 16 — Relatórios semanais
+# Delivery 16 — Weekly reports
 
-## Escopo
+## Scope
 
-A rota `/relatorios` consolida a agenda efetiva, evidências da Entrega 15 e a
-reflexão semanal já usada por Revisar Hoje.
+The `/relatorios` route consolidates the effective schedule, the evidence from Delivery 15 and the
+weekly reflection already used by Review Today.
 
-## Resultado
+## Result
 
-- navegação por semanas reais da agenda;
-- semanas passadas, atual e futuras planejadas;
-- progresso, atrasos, tempo planejado e tempo real;
-- métricas de revisões, flashcards, quizzes, mocks, Playground, Recursos,
-  Inglês Técnico e Notas;
-- readiness cumulativa até o final da semana;
-- tópicos fortes, riscos e recomendações explicáveis;
-- comparação com a semana anterior;
-- exportação Markdown;
-- impressão do navegador com layout próprio;
-- snapshot opcional e congelado por semana.
+- navigation by the schedule's real weeks;
+- past, current and planned future weeks;
+- progress, lateness, planned time and real time;
+- metrics for reviews, flashcards, quizzes, mocks, Playground, Resources,
+  Technical English and Notes;
+- cumulative readiness up to the end of the week;
+- strong topics, risks and explainable recommendations;
+- comparison with the previous week;
+- Markdown export;
+- browser printing with its own layout;
+- an optional snapshot frozen per week.
 
-## Limites
+## Limits
 
-Relatórios são derivados por padrão. Um snapshot preserva os números exibidos no
-momento em que foi salvo e pode ser excluído sem afetar os dados de origem.
+Reports are derived by default. A snapshot preserves the numbers shown at the
+moment it was saved and can be deleted without affecting the source data.
 
-A Entrega 17 não foi iniciada.
+Delivery 17 was not started.

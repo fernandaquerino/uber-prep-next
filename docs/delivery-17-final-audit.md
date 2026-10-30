@@ -1,35 +1,35 @@
-# Entrega 17 — Auditoria completa
+# Delivery 17 — Full audit
 
-## Resumo
+## Summary
 
-A estabilização final revisou produto, consistência, persistência, UX, acessibilidade, performance, testes e documentação. Não foram adicionados novos domínios de produto.
+The final stabilization reviewed product, consistency, persistence, UX, accessibility, performance, tests and documentation. No new product domains were added.
 
-## Correções principais
+## Main fixes
 
-- Dashboard, Plano, Revisar Hoje e Relatórios usam a disponibilidade semanal centralizada.
-- Settings legadas sem `weekdayAvailability` são normalizadas sem crash.
-- Backup passou a incluir quizzes estruturados, evidências e sessões de mocks, versões e vínculos de notas e snapshots.
-- Importação valida o envelope completo antes de abrir a transação.
-- Reset por módulo remove registros dependentes; reset total cobre todas as tabelas.
-- Botões destrutivos icon-only receberam nome acessível.
-- Log de debug de normalização de quizzes foi removido.
-- README, schema e documentação foram atualizados para o produto real.
+- Dashboard, Plan, Review Today and Reports use the centralized weekly availability.
+- Legacy settings without `weekdayAvailability` are normalized without a crash.
+- The backup now includes structured quizzes, evidence and mock sessions, versions and note links and snapshots.
+- Import validates the full envelope before opening the transaction.
+- A per-module reset removes dependent records; the full reset covers all the tables.
+- Icon-only destructive buttons received an accessible name.
+- The quiz-normalization debug log was removed.
+- The README, schema and documentation were updated to the real product.
 
-## Validação
+## Validation
 
-- `npm run typecheck`: passou.
-- `npm run lint`: passou.
-- `npm run format:check`: passou.
-- `npm run test`: 58 arquivos e 406 testes passaram.
-- `npm run build`: passou; 14 rotas do app foram pré-renderizadas.
-- `npm run test:e2e`: 56 testes passaram e 26 condicionais foram pulados, sem falhas.
+- `npm run typecheck`: passed.
+- `npm run lint`: passed.
+- `npm run format:check`: passed.
+- `npm run test`: 58 files and 406 tests passed.
+- `npm run build`: passed; 14 app routes were pre-rendered.
+- `npm run test:e2e`: 56 tests passed and 26 conditional ones were skipped, with no failures.
 
-O build emitiu um aviso não bloqueante sobre múltiplos `package-lock.json` acima da raiz do projeto.
+The build emitted a non-blocking warning about multiple `package-lock.json` files above the project root.
 
-## Limitações
+## Limitations
 
-- Áudios de mocks permanecem fora do backup JSON.
-- PDF usa a impressão nativa do navegador.
-- Não existe sincronização entre navegadores ou dispositivos.
+- Mock audio stays out of the JSON backup.
+- The PDF uses the browser's native printing.
+- There's no sync between browsers or devices.
 
-Não foi iniciada nenhuma funcionalidade posterior à auditoria.
+No feature after the audit was started.

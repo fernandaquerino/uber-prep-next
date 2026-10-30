@@ -1,43 +1,43 @@
-# Entrega 09 — Quizzes
+# Delivery 09 — Quizzes
 
-## Resumo
+## Summary
 
-Implementa o módulo de quizzes local-first com questões normalizadas, sessões persistidas, correção automática, autoavaliação, filtros, métricas iniciais e integração com a fila central de revisão.
+Implements the local-first quizzes module with normalized questions, persisted sessions, automatic grading, self-assessment, filters, initial metrics and integration with the central review queue.
 
-## Arquitetura adotada
+## Adopted architecture
 
-- `src/lib/domain/quizzes`: funções puras de normalização, validação, correção, scoring, filtros, quiz diário e métricas.
-- `src/lib/application/quizzes`: casos de uso com IndexedDB.
-- `src/components/features/quizzes`: tela de `/quizzes`.
-- `src/hooks/use-quizzes.ts` e `src/hooks/use-quiz-actions.ts`: acesso client-side ao banco.
+- `src/lib/domain/quizzes`: pure functions for normalization, validation, grading, scoring, filters, daily quiz and metrics.
+- `src/lib/application/quizzes`: use cases with IndexedDB.
+- `src/components/features/quizzes`: the `/quizzes` screen.
+- `src/hooks/use-quizzes.ts` and `src/hooks/use-quiz-actions.ts`: client-side access to the database.
 
-## Persistência
+## Persistence
 
-Foram adicionadas tabelas normalizadas:
+Normalized tables were added:
 
 - `quizQuestions`
 - `quizSessions`
 - `quizAnswers`
 - `quizMarkedQuestions`
 
-As tabelas legadas `quizAttempts` e `quizReviews` foram preservadas para compatibilidade, mas novas revisões usam `reviews` com `sourceType: "quiz"`.
+The legacy `quizAttempts` and `quizReviews` tables were preserved for compatibility, but new reviews use `reviews` with `sourceType: "quiz"`.
 
-## Funcionalidades
+## Features
 
-- Seed idempotente das questões antigas convertidas.
-- Quiz diário determinístico por data.
-- Sessões filtradas, revisão de erros e revisão devidas.
-- Respostas objetivas com correção automática.
-- Respostas abertas/interview com autoavaliação.
-- Questões marcadas.
-- Importação/exportação JSON.
-- Métricas reais com tratamento de amostra insuficiente.
-- Revisões de quiz integradas a Revisar Hoje.
+- Idempotent seed of the converted old questions.
+- A deterministic daily quiz by date.
+- Filtered sessions, mistake review and due reviews.
+- Objective answers with automatic grading.
+- Open/interview answers with self-assessment.
+- Flagged questions.
+- JSON import/export.
+- Real metrics with handling of an insufficient sample.
+- Quiz reviews integrated into Review Today.
 
-## Limitações atuais
+## Current limitations
 
-- A sessão é renderizada na própria página `/quizzes`, não em rota dedicada `/quizzes/session/[sessionId]`.
-- Tempo por questão já existe no schema, mas a UI atual grava `0` para evitar conflito com a regra de pureza do React Compiler.
-- Integração visual com Plano/Dashboard é mínima; os dados ficam disponíveis para próximas refinações.
-- Os blocos atuais do plano ainda não possuem `quizIds`, então o botão "Praticar quiz" por bloco depende de enriquecimento dos dados do plano.
-- Importação faz merge simples sem preview visual.
+- The session is rendered on the `/quizzes` page itself, not in a dedicated `/quizzes/session/[sessionId]` route.
+- Time per question already exists in the schema, but the current UI records `0` to avoid a conflict with the React Compiler's purity rule.
+- The visual integration with Plan/Dashboard is minimal; the data is available for future refinements.
+- The current plan blocks don't yet have `quizIds`, so the per-block "Practice quiz" button depends on enriching the plan's data.
+- Import does a simple merge without a visual preview.
