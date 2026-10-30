@@ -1,10 +1,10 @@
-# Domínio de Progresso do Plano
+# Plan Progress Domain
 
-O domínio de progresso vive em `src/lib/domain/progress` e não depende de React, Dexie, repositories ou APIs do navegador.
+The progress domain lives in `src/lib/domain/progress` and doesn't depend on React, Dexie, repositories or browser APIs.
 
-## Estados
+## States
 
-O status persistido do bloco representa execução:
+The block's persisted status represents execution:
 
 - `pending`;
 - `in_progress`;
@@ -12,25 +12,25 @@ O status persistido do bloco representa execução:
 - `stuck`;
 - `skipped`.
 
-Reagendamento é representado por `scheduledDate`, `originalScheduledDate`, `ScheduleOverride` e histórico.
+Rescheduling is represented by `scheduledDate`, `originalScheduledDate`, `ScheduleOverride` and history.
 
-## Status do Dia
+## Day status
 
-O status do dia é derivado dos blocos:
+The day status is derived from the blocks:
 
-- todos pendentes ou sem blocos: `not_started`;
-- algum em andamento: `in_progress`;
-- todos concluídos: `completed`;
-- todos pulados: `skipped`;
-- algum travado sem em andamento: `stuck`;
-- misturas de concluído, pulado e pendente: `partial`.
+- all pending or no blocks: `not_started`;
+- any in progress: `in_progress`;
+- all completed: `completed`;
+- all skipped: `skipped`;
+- any stuck with none in progress: `stuck`;
+- mixes of completed, skipped and pending: `partial`.
 
-## Métricas
+## Metrics
 
-`completionPercentage` considera apenas concluídos.
+`completionPercentage` considers only completed ones.
 
-`resolutionPercentage` considera concluídos + pulados, para diferenciar “feito” de “decidido”.
+`resolutionPercentage` considers completed + skipped, to distinguish "done" from "decided".
 
 ## Undo
 
-Eventos guardam snapshots antes/depois. O undo cria novo evento `undone`; histórico não é apagado.
+Events keep before/after snapshots. Undo creates a new `undone` event; history is not erased.

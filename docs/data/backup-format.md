@@ -1,8 +1,8 @@
 # Backup Format
 
-Exportação e importação de dados em JSON.
+Data export and import in JSON.
 
-## Estrutura do arquivo
+## File structure
 
 ```json
 {
@@ -46,25 +46,25 @@ Exportação e importação de dados em JSON.
 }
 ```
 
-## Constantes
+## Constants
 
 ```ts
 BACKUP_APP_ID = "uber-prep";
 BACKUP_VERSION = 1;
 ```
 
-## Notas importantes
+## Important notes
 
-- **Áudio não incluído**: Blobs de áudio (`mockAudio`) são excluídos do backup. O campo `audioCount` indica quantos arquivos existiam.
-- **Metadata versionada**: O array `metadata` participa de exportação e restauração para preservar o histórico de migrations e seeds.
-- **Timer separado**: `activeTimer` guarda a sessão em andamento, `timerSessions` guarda histórico oficial e `timerSettings` guarda preferências.
+- **Audio not included**: audio blobs (`mockAudio`) are excluded from the backup. The `audioCount` field indicates how many files existed.
+- **Versioned metadata**: the `metadata` array takes part in export and restore to preserve the history of migrations and seeds.
+- **Separate timer**: `activeTimer` keeps the in-progress session, `timerSessions` keeps the official history and `timerSettings` keeps the preferences.
 
-## Modos de importação
+## Import modes
 
-| Modo      | Comportamento                                                                                                      |
+| Mode      | Behavior                                                                                                           |
 | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| `merge`   | Registros já existentes são mantidos. Apenas novos IDs são inseridos. Conflitos são logados em `result.conflicts`. |
-| `replace` | Todas as tabelas do backup são limpas antes da importação. `mockAudio` permanece separado.                         |
+| `merge`   | Records that already exist are kept. Only new IDs are inserted. Conflicts are logged in `result.conflicts`.        |
+| `replace` | All the backup's tables are cleared before the import. `mockAudio` stays separate.                                 |
 
 ## API
 
@@ -73,23 +73,23 @@ import { createBackupRepository } from "@/lib/repositories/backup.repository";
 
 const repo = createBackupRepository(db);
 
-// Exportar
+// Export
 const file = await repo.export();
 const json = JSON.stringify(file, null, 2);
 
-// Importar
+// Import
 const result = await repo.import(parsedFile, "merge");
 // result.success: boolean
 // result.counts: Record<keyof BackupData, number>
 // result.conflicts: Array<{ table, id, reason }>
 ```
 
-## Validação
+## Validation
 
-O schema `backupFileSchema` (em `src/lib/validation/backup.schemas.ts`) verifica:
+The `backupFileSchema` schema (in `src/lib/validation/backup.schemas.ts`) checks:
 
 - `app === "uber-prep"`
 - `backupVersion === 1`
-- Envelope e coleção `data` presentes
-- Coleções ausentes de backups antigos normalizadas para `[]`
-- Validação concluída antes de abrir a transação de importação
+- The envelope and the `data` collection are present
+- Collections missing from old backups are normalized to `[]`
+- Validation completes before opening the import transaction

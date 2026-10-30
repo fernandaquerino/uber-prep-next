@@ -1,19 +1,19 @@
-# Auditoria de dados
+# Data audit
 
 ## IndexedDB
 
-O banco Dexie possui schema versionado, seeds idempotentes e migrations para dados legados. IDs estáveis evitam duplicação de conteúdo inicial.
+The Dexie database has a versioned schema, idempotent seeds and migrations for legacy data. Stable IDs avoid duplication of the initial content.
 
 ## Backup
 
-O backup cobre progresso, revisões, flashcards, quizzes, timer, mocks estruturados, notas e versões, reflexões, relatórios, recursos, inglês técnico e configurações.
+The backup covers progress, reviews, flashcards, quizzes, timer, structured mocks, notes and versions, reflections, reports, resources, technical English and settings.
 
-Antes da transação, `backupFileSchema` valida app, versão e estrutura. Coleções adicionadas em versões recentes usam `[]` como default para compatibilidade com backups antigos.
+Before the transaction, `backupFileSchema` validates the app, version and structure. Collections added in recent versions use `[]` as a default for compatibility with old backups.
 
 ## Reset
 
-Resets por módulo removem tabelas dependentes sem atingir outros módulos. O catálogo de questões de quiz é preservado no reset de progresso; o reset total remove catálogo e metadata para permitir reseed limpo.
+Per-module resets remove dependent tables without touching other modules. The quiz question catalog is preserved on a progress reset; the full reset removes the catalog and metadata to allow a clean reseed.
 
-## Áudio
+## Audio
 
-Blobs de `mockAudio` não entram no JSON. `audioCount` e `audioNote` tornam a limitação explícita.
+`mockAudio` blobs don't enter the JSON. `audioCount` and `audioNote` make the limitation explicit.

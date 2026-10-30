@@ -1,39 +1,39 @@
-# Feature Quizzes
+# Quizzes Feature
 
-## Página `/quizzes`
+## `/quizzes` page
 
-A página contém:
+The page contains:
 
-- Cabeçalho.
-- Resumo real.
-- Quiz diário.
-- Ações de prática.
-- Filtros rápidos.
-- Banco de questões.
-- Sessão interativa.
+- A header.
+- A real summary.
+- The daily quiz.
+- Practice actions.
+- Quick filters.
+- The question bank.
+- An interactive session.
 
-## Fluxos
+## Flows
 
-### Quiz diário
+### Daily quiz
 
-Seleciona até 10 questões de forma determinística para o dia atual. Prioriza revisões devidas, erros e marcadas.
+Selects up to 10 questions deterministically for the current day. Prioritizes due reviews, mistakes and flagged ones.
 
-### Nova sessão
+### New session
 
-Cria sessão com as questões filtradas.
+Creates a session with the filtered questions.
 
-### Revisar erros
+### Review mistakes
 
-Cria sessão com questões derivadas do histórico com score menor que 1.
+Creates a session with questions derived from history with a score lower than 1.
 
-### Revisões devidas
+### Due reviews
 
-Cria sessão a partir de questões com `ReviewRecord` vencido.
+Creates a session from questions with an overdue `ReviewRecord`.
 
-## Estados
+## States
 
-- Loading com skeleton.
-- Erro com retry.
-- Dados insuficientes para métricas.
-- Sessão em andamento.
-- Banco filtrado vazio.
+- Loading with a skeleton.
+- Error with retry.
+- Insufficient data for metrics.
+- Session in progress.
+- Empty filtered bank.

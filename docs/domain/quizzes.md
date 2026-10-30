@@ -1,14 +1,14 @@
-# Domínio de Quizzes
+# Quizzes Domain
 
-## Entidades
+## Entities
 
-- `QuizQuestionRecord`: conteúdo da questão.
-- `QuizSessionRecord`: sessão de prática.
-- `QuizAnswerRecord`: resposta/draft por sessão e questão.
-- `QuizAttemptRecord`: resumo histórico de sessão concluída.
-- `ReviewRecord`: revisão espaçada central, usando `sourceType: "quiz"`.
+- `QuizQuestionRecord`: the question's content.
+- `QuizSessionRecord`: a practice session.
+- `QuizAnswerRecord`: an answer/draft per session and question.
+- `QuizAttemptRecord`: a historical summary of a completed session.
+- `ReviewRecord`: the central spaced-repetition review, using `sourceType: "quiz"`.
 
-## Tipos de questão
+## Question types
 
 - `single_choice`
 - `multiple_choice`
@@ -16,27 +16,27 @@
 - `open_text`
 - `interview`
 
-## Correção
+## Grading
 
-Questões objetivas são corrigidas por funções puras:
+Objective questions are graded by pure functions:
 
 - `correctSingleChoiceAnswer`
 - `correctMultipleChoiceAnswer`
 - `correctTrueFalseAnswer`
 
-Questões abertas e interview exigem `QuizSelfAssessment`:
+Open and interview questions require a `QuizSelfAssessment`:
 
 - `incorrect = 0`
 - `partial = 0.5`
 - `correct = 1`
 
-## Revisão espaçada
+## Spaced repetition
 
-O módulo não cria uma segunda regra de repetição. Ele usa o domínio central de reviews:
+The module doesn't create a second repetition rule. It uses the central reviews domain:
 
 ```ts
 sourceType: "quiz";
 sourceId: question.id;
 ```
 
-Respostas erradas/parciais agendam revisão curta. Respostas corretas avançam o ciclo central.
+Wrong/partial answers schedule a short review. Correct answers advance the central cycle.

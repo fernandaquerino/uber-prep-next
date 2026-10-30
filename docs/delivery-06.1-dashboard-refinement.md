@@ -1,57 +1,57 @@
-# Entrega 06.1 — Refinamento do Dashboard
+# Delivery 06.1 — Dashboard refinement
 
-## Problemas anteriores corrigidos
+## Previous problems fixed
 
-| Problema                             | Solução                                                   |
+| Problem                              | Solution                                                  |
 | ------------------------------------ | --------------------------------------------------------- |
-| Cards largos com pouco conteúdo      | Layout 2-colunas no desktop, cards com densidade adequada |
-| Recomendações ocupavam espaço demais | Substituídas por prioridades compactas (max 3 itens)      |
-| Estado positivo em card grande       | Banner inline de 1 linha                                  |
-| Calendário de atividade pequeno      | Componente dedicado com rows de dias                      |
-| Falta de progresso por categoria     | Seção com barra por categoria usando cores reais          |
-| Falta de resumo semanal              | Widget de 7 dias + quick summary na coluna lateral        |
-| Falta de identidade visual           | Bordas coloridas por categoria, indicadores por status    |
-| Sem período do plano no cabeçalho    | Header com data, semana e período                         |
-| Refresh sem feedback                 | Botão com `Loader2` animado e `isRefreshing` state        |
+| Wide cards with little content       | 2-column layout on desktop, cards with adequate density   |
+| Recommendations took up too much space | Replaced by compact priorities (max 3 items)            |
+| Positive state in a large card       | A 1-line inline banner                                    |
+| Small activity calendar              | A dedicated component with day rows                       |
+| No per-category progress             | A section with a per-category bar using real colors       |
+| No weekly summary                    | A 7-day widget + a quick summary in the side column        |
+| No visual identity                   | Per-category colored borders, per-status indicators       |
+| No plan period in the header         | A header with the date, week and period                   |
+| Refresh with no feedback             | A button with an animated `Loader2` and `isRefreshing` state |
 
-## Nova hierarquia do Dashboard
+## New Dashboard hierarchy
 
 ```
-1. Cabeçalho (data · semana · período)
-2. Foco do dia + Resumo rápido semanal (2 colunas)
-3. Prioridades compactas
-4. Progresso geral + Progresso por área (2 colunas)
-5. Semana atual — 7 dias
-6. Próximos estudos + Atividade (2 colunas)
-7. Consistência
+1. Header (date · week · period)
+2. Day focus + Weekly quick summary (2 columns)
+3. Compact priorities
+4. Overall progress + Progress by area (2 columns)
+5. Current week — 7 days
+6. Upcoming studies + Activity (2 columns)
+7. Consistency
 ```
 
-## Componentes criados
+## Components created
 
-| Arquivo                           | Responsabilidade                                |
+| File                              | Responsibility                                  |
 | --------------------------------- | ----------------------------------------------- |
-| `dashboard-focus.tsx`             | Estudo atual (2-col: foco + week quick summary) |
-| `dashboard-priorities.tsx`        | Prioridades compactas (max 3)                   |
-| `dashboard-progress-section.tsx`  | Progresso geral + por área (2 colunas)          |
-| `dashboard-week-days.tsx`         | Vista dos 7 dias da semana atual                |
-| `dashboard-upcoming-enhanced.tsx` | Próximos estudos com mais contexto              |
-| `dashboard-activity-enhanced.tsx` | Calendário de atividade com legenda clara       |
-| `dashboard-consistency.tsx`       | Consistência em grid compacto (4 métricas)      |
+| `dashboard-focus.tsx`             | Current study (2-col: focus + week quick summary) |
+| `dashboard-priorities.tsx`        | Compact priorities (max 3)                      |
+| `dashboard-progress-section.tsx`  | Overall progress + by area (2 columns)          |
+| `dashboard-week-days.tsx`         | View of the current week's 7 days               |
+| `dashboard-upcoming-enhanced.tsx` | Upcoming studies with more context              |
+| `dashboard-activity-enhanced.tsx` | Activity calendar with a clear legend           |
+| `dashboard-consistency.tsx`       | Consistency in a compact grid (4 metrics)       |
 
-## Componentes removidos
+## Components removed
 
-- `dashboard-current-study.tsx` → absorvido em `dashboard-focus.tsx`
-- `dashboard-today-progress.tsx` → absorvido no focus
-- `dashboard-progress.tsx` → substituído por `dashboard-progress-section.tsx`
-- `dashboard-streak.tsx` → substituído por `dashboard-consistency.tsx`
-- `dashboard-recommendations.tsx` → substituído por `dashboard-priorities.tsx`
-- `dashboard-overdue.tsx` → absorvido em prioridades
-- `dashboard-upcoming.tsx` → substituído por `dashboard-upcoming-enhanced.tsx`
-- `dashboard-activity-calendar.tsx` → substituído por `dashboard-activity-enhanced.tsx`
+- `dashboard-current-study.tsx` → absorbed into `dashboard-focus.tsx`
+- `dashboard-today-progress.tsx` → absorbed into the focus
+- `dashboard-progress.tsx` → replaced by `dashboard-progress-section.tsx`
+- `dashboard-streak.tsx` → replaced by `dashboard-consistency.tsx`
+- `dashboard-recommendations.tsx` → replaced by `dashboard-priorities.tsx`
+- `dashboard-overdue.tsx` → absorbed into priorities
+- `dashboard-upcoming.tsx` → replaced by `dashboard-upcoming-enhanced.tsx`
+- `dashboard-activity-calendar.tsx` → replaced by `dashboard-activity-enhanced.tsx`
 
 ## View model
 
-A arquitetura agora usa um `DashboardViewModel` completo com todas as seções pré-computadas. Os componentes recebem apenas dados formatados, sem calcular nada.
+The architecture now uses a complete `DashboardViewModel` with all the sections pre-computed. The components receive only formatted data, computing nothing.
 
 ```ts
 type DashboardViewModel = {
@@ -68,65 +68,65 @@ type DashboardViewModel = {
 };
 ```
 
-## Novos selectors de domínio
+## New domain selectors
 
 `src/lib/domain/progress/dashboard-selectors.ts`:
 
-- `getPlanProgressByCategory()` — agrupa itens por categoria
-- `getCurrentWeekDays()` — 7 dias da semana atual com status calculado
-- `getWeekItemSummary()` — contagens resumidas da semana
-- `getUpcomingStudyItems()` — próximos N blocos não concluídos
-- `getActivityWeeks()` — semanas de atividade para o heatmap
+- `getPlanProgressByCategory()` — groups items by category
+- `getCurrentWeekDays()` — the current week's 7 days with a computed status
+- `getWeekItemSummary()` — the week's summary counts
+- `getUpcomingStudyItems()` — the next N uncompleted blocks
+- `getActivityWeeks()` — activity weeks for the heatmap
 
-## Progresso por categoria
+## Progress by category
 
-Usa exclusivamente dados reais do effective schedule. Categorias com 0 blocos são omitidas. O estado "não iniciado" mostra "Não iniciado · 0/N" em vez de "0%" em card grande.
+Uses exclusively real data from the effective schedule. Categories with 0 blocks are omitted. The "not started" state shows "Não iniciado · 0/N" instead of "0%" in a large card.
 
-## Calendário de atividade
+## Activity calendar
 
-- Definição clara: "Cada célula representa a quantidade de blocos concluídos naquele dia."
-- Day labels alternados (Seg, Qua, Sex, Dom) para economia de espaço
-- Estado vazio com orientação: "Conclua blocos para visualizar sua consistência."
+- A clear definition: "Each cell represents the number of blocks completed that day."
+- Alternating day labels (Seg, Qua, Sex, Dom) to save space
+- An empty state with guidance: "Conclua blocos para visualizar sua consistência."
 
-## Consistência
+## Consistency
 
-Grid compacto com 4 métricas: sequência atual, recorde, dias esta semana, total de dias estudados.
+A compact grid with 4 metrics: current streak, record, days this week, total days studied.
 
-Tooltip explicando a regra (dias de descanso não quebram a sequência).
+A tooltip explaining the rule (rest days don't break the streak).
 
-## Prioridades
+## Priorities
 
-Substituem as antigas "recomendações". Máximo de 3 itens. Estado positivo vira banner inline de 1 linha.
+Replace the old "recommendations". A maximum of 3 items. The positive state becomes a 1-line inline banner.
 
-## Refresh sem flicker
+## Flicker-free refresh
 
-O hook `useDashboard` segue o mesmo padrão stale-while-revalidate da Entrega 05.3:
+The `useDashboard` hook follows the same stale-while-revalidate pattern as Delivery 05.3:
 
-- `refresh()` define `isRefreshing=true` e incrementa `rev`
-- O efeito busca novos dados sem tocar no estado `loading`
-- Dados existentes permanecem visíveis durante o re-fetch
-- Botão mostra `Loader2` animado enquanto `isRefreshing=true`
+- `refresh()` sets `isRefreshing=true` and increments `rev`
+- The effect fetches new data without touching the `loading` state
+- Existing data stays visible during the re-fetch
+- The button shows an animated `Loader2` while `isRefreshing=true`
 
-## Métricas propositalmente omitidas
+## Deliberately omitted metrics
 
-- Readiness (sem dados suficientes)
-- Domínio por tópico (depende de quizzes/mocks)
-- Heatmap de conhecimento (depende de múltiplos módulos)
-- Skill tree (prematura)
-- Métricas de timer, flashcards, quizzes, mocks
-- Risco de esquecimento
+- Readiness (not enough data)
+- Per-topic mastery (depends on quizzes/mocks)
+- Knowledge heatmap (depends on multiple modules)
+- Skill tree (premature)
+- Timer, flashcard, quiz, mock metrics
+- Forgetting risk
 
-## Responsividade
+## Responsiveness
 
-- Desktop (≥1024px): layout em 2-3 colunas
-- Tablet (768px): layout em 2 colunas onde possível
-- Mobile (375px): stack vertical, sem overflow horizontal
+- Desktop (≥1024px): a 2-3 column layout
+- Tablet (768px): a 2-column layout where possible
+- Mobile (375px): vertical stack, no horizontal overflow
 
-## Acessibilidade
+## Accessibility
 
-- Região semana: `role="list"` com `aria-label` por dia
-- Calendário de atividade: `role="img"` com `aria-label`
-- `aria-label` em cells individuais com informação legível
-- Botão de refresh com `aria-label` dinâmico (estado de carregamento)
-- Prioridades com `aria-labelledby`
-- Dias de semana com `title` attribute para tooltip nativo
+- Week region: `role="list"` with an `aria-label` per day
+- Activity calendar: `role="img"` with an `aria-label`
+- `aria-label` on individual cells with readable information
+- Refresh button with a dynamic `aria-label` (loading state)
+- Priorities with `aria-labelledby`
+- Weekday names with a `title` attribute for a native tooltip

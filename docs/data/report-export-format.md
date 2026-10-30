@@ -1,34 +1,34 @@
-# Formato de exportação de relatório
+# Report Export Format
 
 ## Markdown
 
-Nome sugerido:
+Suggested name:
 
 ```text
-uber-prep-semana-{numero}-{inicio}.md
+uber-prep-week-{number}-{start}.md
 ```
 
-Seções:
+Sections:
 
-1. título, período, status e data de geração;
-2. tabela de métricas;
-3. tempo por categoria;
-4. tópicos fortes;
-5. tópicos de risco;
-6. reflexão;
-7. próximos passos.
+1. title, period, status and generation date;
+2. metrics table;
+3. time per category;
+4. strong topics;
+5. risk topics;
+6. reflection;
+7. next steps.
 
-Valores sem evidência são exportados como `Dados insuficientes`.
+Values without evidence are exported as `Insufficient data`.
 
-## Snapshot IndexedDB
+## IndexedDB snapshot
 
-Tabela:
+Table:
 
 ```text
 weeklyReportSnapshots
 ```
 
-Campos:
+Fields:
 
 ```ts
 type WeeklyReportSnapshotRecord = {
@@ -41,5 +41,5 @@ type WeeklyReportSnapshotRecord = {
 };
 ```
 
-Snapshots são incluídos no backup geral. Backups antigos sem essa coleção
-continuam válidos e recebem uma lista vazia durante a validação.
+Snapshots are included in the general backup. Old backups without this collection
+are still valid and receive an empty list during validation.

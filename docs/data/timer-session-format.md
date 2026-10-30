@@ -71,10 +71,10 @@ type TimerSettingsRecord = {
 
 ## Backup
 
-Backups exportam:
+Backups export:
 
 - `activeTimer`
 - `timerSessions`
 - `timerSettings`
 
-Importação em `replace` limpa as três tabelas. Importação em `merge` preserva registros existentes por ID.
+A `replace` import clears the three tables. A `merge` import preserves existing records by ID.

@@ -1,6 +1,6 @@
-# Formato de Questões de Quiz
+# Quiz Question Format
 
-## Formato normalizado
+## Normalized format
 
 ```ts
 type QuizQuestionRecord = {
@@ -27,9 +27,9 @@ type QuizQuestionRecord = {
 };
 ```
 
-## Regras
+## Rules
 
-- Opções têm IDs estáveis gerados a partir do ID da questão.
-- Questões abertas não têm resposta correta objetiva.
-- `referenceAnswer` é usado apenas para autoavaliação humana.
-- `lifecycleStatus: "archived"` preserva histórico e remove da prática padrão.
+- Options have stable IDs generated from the question's ID.
+- Open questions have no objective correct answer.
+- `referenceAnswer` is used only for human self-assessment.
+- `lifecycleStatus: "archived"` preserves history and removes it from the default practice.

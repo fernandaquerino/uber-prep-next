@@ -1,20 +1,20 @@
-# Auditoria de produto
+# Product audit
 
-## Respostas centrais
+## Core answers
 
-- **O que estudar agora?** Dashboard e Plano consultam `getCurrentStudyState` sobre a agenda efetiva.
-- **O que revisar hoje?** Revisar Hoje usa a fila normalizada de revisões.
-- **Estou atrasada?** Atrasos são derivados da data efetiva e aparecem no Dashboard e Plano.
-- **Quanto evoluí?** Dashboard e Relatórios usam evidências reais, sem converter ausência de dados em zero.
-- **Quais tópicos estão em risco?** A camada de evidências explica motivos e recomenda ações.
-- **O que fazer depois?** Próximo estudo respeita descanso e disponibilidade configurada.
-- **Onde estão registros e progresso?** Navegação principal expõe Notas, Mocks, Plano e Relatórios.
-- **Como recuperar dados?** Configurações contém exportação, importação validada e reset confirmado.
+- **What to study now?** Dashboard and Plan consult `getCurrentStudyState` over the effective schedule.
+- **What to review today?** Review Today uses the normalized review queue.
+- **Am I behind?** Lateness is derived from the effective date and appears in the Dashboard and Plan.
+- **How much have I progressed?** Dashboard and Reports use real evidence, without converting absence of data into zero.
+- **Which topics are at risk?** The evidence layer explains reasons and recommends actions.
+- **What to do next?** The next study respects rest and the configured availability.
+- **Where are records and progress?** The main navigation exposes Notes, Mocks, Plan and Reports.
+- **How to recover data?** Settings contains export, validated import and a confirmed reset.
 
-## Consistência verificada
+## Verified consistency
 
-Dashboard, Plano, Revisar Hoje e Relatórios compartilham configurações, scheduler, agenda efetiva e seletores de progresso. Categorias e tópicos são normalizados na camada de domínio.
+Dashboard, Plan, Review Today and Reports share settings, the scheduler, the effective schedule and the progress selectors. Categories and topics are normalized in the domain layer.
 
-## Decisões
+## Decisions
 
-Métricas calculadas continuam somente leitura. Reflexões semanais são a exceção editável e usam a mesma fonte em Revisar Hoje e Relatórios.
+Computed metrics stay read-only. Weekly reflections are the editable exception and use the same source in Review Today and Reports.

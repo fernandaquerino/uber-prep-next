@@ -1,26 +1,26 @@
-# Entrega 02 — Banco local, schemas, repositories e migração de dados
+# Delivery 02 — Local database, schemas, repositories and data migration
 
-## Resumo
+## Summary
 
-Implementação completa da camada de dados usando IndexedDB via Dexie 4. Todos os dados do app são persistidos localmente no browser, com migração automática dos dados legados do localStorage.
+A complete implementation of the data layer using IndexedDB via Dexie 4. All the app's data is persisted locally in the browser, with automatic migration of the legacy localStorage data.
 
-## Arquitetura
+## Architecture
 
 ```
 src/
 ├── types/
-│   ├── database.ts          # Todos os tipos de registro (15 tabelas)
-│   ├── legacy.ts            # Tipos e chaves do localStorage legado
-│   └── backup.ts            # Tipos para export/import de backup
+│   ├── database.ts          # All the record types (15 tables)
+│   ├── legacy.ts            # Legacy localStorage types and keys
+│   └── backup.ts            # Types for backup export/import
 ├── lib/
 │   ├── db/
-│   │   ├── constants.ts     # DATABASE_NAME, DATABASE_VERSION, IDs, limites
-│   │   ├── schema.ts        # UberPrepDatabase extends Dexie (15 tabelas)
+│   │   ├── constants.ts     # DATABASE_NAME, DATABASE_VERSION, IDs, limits
+│   │   ├── schema.ts        # UberPrepDatabase extends Dexie (15 tables)
 │   │   ├── db.ts            # getDb(), createDatabase(), _resetDbSingleton()
 │   │   ├── errors.ts        # DatabaseError, SsrAccessError, etc.
-│   │   ├── seed.ts          # Seeds idempotentes (flashcards iniciais, settings)
-│   │   └── migrations.ts    # Migração one-time do localStorage para IndexedDB
-│   ├── repositories/        # 12 repositórios tipados
+│   │   ├── seed.ts          # Idempotent seeds (initial flashcards, settings)
+│   │   └── migrations.ts    # One-time migration from localStorage to IndexedDB
+│   ├── repositories/        # 12 typed repositories
 │   │   ├── settings.repository.ts
 │   │   ├── progress.repository.ts
 │   │   ├── reviews.repository.ts
@@ -34,34 +34,34 @@ src/
 │   │   ├── backup.repository.ts
 │   │   └── migration.repository.ts
 │   ├── data/
-│   │   └── initial-flashcards.ts   # 40 flashcards iniciais (fc-1..fc-40)
+│   │   └── initial-flashcards.ts   # 40 initial flashcards (fc-1..fc-40)
 │   └── validation/
-│       ├── legacy.schemas.ts        # Zod tolerante para dados do localStorage
-│       ├── database.schemas.ts      # Zod estrito para registros do IndexedDB
-│       └── backup.schemas.ts        # Zod para validar arquivos de backup
+│       ├── legacy.schemas.ts        # Tolerant Zod for localStorage data
+│       ├── database.schemas.ts      # Strict Zod for IndexedDB records
+│       └── backup.schemas.ts        # Zod to validate backup files
 ├── hooks/
-│   ├── use-database-status.ts       # Estado do banco + seed automático
-│   └── use-legacy-migration.ts      # Controle da migração legado
+│   ├── use-database-status.ts       # Database state + automatic seed
+│   └── use-legacy-migration.ts      # Legacy migration control
 ├── features/backup/components/
-│   ├── legacy-migration-check.tsx   # Wrapper com hook + dialog
-│   ├── migration-dialog.tsx         # UI do diálogo de migração
-│   └── migration-status.tsx         # Badge de status da migração
+│   ├── legacy-migration-check.tsx   # Wrapper with hook + dialog
+│   ├── migration-dialog.tsx         # Migration dialog UI
+│   └── migration-status.tsx         # Migration status badge
 └── test/
-    └── indexed-db.ts                # Helper createTestDatabase() com fake-indexeddb
+    └── indexed-db.ts                # createTestDatabase() helper with fake-indexeddb
 ```
 
-## Fluxo de inicialização
+## Initialization flow
 
-1. `AppLayout` renderiza `<LegacyMigrationCheck />`
-2. `useLegacyMigration` checa se há dados legados no localStorage e se a migração já foi feita
-3. Se necessário, exibe `MigrationDialog` para o usuário confirmar
-4. `runLegacyMigration(db)` executa a migração (idempotente)
-5. `useDatabaseStatus` inicializa o banco e executa `runSeeds` na primeira visita
+1. `AppLayout` renders `<LegacyMigrationCheck />`
+2. `useLegacyMigration` checks whether there's legacy data in localStorage and whether the migration has already been done
+3. If needed, it shows `MigrationDialog` for the user to confirm
+4. `runLegacyMigration(db)` runs the migration (idempotent)
+5. `useDatabaseStatus` initializes the database and runs `runSeeds` on the first visit
 
-## Checklist de validação
+## Validation checklist
 
-- [x] `npm run typecheck` — sem erros
-- [x] `npm run lint` — sem warnings
-- [x] `npm run format:check` — todos os arquivos formatados
-- [x] `npm test` — 51 testes passando
-- [x] `npm run build` — build de produção bem-sucedido
+- [x] `npm run typecheck` — no errors
+- [x] `npm run lint` — no warnings
+- [x] `npm run format:check` — all files formatted
+- [x] `npm test` — 51 tests passing
+- [x] `npm run build` — successful production build

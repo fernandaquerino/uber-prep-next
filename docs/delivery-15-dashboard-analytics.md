@@ -1,28 +1,28 @@
-# Entrega 15 — Dashboard Analytics
+# Delivery 15 — Dashboard Analytics
 
-## Escopo
+## Scope
 
-A entrega consolida evidências reais de Plano, Revisões, Flashcards, Quizzes,
-Playground, Timer, Mocks, Notas, Recursos e Inglês Técnico.
+This delivery consolidates real evidence from Plan, Reviews, Flashcards, Quizzes,
+Playground, Timer, Mocks, Notes, Resources and Technical English.
 
-Não foram implementados relatórios semanais nem auditoria final.
+Weekly reports and the final audit were not implemented.
 
-## Resultado
+## Result
 
-- snapshot derivado em memória por atualização do Dashboard;
-- readiness geral e por área com estado de dados insuficientes;
-- Skill Tree por tópico canônico;
-- tópicos de risco e tópicos fortes;
-- heatmap de conhecimento;
-- métricas por módulo, evolução semanal e tempo por área;
-- recomendações determinísticas e explicáveis.
+- an in-memory derived snapshot per Dashboard update;
+- overall and per-area readiness with an insufficient-data state;
+- a Skill Tree by canonical topic;
+- risk topics and strong topics;
+- a knowledge heatmap;
+- per-module metrics, weekly evolution and time per area;
+- deterministic and explainable recommendations.
 
 ## Performance
 
-As tabelas são lidas uma única vez, em paralelo. O snapshot é calculado na camada
-de aplicação e entregue pronto aos componentes. Não há consultas IndexedDB nem
-cálculos de domínio durante o render.
+The tables are read once, in parallel. The snapshot is computed in the application
+layer and delivered ready to the components. There are no IndexedDB queries or
+domain computations during the render.
 
-Não foi criada tabela de snapshots porque a recomputação atual é simples e evita
-sincronização duplicada. Persistência poderá ser considerada se medições futuras
-mostrarem necessidade.
+No snapshots table was created because the current recomputation is simple and avoids
+duplicate synchronization. Persistence may be considered if future measurements
+show a need.

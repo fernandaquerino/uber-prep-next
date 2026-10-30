@@ -1,27 +1,27 @@
 # Readiness
 
-## Fórmula
+## Formula
 
-| Fator                | Peso |
-| -------------------- | ---: |
-| Desempenho avaliado  |  30% |
-| Retenção em revisões |  25% |
-| Execução prática     |  25% |
-| Cobertura do plano   |  10% |
-| Consistência recente |  10% |
+| Factor               | Weight |
+| -------------------- | -----: |
+| Assessed performance |    30% |
+| Retention in reviews |    25% |
+| Practical execution  |    25% |
+| Plan coverage        |    10% |
+| Recent consistency   |    10% |
 
-Fatores sem dados são excluídos do denominador. A pontuação só existe quando há:
+Factors with no data are excluded from the denominator. The score only exists when there is:
 
-- pelo menos quatro evidências avaliadas;
-- pelo menos duas fontes independentes.
+- at least four assessed pieces of evidence;
+- at least two independent sources.
 
-Caso contrário, `score` é `null` e a interface mostra os dados que faltam.
+Otherwise, `score` is `null` and the interface shows the missing data.
 
-## Confiança
+## Confidence
 
-- baixa: mínimo de dados atingido;
-- média: pelo menos 10 evidências e 3 fontes;
-- alta: pelo menos 20 evidências e 4 fontes;
-- dados insuficientes: mínimo não atingido.
+- low: the minimum data reached;
+- medium: at least 10 pieces of evidence and 3 sources;
+- high: at least 20 pieces of evidence and 4 sources;
+- insufficient data: the minimum not reached.
 
-Notas, leitura de recursos e tempo isolado nunca são tratados como domínio.
+Notes, resource reading and isolated time are never treated as mastery.

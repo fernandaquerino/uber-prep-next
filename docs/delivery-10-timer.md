@@ -1,44 +1,44 @@
-# Entrega 10 — Timer
+# Delivery 10 — Timer
 
-## Resumo
+## Summary
 
-Implementa timer global local-first com countdown, cronômetro, sessão ativa restaurável, histórico oficial de estudo, registro manual, página dedicada e integrações com os fluxos já existentes.
+Implements a global local-first timer with countdown, stopwatch, a restorable active session, an official study history, manual entry, a dedicated page and integrations with the existing flows.
 
-## Arquitetura adotada
+## Adopted architecture
 
-- `src/lib/domain/timer`: funções puras de duração, relógio, transições e agregações.
-- `src/lib/application/timer`: casos de uso transacionais com IndexedDB.
-- `src/components/features/timer`: provider global, painel, compact timer, formulário e histórico.
-- `src/hooks/use-timer.ts`, `use-timer-actions.ts`, `use-timer-history.ts`: acesso client-side.
+- `src/lib/domain/timer`: pure functions for duration, clock, transitions and aggregations.
+- `src/lib/application/timer`: transactional use cases with IndexedDB.
+- `src/components/features/timer`: a global provider, panel, compact timer, form and history.
+- `src/hooks/use-timer.ts`, `use-timer-actions.ts`, `use-timer-history.ts`: client-side access.
 
-## Persistência
+## Persistence
 
-Foram adicionadas as tabelas:
+The tables were added:
 
 - `activeTimer`
 - `timerSettings`
 
-A tabela `timerSessions` foi migrada para o novo formato com origem, modo, status, alvo e duração real.
+The `timerSessions` table was migrated to the new format with origin, mode, status, target and real duration.
 
-## Funcionalidades
+## Features
 
-- Um timer ativo por vez.
-- Countdown e stopwatch.
-- Presets 25, 45, 60 e 90 minutos.
-- Duração customizada.
-- Pausar, retomar, concluir, encerrar antes e cancelar.
-- Sessão ativa restaurada após reload.
-- Política para sessão longa restaurada: pausa e abre painel para confirmação.
-- Histórico de sessões oficiais.
-- Registro manual de tempo.
-- Edição simples e exclusão de sessão histórica.
-- Som e notificação ao concluir countdown.
-- Integração com Plano, Revisar Hoje, Flashcards, Quizzes, Playground e Dashboard.
-- Backup, importação e migração do timer legado.
+- One active timer at a time.
+- Countdown and stopwatch.
+- Presets of 25, 45, 60 and 90 minutes.
+- Custom duration.
+- Pause, resume, complete, stop early and cancel.
+- The active session restored after a reload.
+- A policy for a restored long session: pauses and opens the panel for confirmation.
+- A history of official sessions.
+- Manual time entry.
+- Simple editing and deletion of a historical session.
+- Sound and notification on countdown completion.
+- Integration with Plan, Review Today, Flashcards, Quizzes, Playground and Dashboard.
+- Backup, import and migration of the legacy timer.
 
-## Limitações atuais
+## Current limitations
 
-- Configurações completas de timer ainda não aparecem em `/configuracoes`.
-- Mocks ainda não possuem fluxo real para iniciar timer associado.
-- Relatórios avançados e readiness ainda não consomem o timer; isso fica para entregas futuras.
-- Notificações dependem da permissão do navegador.
+- The full timer settings don't appear in `/configuracoes` yet.
+- Mocks don't have a real flow to start an associated timer yet.
+- Advanced reports and readiness don't consume the timer yet; that's for future deliveries.
+- Notifications depend on the browser's permission.
