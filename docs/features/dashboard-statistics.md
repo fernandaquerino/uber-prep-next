@@ -1,19 +1,19 @@
-# Estatísticas do Dashboard
+# Dashboard Statistics
 
-O Dashboard mantém as prioridades operacionais no topo e posiciona analytics
-abaixo da agenda atual.
+The Dashboard keeps the operational priorities at the top and positions analytics
+below the current schedule.
 
-## Seções
+## Sections
 
-1. Readiness explicável.
-2. Tópicos de risco e recomendações.
-3. Skill Tree agrupada por área.
-4. Heatmap de conhecimento.
-5. Estatísticas por módulo, tempo e evolução.
+1. Explainable readiness.
+2. Risk topics and recommendations.
+3. Skill Tree grouped by area.
+4. Knowledge heatmap.
+5. Per-module statistics, time and evolution.
 
-Estados sem dados usam textos como “Sem dados” e “Evidências insuficientes”.
-Nenhuma ausência de atividade é apresentada como desempenho zero.
+No-data states use texts like "No data" and "Insufficient evidence".
+No absence of activity is presented as zero performance.
 
-O heatmap representa conhecimento derivado de resultados avaliados. Ele é
-independente do calendário de atividade, que continua representando blocos
-concluídos por dia.
+The heatmap represents knowledge derived from assessed results. It is
+independent of the activity calendar, which still represents blocks
+completed per day.

@@ -1,54 +1,54 @@
 # Timer
 
-## Objetivo
+## Goal
 
-O timer registra tempo real de estudo como dado oficial do app. O tempo de quizzes, flashcards e playground interno continua existindo para cada feature, mas só entra nas métricas gerais quando a pessoa inicia uma sessão de foco.
+The timer records real study time as the app's official data. The time from quizzes, flashcards and the internal playground still exists for each feature, but it only enters the general metrics when the person starts a focus session.
 
-## Modelos
+## Models
 
 ### ActiveTimerRecord
 
-Representa a única sessão ativa ou pausada.
+Represents the single active or paused session.
 
-- `id`: sempre `active-timer`
-- `mode`: `countdown` ou `stopwatch`
-- `status`: `running` ou `paused`
-- `sourceType`: origem da sessão
-- `sourceId`: vínculo opcional com bloco, revisão, quiz, flashcards, playground ou mock
-- `category`: categoria usada em agrupamentos
-- `title`: título exibido na UI
-- `targetDurationSeconds`: duração alvo para countdown
-- `startedAt`: início real da sessão
-- `lastResumedAt`: último momento em que voltou a rodar
-- `pausedAt`: último momento de pausa
-- `accumulatedSeconds`: tempo acumulado antes da execução atual
+- `id`: always `active-timer`
+- `mode`: `countdown` or `stopwatch`
+- `status`: `running` or `paused`
+- `sourceType`: the session's origin
+- `sourceId`: an optional link to a block, review, quiz, flashcards, playground or mock
+- `category`: the category used in groupings
+- `title`: the title shown in the UI
+- `targetDurationSeconds`: the target duration for countdown
+- `startedAt`: the session's real start
+- `lastResumedAt`: the last time it resumed running
+- `pausedAt`: the last pause time
+- `accumulatedSeconds`: time accumulated before the current run
 
 ### TimerSessionRecord
 
-Representa histórico oficial.
+Represents the official history.
 
-- Só é criado ao concluir ou encerrar antecipadamente.
-- Sessões canceladas não entram nos totais.
-- `actualDurationSeconds` é calculado por timestamps, não por ticks salvos a cada segundo.
+- Only created on completion or early stop.
+- Canceled sessions don't enter the totals.
+- `actualDurationSeconds` is computed from timestamps, not from ticks saved every second.
 
-## Regras
+## Rules
 
-- Existe no máximo um timer ativo.
-- O timer ativo não conta automaticamente como histórico.
-- Pausar acumula o tempo decorrido desde `lastResumedAt`.
-- Retomar preserva `accumulatedSeconds` e atualiza `lastResumedAt`.
-- Concluir cria uma sessão `completed` e remove o ativo.
-- Encerrar antes cria uma sessão `stopped_early` e remove o ativo.
-- Cancelar remove o ativo sem criar histórico.
-- Sessões restauradas com tempo corrido maior que `longSessionThresholdSeconds` são pausadas para confirmação.
+- There's at most one active timer.
+- The active timer doesn't automatically count as history.
+- Pausing accumulates the time elapsed since `lastResumedAt`.
+- Resuming preserves `accumulatedSeconds` and updates `lastResumedAt`.
+- Completing creates a `completed` session and removes the active one.
+- Stopping early creates a `stopped_early` session and removes the active one.
+- Canceling removes the active one without creating history.
+- Restored sessions with elapsed time greater than `longSessionThresholdSeconds` are paused for confirmation.
 
 ## Presets
 
-Presets oficiais:
+Official presets:
 
-- 25 minutos
-- 45 minutos
-- 60 minutos
-- 90 minutos
+- 25 minutes
+- 45 minutes
+- 60 minutes
+- 90 minutes
 
-Durações customizadas são validadas entre 1 minuto e 12 horas.
+Custom durations are validated between 1 minute and 12 hours.

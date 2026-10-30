@@ -1,18 +1,18 @@
-# Auditoria de performance
+# Performance audit
 
-## Verificado
+## Verified
 
-- Monaco é carregado com `dynamic` e `ssr: false`;
-- leituras independentes usam `Promise.all`;
-- Dashboard e Relatórios derivam dados fora do ciclo de render;
-- timer persiste timestamps e não grava a cada tick;
-- relatórios processam somente as semanas do plano;
-- seeds são idempotentes.
+- Monaco is loaded with `dynamic` and `ssr: false`;
+- independent reads use `Promise.all`;
+- Dashboard and Reports derive data outside the render cycle;
+- the timer persists timestamps and doesn't write on every tick;
+- reports process only the plan's weeks;
+- seeds are idempotent.
 
-## Decisões
+## Decisions
 
-Não foi introduzido cache persistido adicional: o plano padrão possui poucas semanas e a complexidade de invalidação superaria o ganho atual. Snapshots de relatório já evitam perder números históricos.
+No additional persisted cache was introduced: the default plan has few weeks and the complexity of invalidation would outweigh the current gain. Report snapshots already avoid losing historical numbers.
 
-## Monitoramento
+## Monitoring
 
-O build de produção é a referência para chunks e rotas. Crescimento futuro de dados deve priorizar paginação de históricos e selectors incrementais.
+The production build is the reference for chunks and routes. Future data growth should prioritize history pagination and incremental selectors.

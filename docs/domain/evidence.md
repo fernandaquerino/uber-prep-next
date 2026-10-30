@@ -1,8 +1,8 @@
-# Domínio de Evidências
+# Evidence Domain
 
-`EvidenceRecord` normaliza sinais provenientes dos módulos sem apagar a origem.
+`EvidenceRecord` normalizes signals coming from the modules without erasing their origin.
 
-## Fontes
+## Sources
 
 - `plan`
 - `review`
@@ -15,12 +15,12 @@
 - `resource`
 - `technical_english`
 
-## Regras
+## Rules
 
-- Quizzes, revisões, testes do Playground e rubricas de mocks são evidências avaliáveis.
-- Conclusões do plano e práticas registradas demonstram execução.
-- Tempo, notas e recursos demonstram atividade e contexto, não domínio.
-- Registros sem tópico confiável podem contribuir para métricas da área, mas não inventam domínio por tópico.
-- Revisões atrasadas são evidências negativas explícitas.
+- Quizzes, reviews, Playground tests and mock rubrics are assessable evidence.
+- Plan completions and recorded practice demonstrate execution.
+- Time, notes and resources demonstrate activity and context, not mastery.
+- Records without a reliable topic may contribute to the area's metrics, but don't invent per-topic mastery.
+- Overdue reviews are explicit negative evidence.
 
-O snapshot é derivado a partir do IndexedDB e não é persistido.
+The snapshot is derived from IndexedDB and is not persisted.

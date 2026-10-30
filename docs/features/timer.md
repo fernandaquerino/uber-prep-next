@@ -1,38 +1,38 @@
-# Feature Timer
+# Timer Feature
 
-## Rotas e UI
+## Routes and UI
 
-- `/timer`: página completa do timer, histórico recente e registro manual.
-- Header global: timer compacto com acesso rápido.
-- Painel lateral: iniciar, pausar, retomar, concluir, encerrar, cancelar, configurar som/notificação e adicionar sessão manual.
+- `/timer`: the full timer page, recent history and manual entry.
+- Global header: a compact timer with quick access.
+- Side panel: start, pause, resume, complete, stop, cancel, configure sound/notification and add a manual session.
 
-## Integrações implementadas
+## Implemented integrations
 
-- Plano: blocos podem iniciar sessão `plan_block`.
-- Revisar Hoje: itens da fila podem iniciar sessão `review`.
-- Flashcards: sessão de estudo pode iniciar sessão `flashcard_session`.
-- Quizzes: sessão de quiz pode iniciar sessão `quiz_session`.
-- Playground: editor pode iniciar sessão `playground_solution`.
-- Dashboard: mostra sessão ativa, tempo de hoje e tempo da semana.
+- Plan: blocks can start a `plan_block` session.
+- Review Today: queue items can start a `review` session.
+- Flashcards: a study session can start a `flashcard_session` session.
+- Quizzes: a quiz session can start a `quiz_session` session.
+- Playground: the editor can start a `playground_solution` session.
+- Dashboard: shows the active session, today's time and the week's time.
 
-## Atalhos
+## Shortcuts
 
-- `T`: abre o painel do timer.
-- `Espaço`: pausa ou retoma quando existe timer ativo.
-- `Esc`: fecha o painel.
+- `T`: opens the timer panel.
+- `Space`: pauses or resumes when there's an active timer.
+- `Esc`: closes the panel.
 
-Atalhos são ignorados enquanto o foco está em input, textarea, select ou conteúdo editável.
+Shortcuts are ignored while the focus is on an input, textarea, select or editable content.
 
-## Estados
+## States
 
-- Loading: provider carrega IndexedDB e seeds.
-- Ready sem timer ativo: formulário de início.
-- Ready com timer ativo: display, controles e histórico.
-- Error: toast e mensagem interna do provider.
+- Loading: the provider loads IndexedDB and the seeds.
+- Ready without an active timer: the start form.
+- Ready with an active timer: display, controls and history.
+- Error: a toast and the provider's internal message.
 
-## Decisões
+## Decisions
 
-- O relógio visual atualiza a cada segundo, mas IndexedDB não recebe escrita por tick.
-- O histórico oficial vem apenas de `timerSessions`.
-- Tempo interno de quiz/flashcard/playground não alimenta métricas globais automaticamente.
-- Notificações do navegador exigem permissão explícita.
+- The visual clock updates every second, but IndexedDB is not written per tick.
+- The official history comes only from `timerSessions`.
+- The internal quiz/flashcard/playground time doesn't automatically feed the global metrics.
+- Browser notifications require explicit permission.

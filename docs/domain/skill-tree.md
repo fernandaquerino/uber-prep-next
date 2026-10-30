@@ -1,20 +1,20 @@
 # Skill Tree
 
-A Skill Tree usa uma taxonomia canônica definida em
+The Skill Tree uses a canonical taxonomy defined in
 `src/lib/data/skill-topics.ts`.
 
-Aliases normalizam tópicos legados, tags livres e títulos do plano.
+Aliases normalize legacy topics, free-form tags and plan titles.
 
-## Estados
+## States
 
-- `not_started`: tópico planejado sem atividade;
-- `learning`: primeira evidência;
-- `practicing`: múltiplas práticas ou fontes;
-- `consistent`: desempenho positivo sustentado;
-- `mastered`: conhecimento e retenção altos em pelo menos três fontes;
-- `at_risk`: falhas, gaps, revisão atrasada ou confiança baixa.
+- `not_started`: a planned topic with no activity;
+- `learning`: first evidence;
+- `practicing`: multiple practices or sources;
+- `consistent`: sustained positive performance;
+- `mastered`: high knowledge and retention across at least three sources;
+- `at_risk`: failures, gaps, overdue review or low confidence.
 
-Cada tópico expõe a explicação, contagem de evidências, fontes, última atividade,
-retenção, confiança, tempo e próxima ação.
+Each topic exposes the explanation, evidence count, sources, last activity,
+retention, confidence, time and the next action.
 
-Risco só é exibido para tópicos presentes no plano.
+Risk is only shown for topics present in the plan.

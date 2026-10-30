@@ -1,20 +1,20 @@
-# Auditoria de acessibilidade
+# Accessibility audit
 
-## Cobertura
+## Coverage
 
-- um `h1` por tela principal;
-- navegações com nomes acessíveis;
-- tabs, dialogs e formulários operáveis por teclado;
-- mensagens de erro com `role="alert"` quando necessário;
-- timer com atualizações em região `aria-live`;
-- botões icon-only com `aria-label`;
-- foco visível e preferência de redução de movimento;
-- menu mobile em dialog acessível.
+- one `h1` per main screen;
+- navigations with accessible names;
+- tabs, dialogs and forms operable by keyboard;
+- error messages with `role="alert"` when needed;
+- the timer with updates in an `aria-live` region;
+- icon-only buttons with an `aria-label`;
+- visible focus and reduced-motion preference;
+- the mobile menu in an accessible dialog.
 
-## Correção aplicada
+## Applied fix
 
-Os botões de reset por módulo receberam nomes como `Resetar Notas`, evitando controles sem descrição para leitores de tela.
+The per-module reset buttons received names like `Resetar Notas`, avoiding controls without a description for screen readers.
 
-## Risco residual
+## Residual risk
 
-Contraste final depende da combinação entre tema e configurações do navegador. A auditoria automatizada complementa, mas não substitui, teste manual com leitor de tela.
+The final contrast depends on the combination of theme and browser settings. The automated audit complements, but doesn't replace, manual testing with a screen reader.

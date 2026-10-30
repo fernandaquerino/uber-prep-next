@@ -1,35 +1,35 @@
-# Relatórios semanais
+# Weekly reports
 
-## Fonte de verdade
+## Source of truth
 
-O relatório usa:
+The report uses:
 
-- agenda efetiva do Plano;
-- evidências consolidadas da Entrega 15;
+- the Plan's effective schedule;
+- the consolidated evidence from Delivery 15;
 - `weeklyReflections`;
 - `weeklyReportSnapshots`.
 
-Métricas de atividade consideram somente eventos ocorridos entre o início e o
-fim da semana. Readiness, Skill Tree, forças e riscos usam evidências acumuladas
-até o fim da semana, permitindo acompanhar evolução.
+Activity metrics consider only events that occurred between the start and the
+end of the week. Readiness, Skill Tree, strengths and risks use evidence accumulated
+up to the end of the week, allowing evolution to be tracked.
 
-## Ausência de dados
+## Absence of data
 
-Sem evidência avaliada, quiz accuracy e readiness permanecem nulos. A interface
-mostra `Sem dados` ou `Dados insuficientes`, nunca `0%`.
+Without assessed evidence, quiz accuracy and readiness stay null. The interface
+shows `No data` or `Insufficient data`, never `0%`.
 
-## Reflexão
+## Reflection
 
-Editar a reflexão no relatório atualiza o mesmo registro consumido por Revisar
-Hoje. Métricas calculadas não são editáveis.
+Editing the reflection in the report updates the same record consumed by Review
+Today. Computed metrics are not editable.
 
 ## Snapshots
 
-O relatório ao vivo é sempre derivado. O usuário pode salvar um snapshot por
-semana. O snapshot contém o relatório serializado e não é recalculado quando os
-dados de origem mudam.
+The live report is always derived. The user can save one snapshot per
+week. The snapshot contains the serialized report and is not recomputed when the
+source data changes.
 
-## Impressão
+## Printing
 
-`PDF / Imprimir` usa `window.print()`. Controles de navegação são ocultados e
-seções importantes evitam quebra interna.
+`PDF / Print` uses `window.print()`. Navigation controls are hidden and
+important sections avoid internal page breaks.

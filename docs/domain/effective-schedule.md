@@ -1,45 +1,45 @@
-# Agenda Efetiva
+# Effective Schedule
 
-A agenda efetiva combina:
+The effective schedule combines:
 
-- agenda base da Entrega 03;
-- progresso dos blocos;
-- reagendamentos;
+- the base schedule from Delivery 03;
+- the blocks' progress;
+- reschedules;
 - shifts;
 - skips;
-- conclusões.
+- completions.
 
-## Exemplo de Dia Perdido
+## Missed-day example
 
-Início: `2026-06-11`, quinta-feira.
+Start: `2026-06-11`, a Thursday.
 
-Agenda base:
+Base schedule:
 
-| Conteúdo | Data       |
+| Content  | Date       |
 | -------- | ---------- |
-| Dia 1    | 2026-06-11 |
-| Dia 2    | 2026-06-12 |
-| Dia 3    | 2026-06-13 |
-| descanso | 2026-06-14 |
-| Dia 4    | 2026-06-15 |
-| Dia 5    | 2026-06-16 |
+| Day 1    | 2026-06-11 |
+| Day 2    | 2026-06-12 |
+| Day 3    | 2026-06-13 |
+| rest     | 2026-06-14 |
+| Day 4    | 2026-06-15 |
+| Day 5    | 2026-06-16 |
 
-Se Dia 1 foi concluído e sexta foi perdida com `shift_pending`:
+If Day 1 was completed and Friday was missed with `shift_pending`:
 
-| Conteúdo | Data efetiva |
-| -------- | ------------ |
-| Dia 1    | 2026-06-11   |
-| Dia 2    | 2026-06-13   |
-| Dia 3    | 2026-06-15   |
-| Dia 4    | 2026-06-16   |
-| Dia 5    | 2026-06-17   |
+| Content  | Effective date |
+| -------- | -------------- |
+| Day 1    | 2026-06-11     |
+| Day 2    | 2026-06-13     |
+| Day 3    | 2026-06-15     |
+| Day 4    | 2026-06-16     |
+| Day 5    | 2026-06-17     |
 
-Domingo permanece descanso.
+Sunday stays a rest day.
 
-## Atraso
+## Lateness
 
-Um item está atrasado quando a data efetiva é anterior ao `today` recebido pela função e o status não é `completed` nem `skipped`.
+An item is overdue when the effective date is earlier than the `today` received by the function and the status is neither `completed` nor `skipped`.
 
-## Capacidade
+## Capacity
 
-Reagendamentos e shifts recalculam capacidade por dia. Excesso não bloqueia automaticamente; o dia fica `over_capacity`.
+Reschedules and shifts recompute capacity per day. Excess doesn't block automatically; the day becomes `over_capacity`.

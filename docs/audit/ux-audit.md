@@ -1,22 +1,22 @@
-# Auditoria de UX
+# UX audit
 
-## Verificado
+## Verified
 
-- prioridades no topo do Dashboard;
-- estados de loading, vazio e erro nas rotas assíncronas;
-- confirmações para ações destrutivas;
-- manutenção de estado ao atualizar Plano e Relatórios;
-- navegação desktop e mobile;
-- ausência de overflow horizontal nas telas críticas;
-- textos que diferenciam dados insuficientes de desempenho ruim.
+- priorities at the top of the Dashboard;
+- loading, empty and error states on the async routes;
+- confirmations for destructive actions;
+- state kept when updating Plan and Reports;
+- desktop and mobile navigation;
+- no horizontal overflow on the critical screens;
+- texts that distinguish insufficient data from poor performance.
 
-## Ajustes
+## Adjustments
 
-- reset total permanece desabilitado até `RESETAR`;
-- importação inválida exibe erro e não altera o banco;
-- botões destrutivos compactos têm nome acessível;
-- documentação e rótulos de entregas agora correspondem às rotas reais.
+- the full reset stays disabled until `RESETAR` is typed;
+- an invalid import shows an error and doesn't change the database;
+- compact destructive buttons have an accessible name;
+- documentation and delivery labels now match the real routes.
 
-## Limites
+## Limits
 
-O app mantém densidade alta em Dashboard e Configurações por reunir muitos domínios. Agrupamento, abas e disclosure evitam uma parede única de cards.
+The app keeps high density in Dashboard and Settings because it brings together many domains. Grouping, tabs and disclosure avoid a single wall of cards.

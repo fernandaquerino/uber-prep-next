@@ -1,57 +1,57 @@
-# Decisões de Arquitetura — Uber Prep Next.js
+# Architecture Decisions — Uber Prep Next.js
 
-## Por que Next.js
+## Why Next.js
 
-Next.js com App Router fornece Server Components por padrão, roteamento por convenção de arquivos, otimização de imagens, `next/font` e uma boa experiência de desenvolvimento com TypeScript. A alternativa (Vite + React Router) exigiria configuração manual de muitas dessas funcionalidades.
+Next.js with the App Router provides Server Components by default, file-convention routing, image optimization, `next/font` and a good development experience with TypeScript. The alternative (Vite + React Router) would require manual configuration of many of these features.
 
-## Por que App Router
+## Why the App Router
 
-O App Router é o modelo atual do Next.js (desde v13). Ele permite Server Components, layouts aninhados, colocação de loading/error por rota, e melhor streaming. O Pages Router está em modo de manutenção.
+The App Router is Next.js's current model (since v13). It allows Server Components, nested layouts, per-route loading/error colocation, and better streaming. The Pages Router is in maintenance mode.
 
-## Por que Server Components por padrão
+## Why Server Components by default
 
-Server Components reduzem o JavaScript enviado ao cliente. A maioria das páginas deste app são leitura de dados — não precisam de interatividade no servidor. `"use client"` é adicionado apenas onde há estado de browser: sidebar mobile (Sheet), toggle de tema, dropdowns e dialogs.
+Server Components reduce the JavaScript sent to the client. Most of this app's pages are data reads — they don't need interactivity on the server. `"use client"` is added only where there's browser state: the mobile sidebar (Sheet), the theme toggle, dropdowns and dialogs.
 
-## Por que local-first com IndexedDB (entregas futuras)
+## Why local-first with IndexedDB (future deliveries)
 
-O app não tem backend. Todos os dados de estudo ficam no dispositivo do usuário. IndexedDB (via Dexie) é necessário porque:
+The app has no backend. All study data lives on the user's device. IndexedDB (via Dexie) is needed because:
 
-- localStorage tem limite de ~5–10 MB (áudios de mock excedem isso)
-- IndexedDB suporta Blob nativo (áudio sem base64)
-- Dexie oferece tipagem forte, migrations e queries compostas
+- localStorage has a ~5–10 MB limit (mock audio exceeds it)
+- IndexedDB supports native Blob (audio without base64)
+- Dexie offers strong typing, migrations and composite queries
 
-Na Entrega 01 não há persistência — ela é adicionada na Entrega 02 junto com o schema Dexie e o script de migração do localStorage existente.
+In Delivery 01 there's no persistence — it's added in Delivery 02 along with the Dexie schema and the migration script for the existing localStorage.
 
-## Por que não adicionar persistência na Entrega 01
+## Why not add persistence in Delivery 01
 
-A fundação deve ser estável antes de adicionar camadas de dados. Introduzir Dexie + migration script na mesma entrega que o layout e as rotas cria superfície de falha grande. O schema de dados precisa ser definido após mapear os domínios (calendário, progresso, flashcards) nas Entregas 03–04.
+The foundation must be stable before adding data layers. Introducing Dexie + a migration script in the same delivery as the layout and routes creates a large failure surface. The data schema needs to be defined after mapping the domains (calendar, progress, flashcards) in Deliveries 03–04.
 
-## Por que separar features
+## Why separate features
 
-A estrutura `src/features/<nome>/` coloca tudo relacionado a uma funcionalidade junto (componentes, hooks, tipos, utils). Isso facilita encontrar código, medir complexidade por feature e remover uma feature sem tocar no resto.
+The `src/features/<name>/` structure puts everything related to a feature together (components, hooks, types, utils). This makes it easier to find code, measure complexity per feature and remove a feature without touching the rest.
 
-## Estratégia de testes
+## Testing strategy
 
-- **Vitest + React Testing Library**: testes unitários de componentes, utilitários e domain logic. Ambiente jsdom. Sem testes de implementação interna.
-- **Playwright**: testes E2E de fluxos reais no browser. Foco em navegação, tema e mobile. Roda contra build de produção para garantir que o build não quebra nada.
-- **Cobertura**: priorizar `lib/domain/` (lógica pura) com ≥ 90% e componentes compartilhados com ≥ 80%.
+- **Vitest + React Testing Library**: unit tests of components, utilities and domain logic. jsdom environment. No internal-implementation tests.
+- **Playwright**: E2E tests of real flows in the browser. Focus on navigation, theme and mobile. Runs against the production build to ensure the build doesn't break anything.
+- **Coverage**: prioritize `lib/domain/` (pure logic) with ≥ 90% and shared components with ≥ 80%.
 
-## Domínio de calendário
+## Calendar domain
 
-O domínio de calendário fica em `src/lib/domain/schedule` porque é lógica pura compartilhada por Plano, Dashboard, Revisar Hoje e relatórios futuros. Ele não importa React, hooks, componentes, Dexie, repositories ou APIs de browser.
+The calendar domain lives in `src/lib/domain/schedule` because it's pure logic shared by Plan, Dashboard, Review Today and future reports. It doesn't import React, hooks, components, Dexie, repositories or browser APIs.
 
-Datas civis usam o formato `YYYY-MM-DD` com tipo branded `CalendarDate`. Operações como parse, soma de dias, comparação, diferença e dia da semana são centralizadas em `calendar-date.ts`. O domínio evita `new Date("YYYY-MM-DD")`, pois essa forma é interpretada como UTC e pode deslocar datas em algumas timezones.
+Civil dates use the `YYYY-MM-DD` format with a branded `CalendarDate` type. Operations like parsing, adding days, comparison, difference and day of the week are centralized in `calendar-date.ts`. The domain avoids `new Date("YYYY-MM-DD")`, since that form is interpreted as UTC and can shift dates in some timezones.
 
-O scheduler inicial usa um `StudyPlanDay` por data habilitada e inclui dias de descanso na agenda. Essa decisão preserva a estrutura do plano antigo e permite que a UI futura mostre semanas reais, descanso e próximo dia de estudo sem inventar regras de progresso.
+The initial scheduler uses one `StudyPlanDay` per enabled date and includes rest days in the schedule. This decision preserves the old plan's structure and allows the future UI to show real weeks, rest and the next study day without inventing progress rules.
 
-## Estratégia de tema
+## Theme strategy
 
-`next-themes` com `attribute="class"` adiciona `.dark` no `<html>`. A preferência é persistida no `localStorage` automaticamente. `suppressHydrationWarning` previne flash de hidratação. CSS variables no `:root` e `.dark` do globals.css controlam todas as cores — nenhuma cor hardcoded em componentes.
+`next-themes` with `attribute="class"` adds `.dark` on the `<html>`. The preference is persisted in `localStorage` automatically. `suppressHydrationWarning` prevents a hydration flash. CSS variables on `:root` and `.dark` in globals.css control all the colors — no hardcoded color in components.
 
-## Estratégia de componentes
+## Component strategy
 
-- `src/components/ui/`: shadcn/ui primitivos (gerados). Não editar diretamente.
-- `src/components/layout/`: shell do app (header, sidebar, mobile-nav, providers).
-- `src/components/feedback/`: estados compartilhados (EmptyState, ErrorState, LoadingState, ComingSoonState, PageHeader).
-- `src/features/*/`: componentes específicos de feature, agrupados por domínio.
-- Sem estilos inline. Todos os estilos via Tailwind. Tokens em CSS variables.
+- `src/components/ui/`: shadcn/ui primitives (generated). Don't edit directly.
+- `src/components/layout/`: the app shell (header, sidebar, mobile-nav, providers).
+- `src/components/feedback/`: shared states (EmptyState, ErrorState, LoadingState, ComingSoonState, PageHeader).
+- `src/features/*/`: feature-specific components, grouped by domain.
+- No inline styles. All styles via Tailwind. Tokens in CSS variables.

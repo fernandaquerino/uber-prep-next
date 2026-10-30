@@ -1,27 +1,27 @@
-# Plano de testes final
+# Final test plan
 
-## Automatizado
+## Automated
 
-- domínio: calendário, scheduler, progresso, revisão, quizzes, timer, mocks, evidências, readiness e relatórios;
-- integração: migrations, IndexedDB, consistência do plano e backup;
-- componentes: navegação, formulários, editores e estados;
-- E2E: rotas, Dashboard, Plano, tema, mobile, Relatórios, importação inválida e reset cancelado.
+- domain: calendar, scheduler, progress, review, quizzes, timer, mocks, evidence, readiness and reports;
+- integration: migrations, IndexedDB, plan consistency and backup;
+- components: navigation, forms, editors and states;
+- E2E: routes, Dashboard, Plan, theme, mobile, Reports, invalid import and canceled reset.
 
-## Bug bash manual
+## Manual bug bash
 
-Executar em desktop e mobile:
+Run on desktop and mobile:
 
-1. novo usuário sem data inicial;
-2. início em quinta-feira e domingo;
-3. dados parciais e settings legadas;
-4. plano com atrasos e plano concluído;
-5. fila sem revisões e com revisões vencidas;
-6. timer ativo durante navegação e reload;
-7. mock com e sem áudio;
-8. importação inválida, merge e replace;
-9. reset cancelado e reset confirmado;
-10. navegação offline após primeiro carregamento dos assets.
+1. a new user with no start date;
+2. starting on a Thursday and a Sunday;
+3. partial data and legacy settings;
+4. a plan with overdue items and a completed plan;
+5. a queue with no reviews and with overdue reviews;
+6. an active timer during navigation and a reload;
+7. a mock with and without audio;
+8. an invalid import, a merge and a replace;
+9. a canceled reset and a confirmed reset;
+10. offline navigation after the first asset load.
 
-## Critério
+## Criterion
 
-Falhas de tipo, lint, formatação, testes, build ou E2E bloqueiam a conclusão. Cenários que dependem de APIs do dispositivo, como microfone e impressão, exigem verificação manual.
+Type, lint, formatting, test, build or E2E failures block completion. Scenarios that depend on device APIs, such as the microphone and printing, require manual verification.
