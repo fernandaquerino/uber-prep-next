@@ -1,10 +1,10 @@
 # Legacy Migration
 
-Migração one-time e idempotente do `localStorage` para o IndexedDB.
+A one-time, idempotent migration from `localStorage` to IndexedDB.
 
-## Fontes migradas
+## Migrated sources
 
-| Chave localStorage          | Destino IndexedDB                                                                                                                    |
+| localStorage key            | IndexedDB destination                                                                                                                 |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `uber-prep-v2`              | `planProgress`, `reviews`, `mocks`, `playgroundSolutions`, `learningJournal`, `weeklyReflections`, `notes` (topic notes), `settings` |
 | `uber-prep-flashcards`      | `flashcards`                                                                                                                         |
@@ -15,26 +15,26 @@ Migração one-time e idempotente do `localStorage` para o IndexedDB.
 | `uber-prep-theme`           | `settings.theme`                                                                                                                     |
 | `uber-prep-mock-audio-{id}` | `mockAudio` (Blob)                                                                                                                   |
 
-## Estratégia
+## Strategy
 
-1. **Idempotência**: Verifica `metadata.migrationStatus === "completed"` antes de iniciar. Segunda execução retorna o relatório já salvo.
-2. **Conflitos**: Registros já existentes no IndexedDB têm prioridade. O registro legado é descartado com log em `conflicts`.
-3. **Validação tolerante**: Schemas Zod com `.strip()`, `.catch()` e `.default()`. Registros individuais inválidos são descartados sem abortar a migração.
-4. **Timer ativo**: um timer legado em andamento é restaurado pausado em `activeTimer`, sem criar sessão histórica automaticamente.
-5. **Áudio**: Base64 → Blob. Arquivos > 5MB são ignorados com log em `audioFailures`. Falhas individuais não abortam a migração.
-6. **Status de resultado**: `"completed"` (sem problemas), `"partial"` (registros inválidos ou áudio com falha), `"failed"` (erro inesperado).
+1. **Idempotency**: Checks `metadata.migrationStatus === "completed"` before starting. A second run returns the already-saved report.
+2. **Conflicts**: Records that already exist in IndexedDB take priority. The legacy record is discarded with a log in `conflicts`.
+3. **Tolerant validation**: Zod schemas with `.strip()`, `.catch()` and `.default()`. Individually invalid records are discarded without aborting the migration.
+4. **Active timer**: a legacy in-progress timer is restored paused in `activeTimer`, without automatically creating a historical session.
+5. **Audio**: Base64 → Blob. Files > 5MB are ignored with a log in `audioFailures`. Individual failures don't abort the migration.
+6. **Result status**: `"completed"` (no issues), `"partial"` (invalid records or failed audio), `"failed"` (unexpected error).
 
-## Mapeamento de status
+## Status mapping
 
 | Legacy                                                      | IndexedDB   |
 | ----------------------------------------------------------- | ----------- |
 | `done`                                                      | `completed` |
-| `in_progress`, `pending`, `stuck`, `skipped`, `rescheduled` | mantidos    |
+| `in_progress`, `pending`, `stuck`, `skipped`, `rescheduled` | kept        |
 
-## IDs preservados
+## Preserved IDs
 
-- Flashcards: `fc-1` a `fc-40` (IDs originais preservados)
-- Blocos de progresso: `block-{blockKey}` (ex: `block-w1-d1-b0`)
+- Flashcards: `fc-1` to `fc-40` (original IDs preserved)
+- Progress blocks: `block-{blockKey}` (e.g. `block-w1-d1-b0`)
 - Reviews: `rev-{blockKey}`
 - Quiz reviews: `qrev-{questionId}`
 
@@ -52,8 +52,8 @@ const report = await runLegacyMigration(db);
 
 ## UI
 
-`<LegacyMigrationCheck />` (em `AppLayout`) usa `useLegacyMigration()` para:
+`<LegacyMigrationCheck />` (in `AppLayout`) uses `useLegacyMigration()` to:
 
-1. Detectar se há dados legados na primeira visita
-2. Mostrar `MigrationDialog` para confirmação do usuário
-3. Executar a migração e exibir o relatório
+1. Detect whether there's legacy data on the first visit
+2. Show `MigrationDialog` for the user's confirmation
+3. Run the migration and display the report

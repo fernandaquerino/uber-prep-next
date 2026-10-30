@@ -1,12 +1,12 @@
 # Database Schema
 
-Banco de dados local: **IndexedDB** via **Dexie 4**  
-Nome: `uber-prep`  
-Versão: `10`
+Local database: **IndexedDB** via **Dexie 4**  
+Name: `uber-prep`  
+Version: `10`
 
-## Tabelas
+## Tables
 
-| Tabela                  | Chave primária | Índices secundários                                                                    |
+| Table                   | Primary key    | Secondary indexes                                                                      |
 | ----------------------- | -------------- | -------------------------------------------------------------------------------------- |
 | `settings`              | `id`           | —                                                                                      |
 | `planProgress`          | `id`           | `blockId`, `status`, `scheduledDate`, `planDayId`, `planDaySequence`                   |
@@ -14,10 +14,10 @@ Versão: `10`
 | `scheduleOverrides`     | `id`           | `blockId`, `type`, `fromDate`, `toDate`, `actionGroupId`                               |
 | `reviews`               | `id`           | `sourceType`, `sourceId`, `scheduledFor`, `status`, `[status+scheduledFor]`            |
 | `flashcards`            | `id`           | `category`, `*tags` (multi), `status`, `nextReview`                                    |
-| `quizQuestions`         | `id`           | catálogo versionado de questões                                                        |
-| `quizSessions`          | `id`           | sessões configuráveis e estado                                                         |
-| `quizAnswers`           | `id`           | respostas por sessão e questão                                                         |
-| `quizMarkedQuestions`   | `id`           | questões marcadas                                                                      |
+| `quizQuestions`         | `id`           | versioned question catalog                                                             |
+| `quizSessions`          | `id`           | configurable sessions and state                                                        |
+| `quizAnswers`           | `id`           | answers per session and question                                                       |
+| `quizMarkedQuestions`   | `id`           | flagged questions                                                                      |
 | `quizAttempts`          | `id`           | `mode`, `dailyDate`, `createdAt`                                                       |
 | `quizReviews`           | `id`           | `questionId`, `nextReview`, `cycleIndex`                                               |
 | `activeTimer`           | `id`           | `status`, `sourceType`, `sourceId`, `category`, `updatedAt`                            |
@@ -25,30 +25,30 @@ Versão: `10`
 | `timerSettings`         | `id`           | —                                                                                      |
 | `mocks`                 | `id`           | `date`, `type`                                                                         |
 | `mockAudio`             | `id`           | `mockId`, `createdAt`                                                                  |
-| `mockEvidence`          | `id`           | evidências de força e gap                                                              |
-| `starAnswers`           | `id`           | respostas STAR                                                                         |
-| `systemDesignDrafts`    | `id`           | rascunhos de System Design                                                             |
-| `fullInterviewSessions` | `id`           | sessões Full Loop                                                                      |
-| `fullInterviewSteps`    | `id`           | etapas de Full Loop                                                                    |
-| `checklistSessions`     | `id`           | snapshots de checklist                                                                 |
+| `mockEvidence`          | `id`           | strength and gap evidence                                                              |
+| `starAnswers`           | `id`           | STAR answers                                                                           |
+| `systemDesignDrafts`    | `id`           | System Design drafts                                                                   |
+| `fullInterviewSessions` | `id`           | Full Loop sessions                                                                     |
+| `fullInterviewSteps`    | `id`           | Full Loop steps                                                                        |
+| `checklistSessions`     | `id`           | checklist snapshots                                                                    |
 | `notes`                 | `id`           | `type`, `category`, `topicId`, `updatedAt`                                             |
-| `noteVersions`          | `id`           | histórico de versões                                                                   |
-| `noteLinks`             | `id`           | vínculos com outros módulos                                                            |
+| `noteVersions`          | `id`           | version history                                                                        |
+| `noteLinks`             | `id`           | links with other modules                                                               |
 | `weeklyReflections`     | `id`           | `weekNumber`                                                                           |
-| `weeklyReportSnapshots` | `id`           | snapshots de relatórios                                                                |
+| `weeklyReportSnapshots` | `id`           | report snapshots                                                                       |
 | `learningJournal`       | `id`           | `date`                                                                                 |
 | `playgroundSolutions`   | `id`           | `language`, `updatedAt`                                                                |
 | `checklistItems`        | `id`           | `phase`                                                                                |
 | `metadata`              | `id`           | —                                                                                      |
 
-## Registros singleton
+## Singleton records
 
-- `settings` — sempre `id = "app-settings"`
-- `metadata` — sempre `id = "app-metadata"`
-- `activeTimer` — quando existir, sempre `id = "active-timer"`
-- `timerSettings` — sempre `id = "timer-settings"`
+- `settings` — always `id = "app-settings"`
+- `metadata` — always `id = "app-metadata"`
+- `activeTimer` — when it exists, always `id = "active-timer"`
+- `timerSettings` — always `id = "timer-settings"`
 
-## Constantes
+## Constants
 
 ```ts
 DATABASE_NAME = "uber-prep";
@@ -66,4 +66,4 @@ SEED_ID_TIMER_SETTINGS = "seed:timer-settings:v1";
 
 ## SSR Safety
 
-`getDb()` lança `SsrAccessError` se chamado fora do contexto de browser (`typeof window === "undefined"`). Todos os imports de `getDb()` em componentes client devem ser dinâmicos ou protegidos por `useEffect`.
+`getDb()` throws `SsrAccessError` if called outside the browser context (`typeof window === "undefined"`). All `getDb()` imports in client components must be dynamic or guarded by `useEffect`.
