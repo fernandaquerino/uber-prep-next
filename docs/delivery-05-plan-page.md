@@ -1,52 +1,52 @@
-# Entrega 05 — Página Plano
+# Delivery 05 — Plan Page
 
-## Objetivo
+## Goal
 
-Construir a Página Plano (`/plano`) completa, funcional e persistida, que consome exclusivamente:
+Build the complete, functional and persisted Plan Page (`/plano`), which consumes exclusively:
 
-- agenda efetiva do domínio
-- progresso persistido no IndexedDB
-- casos de uso da camada de aplicação
-- hooks de orquestração
+- the domain's effective schedule
+- progress persisted in IndexedDB
+- the application layer's use cases
+- orchestration hooks
 
-A página não deriva lógica de calendário, progresso, atraso ou capacidade diretamente.
+The page doesn't derive calendar, progress, lateness or capacity logic directly.
 
 ---
 
-## Arquitetura
+## Architecture
 
 ```
 src/
   lib/
     data/
-      study-plan.ts          # Converte WEEKS → StudyPlan (adaptador)
+      study-plan.ts          # Converts WEEKS → StudyPlan (adapter)
     application/
       progress/
-        change-start-date.ts # Caso de uso: alterar data de início
-        index.ts             # Re-exporta change-start-date
+        change-start-date.ts # Use case: change the start date
+        index.ts             # Re-exports change-start-date
 
   hooks/
-    use-plan-page.ts         # Carrega e agrega dados da página
-    use-plan-actions.ts      # Expõe ações com callback onSuccess/onError
+    use-plan-page.ts         # Loads and aggregates the page's data
+    use-plan-actions.ts      # Exposes actions with an onSuccess/onError callback
 
   components/
     features/
       plan/
-        plan-screen.tsx            # Orquestrador (Client Component)
-        plan-header.tsx            # Cabeçalho com data de início
-        plan-summary.tsx           # Progresso geral + métricas
-        plan-current-item.tsx      # Bloco atual + alertas de atraso
-        plan-week-navigation.tsx   # Navegação entre semanas
-        plan-week.tsx              # Semana selecionada com dias
-        plan-day-card.tsx          # Card de dia expandível
-        plan-block-card.tsx        # Card de bloco com ações rápidas
-        plan-block-details.tsx     # Dialog de detalhes + formulários
-        plan-block-form.tsx        # Formulário de conclusão
-        skip-block-dialog.tsx      # Dialog de confirmação para pular
-        reschedule-dialog.tsx      # Dialog de reagendamento
-        missed-day-dialog.tsx      # Dialog para dia perdido (4 estratégias)
-        change-start-date-dialog.tsx # Dialog para alterar data de início
-        plan-utils.ts              # Utilitários de formatação (sem regras de negócio)
+        plan-screen.tsx            # Orchestrator (Client Component)
+        plan-header.tsx            # Header with the start date
+        plan-summary.tsx           # Overall progress + metrics
+        plan-current-item.tsx      # Current block + lateness alerts
+        plan-week-navigation.tsx   # Navigation between weeks
+        plan-week.tsx              # Selected week with days
+        plan-day-card.tsx          # Expandable day card
+        plan-block-card.tsx        # Block card with quick actions
+        plan-block-details.tsx     # Details dialog + forms
+        plan-block-form.tsx        # Completion form
+        skip-block-dialog.tsx      # Skip confirmation dialog
+        reschedule-dialog.tsx      # Reschedule dialog
+        missed-day-dialog.tsx      # Missed-day dialog (4 strategies)
+        change-start-date-dialog.tsx # Change-start-date dialog
+        plan-utils.ts              # Formatting utilities (no business rules)
         __tests__/
           plan-utils.test.ts
 
@@ -54,13 +54,13 @@ src/
     (app)/
       plano/
         page.tsx    # Server Component (metadata + PlanScreen)
-        loading.tsx # Skeleton de loading
+        loading.tsx # Loading skeleton
         error.tsx   # Error boundary
 ```
 
 ---
 
-## Fluxo de dados
+## Data flow
 
 ```
 IndexedDB (settings, planProgress, progressEvents, scheduleOverrides)
@@ -80,188 +80,188 @@ PlanHeader / PlanSummary / PlanCurrentItem / PlanWeekNavigation / PlanWeek
 
 ---
 
-## Adaptador do plano (`study-plan.ts`)
+## Plan adapter (`study-plan.ts`)
 
-Converte `WEEKS` (formato legado com pausas) para `StudyPlan` do domínio:
+Converts `WEEKS` (legacy format with breaks) to the domain's `StudyPlan`:
 
-- Filtra blocos com `category === null` ou `type === "pausa"`
-- Gera IDs estáveis: `block-{dayNumber}-{idx}` e `day-{dayNumber}`
-- 36 dias com sequências 1–36 sem duplicatas
-
----
-
-## Novo caso de uso: `changeStartDate`
-
-Localização: `src/lib/application/progress/change-start-date.ts`
-
-Opções:
-
-- `restart`: apaga todo progresso, recria do zero na nova data
-- `recalculate_maintaining`: move blocos `pending` para novas datas, preserva `completed`/`stuck`/`in_progress`/`skipped`
-
-Sempre usa transação Dexie para atomicidade.
+- Filters out blocks with `category === null` or `type === "pausa"`
+- Generates stable IDs: `block-{dayNumber}-{idx}` and `day-{dayNumber}`
+- 36 days with sequences 1–36 without duplicates
 
 ---
 
-## Componentes e estados
+## New use case: `changeStartDate`
+
+Location: `src/lib/application/progress/change-start-date.ts`
+
+Options:
+
+- `restart`: erases all progress, recreates from scratch on the new date
+- `recalculate_maintaining`: moves `pending` blocks to new dates, preserves `completed`/`stuck`/`in_progress`/`skipped`
+
+Always uses a Dexie transaction for atomicity.
+
+---
+
+## Components and states
 
 ### `PlanScreen`
 
-Estado global da página:
+The page's global state:
 
-- `loading` → `PlanSkeleton` com skeletons
-- `error` → `EmptyState` com botão "Tentar novamente"
-- `no_start_date` → `EmptyState` com botão para configurar data
-- `ready` → interface completa
+- `loading` → `PlanSkeleton` with skeletons
+- `error` → `EmptyState` with a "Try again" button
+- `no_start_date` → `EmptyState` with a button to configure the date
+- `ready` → the full interface
 
 ### `PlanDayCard`
 
-- Expandível por padrão apenas no dia de hoje
-- Mostra badges: Hoje, Passado, Concluído, Atraso, Acima da capacidade
-- Dia de descanso mostra `MoonIcon` e texto explicativo, sem ações
-- Dias passados com pendências mostram botão "Não estudei neste dia"
+- Expanded by default only on today's day
+- Shows badges: Today, Past, Completed, Overdue, Over capacity
+- A rest day shows a `MoonIcon` and explanatory text, with no actions
+- Past days with pending items show a "I didn't study this day" button
 
 ### `PlanBlockCard`
 
-Ações por status:
+Actions per status:
 
-- `pending` → Iniciar, Concluir, Travei, Reagendar, Pular
-- `in_progress` → Concluir, Travei, Pausar, Reagendar, Pular
-- `stuck` → Concluir mesmo assim, Retomar, Reagendar, Pular
-- `completed` → Desfazer (via `returnToPending`)
-- `skipped` → Restaurar
+- `pending` → Start, Complete, Stuck, Reschedule, Skip
+- `in_progress` → Complete, Stuck, Pause, Reschedule, Skip
+- `stuck` → Complete anyway, Resume, Reschedule, Skip
+- `completed` → Undo (via `returnToPending`)
+- `skipped` → Restore
 
 ### `PlanBlockDetails`
 
-Dialog com três views:
+A dialog with three views:
 
-- `details` → informações completas + ações
-- `complete` → `PlanBlockForm` (minutos, dificuldade, confiança, notas, padrão)
-- `stuck` → formulário simplificado
-
----
-
-## Formulário de conclusão
-
-Campos:
-
-- Minutos reais (number, ≥ 0, opcional)
-- Dificuldade 1–5 com labels descritivos (botões acessíveis com `aria-pressed`)
-- Confiança 1–5 com labels descritivos
-- Padrão usado (texto livre)
-- Notas (textarea)
-
-Validação via state controlado — sem react-hook-form (não instalado).
+- `details` → full information + actions
+- `complete` → `PlanBlockForm` (minutes, difficulty, confidence, notes, pattern)
+- `stuck` → a simplified form
 
 ---
 
-## Tratamento de dia perdido
+## Completion form
 
-`MissedDayDialog` oferece 4 estratégias:
+Fields:
 
-1. `shift_pending` — move pendentes para frente preservando descanso
-2. `keep_overdue` — mantém datas, aparece como atraso
-3. `skip_items` — pula conteúdos pendentes
-4. `reschedule_items` — reagendar individualmente (delegado ao usuário)
+- Real minutes (number, ≥ 0, optional)
+- Difficulty 1–5 with descriptive labels (accessible buttons with `aria-pressed`)
+- Confidence 1–5 with descriptive labels
+- Pattern used (free text)
+- Notes (textarea)
 
-Cada estratégia chama `handleMissedStudyDay` do caso de uso existente.
+Validation via controlled state — no react-hook-form (not installed).
 
 ---
 
-## Reagendamento
+## Missed-day handling
+
+`MissedDayDialog` offers 4 strategies:
+
+1. `shift_pending` — moves pending items forward, preserving rest
+2. `keep_overdue` — keeps the dates, appears as overdue
+3. `skip_items` — skips pending content
+4. `reschedule_items` — reschedule individually (delegated to the user)
+
+Each strategy calls `handleMissedStudyDay` from the existing use case.
+
+---
+
+## Rescheduling
 
 `RescheduleDialog`:
 
-- Alerta visual para dias de descanso (bloqueia confirmação)
-- Alerta visual para acima da capacidade (permite confirmar)
-- Capacidade calculada localmente a partir do `baseSchedule` (sem re-derivar regra do domínio)
+- A visual alert for rest days (blocks confirmation)
+- A visual alert for over capacity (allows confirming)
+- Capacity computed locally from the `baseSchedule` (without re-deriving the domain rule)
 
 ---
 
-## Alteração da data de início
+## Changing the start date
 
 `ChangeStartDateDialog`:
 
-- Sem progresso → aplica `restart` (comportamento simplificado)
-- Com progresso → escolha entre `recalculate_maintaining` e `restart`
-- `restart` exibe aviso de confirmação reforçado
+- No progress → applies `restart` (simplified behavior)
+- With progress → a choice between `recalculate_maintaining` and `restart`
+- `restart` shows a reinforced confirmation warning
 
 ---
 
 ## Undo
 
-- Ações toast com botão "Desfazer" planejado mas não conectado nesta versão
-- `undoProgressAction` disponível via `usePlanActions`
+- Toast actions with an "Undo" button planned but not wired in this version
+- `undoProgressAction` available via `usePlanActions`
 
 ---
 
-## Acessibilidade
+## Accessibility
 
-- Todos os botões têm `aria-label` descritivo
-- Ratings usam `aria-pressed` (não só cor)
-- Dias de descanso não expõem ações inválidas
-- Dialogs usam `<DialogTitle>` e `<DialogDescription>`
-- Status `role="alert"` em mensagens de erro
-- `role="radiogroup"` e `role="radio"` em seleções de estratégia
-
----
-
-## Responsividade
-
-- 375px: cards empilhados, navegação compacta, sem overflow horizontal
-- 768px: layout de 2 colunas nas métricas
-- 1024px+: aproveitamento de largura
+- All buttons have a descriptive `aria-label`
+- Ratings use `aria-pressed` (not just color)
+- Rest days don't expose invalid actions
+- Dialogs use `<DialogTitle>` and `<DialogDescription>`
+- `role="alert"` status on error messages
+- `role="radiogroup"` and `role="radio"` on strategy selections
 
 ---
 
-## Testes
+## Responsiveness
 
-### Unitários
+- 375px: stacked cards, compact navigation, no horizontal overflow
+- 768px: a 2-column layout on the metrics
+- 1024px+: width usage
 
-- `plan-utils.test.ts`: formatação de datas, minutos, weekdays, status labels
-- `study-plan.test.ts`: estrutura do STUDY_PLAN + cenário de regressão com 2026-06-11
+---
 
-### Integração
+## Tests
 
-- `plan-progress.test.ts`: fluxo completo (inicializar → iniciar → concluir → skip → restore → dia perdido → reagendar → desfazer)
-- Usa `fake-indexeddb` para isolamento
+### Unit
+
+- `plan-utils.test.ts`: formatting of dates, minutes, weekdays, status labels
+- `study-plan.test.ts`: STUDY_PLAN structure + the regression scenario with 2026-06-11
+
+### Integration
+
+- `plan-progress.test.ts`: the complete flow (initialize → start → complete → skip → restore → missed day → reschedule → undo)
+- Uses `fake-indexeddb` for isolation
 
 ### E2E (Playwright)
 
-- `plan.spec.ts`: 6 grupos de cenários cobrindo navegação, mobile, dialogs, acessibilidade
+- `plan.spec.ts`: 6 scenario groups covering navigation, mobile, dialogs, accessibility
 
 ---
 
-## Cenário de regressão obrigatório
+## Mandatory regression scenario
 
 ```
-startDate = 2026-06-11 (quinta-feira)
+startDate = 2026-06-11 (Thursday)
 
-Dia 1 → quinta-feira, 11/06/2026 — 480 min
-Dia 2 → sexta-feira, 12/06/2026 — 480 min
-Dia 3 → sábado, 13/06/2026 — 240 min
-domingo, 14/06/2026 → descanso, 0 min, sem itens
-Dia 4 → segunda-feira, 15/06/2026 — 480 min
-Dia 5 → terça-feira, 16/06/2026 — 480 min
+Day 1 → Thursday, 2026-06-11 — 480 min
+Day 2 → Friday, 2026-06-12 — 480 min
+Day 3 → Saturday, 2026-06-13 — 240 min
+Sunday, 2026-06-14 → rest, 0 min, no items
+Day 4 → Monday, 2026-06-15 — 480 min
+Day 5 → Tuesday, 2026-06-16 — 480 min
 ```
 
-Verificado em `study-plan.test.ts` (buildStudySchedule) e `plan-progress.test.ts`.
+Verified in `study-plan.test.ts` (buildStudySchedule) and `plan-progress.test.ts`.
 
 ---
 
-## Limitações
+## Limitations
 
-- Undo via toast não está completamente conectado (infraestrutura pronta, UI parcial)
-- Filtros por status/categoria/busca estão modelados mas não renderizados como UI
-- Opção `reschedule_items` no dia perdido abre o dialog mas não guia cada bloco individualmente
-- Timer funcional não implementado (planejado para Entrega seguinte)
-- Dashboard, Revisar Hoje, revisão espaçada não foram antecipados
+- Undo via toast is not fully wired (infrastructure ready, partial UI)
+- Filters by status/category/search are modeled but not rendered as UI
+- The `reschedule_items` option on the missed day opens the dialog but doesn't guide each block individually
+- A functional timer is not implemented (planned for the next delivery)
+- Dashboard, Review Today, spaced repetition were not anticipated
 
 ---
 
-## Preparação para Entrega 06
+## Preparation for Delivery 06
 
-- `usePlanActions` e `usePlanPage` já expõem todas as ações necessárias para Dashboard
-- `PlanCompletionSummary` e `CurrentStudyState` prontos para reutilização
-- `STUDY_PLAN` e `buildStudySchedule` já estabilizados
-- Não há dependência circular entre os domínios
+- `usePlanActions` and `usePlanPage` already expose all the actions needed for the Dashboard
+- `PlanCompletionSummary` and `CurrentStudyState` ready for reuse
+- `STUDY_PLAN` and `buildStudySchedule` already stabilized
+- There's no circular dependency between the domains
