@@ -1,133 +1,133 @@
-# Entrega 03 — Domínio de Calendário e Agenda
+# Delivery 03 — Calendar and Schedule Domain
 
-## Contexto
+## Context
 
-Esta entrega cria o domínio puro responsável por transformar `plan + startDate + weekdayAvailability` em uma agenda cronológica correta. O código não depende de React, componentes, hooks, Dexie, IndexedDB, `localStorage`, `window` ou `document`.
+This delivery creates the pure domain responsible for turning `plan + startDate + weekdayAvailability` into a correct chronological schedule. The code doesn't depend on React, components, hooks, Dexie, IndexedDB, `localStorage`, `window` or `document`.
 
-O domínio fica em `src/lib/domain/schedule` porque o repositório já concentra infraestrutura e regras compartilhadas em `src/lib`. A UI não foi alterada.
+The domain lives in `src/lib/domain/schedule` because the repository already concentrates infrastructure and shared rules in `src/lib`. The UI was not changed.
 
-## Problema do app antigo
+## The old app's problem
 
-O app antigo misturava data real, posição sequencial do plano e progresso. Isso fazia `11/06/2026`, uma quinta-feira, aparecer como segunda-feira, além de atribuir capacidade de dia útil a sábados e consumir conteúdo em dias de descanso.
+The old app mixed the real date, the plan's sequential position and progress. That made `2026-06-11`, a Thursday, appear as a Monday, and also assigned weekday capacity to Saturdays and consumed content on rest days.
 
-O cenário de regressão agora é coberto por testes:
+The regression scenario is now covered by tests:
 
-| Data       | Dia real      | Capacidade |
-| ---------- | ------------- | ---------: |
-| 2026-06-11 | quinta-feira  |        480 |
-| 2026-06-12 | sexta-feira   |        480 |
-| 2026-06-13 | sábado        |        240 |
-| 2026-06-14 | domingo       |   descanso |
-| 2026-06-15 | segunda-feira |        480 |
+| Date       | Real day      | Capacity |
+| ---------- | ------------- | -------: |
+| 2026-06-11 | Thursday      |      480 |
+| 2026-06-12 | Friday        |      480 |
+| 2026-06-13 | Saturday      |      240 |
+| 2026-06-14 | Sunday        |     rest |
+| 2026-06-15 | Monday        |      480 |
 
-## Conceitos
+## Concepts
 
-- **Data real**: dia civil no formato `YYYY-MM-DD`. Determina dia da semana, descanso e capacidade.
-- **Dia sequencial do plano**: posição do conteúdo, como `sequence: 1`, `sequence: 2`.
-- **Progresso**: avanço real da pessoa. Não foi implementado nesta entrega.
+- **Real date**: a civil day in the `YYYY-MM-DD` format. Determines the day of the week, rest and capacity.
+- **Sequential plan day**: the content's position, like `sequence: 1`, `sequence: 2`.
+- **Progress**: the person's real advance. Not implemented in this delivery.
 
-O calendário avança com o tempo, mas o conteúdo do plano só avançará futuramente quando houver decisão explícita de progresso.
+The calendar advances with time, but the plan content will only advance later when there's an explicit progress decision.
 
-## Arquitetura
+## Architecture
 
-Arquivos criados:
+Files created:
 
-- `schedule.types.ts`: contratos do domínio.
-- `calendar-date.ts`: operações únicas para datas civis.
-- `weekdays.ts`: lista de dias e timezone padrão.
-- `availability.ts`: disponibilidade semanal e busca por dias de estudo.
-- `schedule-builder.ts`: scheduler inicial.
-- `schedule-selectors.ts`: selectors puros para consulta e agrupamento.
-- `schedule.errors.ts`: erros tipados.
+- `schedule.types.ts`: the domain's contracts.
+- `calendar-date.ts`: single operations for civil dates.
+- `weekdays.ts`: the list of days and the default timezone.
+- `availability.ts`: weekly availability and the lookup for study days.
+- `schedule-builder.ts`: the initial scheduler.
+- `schedule-selectors.ts`: pure selectors for querying and grouping.
+- `schedule.errors.ts`: typed errors.
 - `index.ts`: barrel exports.
 
-## Datas civis e timezone
+## Civil dates and timezone
 
-O tipo `CalendarDate` é branded e validado. Datas de dia civil são armazenadas como `YYYY-MM-DD`.
+The `CalendarDate` type is branded and validated. Civil-day dates are stored as `YYYY-MM-DD`.
 
-O domínio evita `new Date("YYYY-MM-DD")`. As operações usam parsing próprio e `Date.UTC(...)` centralizado para evitar conversão acidental por timezone local. A timezone padrão do produto é `America/Sao_Paulo`, mas nesta entrega as operações são estritamente sobre datas civis, não timestamps.
+The domain avoids `new Date("YYYY-MM-DD")`. The operations use their own parsing and a centralized `Date.UTC(...)` to avoid accidental conversion by the local timezone. The product's default timezone is `America/Sao_Paulo`, but in this delivery the operations are strictly over civil dates, not timestamps.
 
-## Configuração semanal
+## Weekly configuration
 
-A disponibilidade padrão fica centralizada em `DEFAULT_WEEKDAY_AVAILABILITY`:
+The default availability is centralized in `DEFAULT_WEEKDAY_AVAILABILITY`:
 
-- segunda a sexta: 480 minutos;
-- sábado: 240 minutos;
-- domingo: descanso.
+- Monday to Friday: 480 minutes;
+- Saturday: 240 minutes;
+- Sunday: rest.
 
-A configuração pode ser substituída por chamada de função. O domínio valida semana sem dias habilitados, minutos negativos e dia habilitado com zero minutos.
+The configuration can be replaced by a function call. The domain validates a week with no enabled days, negative minutes and an enabled day with zero minutes.
 
-## Decisões do Scheduler
+## Scheduler decisions
 
-### Dias de descanso aparecem na agenda
+### Rest days appear in the schedule
 
-Os dias desabilitados entram no array como `isRestDay: true`, sem itens. Isso prepara calendário visual, relatórios, heatmap e mensagens como “amanhã é descanso”.
+Disabled days enter the array as `isRestDay: true`, with no items. This prepares the visual calendar, reports, heatmap and messages like "tomorrow is a rest day".
 
-A agenda termina no dia em que o último conteúdo é agendado. Descansos após o último conteúdo não são gerados.
+The schedule ends on the day the last content is scheduled. Rest days after the last content are not generated.
 
-### Um `StudyPlanDay` por data habilitada
+### One `StudyPlanDay` per enabled date
 
-A entrega usa a Estratégia A: cada `StudyPlanDay` ocupa uma data habilitada. Blocos não são divididos automaticamente.
+The delivery uses Strategy A: each `StudyPlanDay` occupies one enabled date. Blocks are not split automatically.
 
-Se o total estimado exceder a capacidade do dia, o scheduler mantém os blocos juntos e marca `capacityStatus: "over_capacity"`.
+If the estimated total exceeds the day's capacity, the scheduler keeps the blocks together and marks `capacityStatus: "over_capacity"`.
 
-Essa escolha preserva a organização do plano antigo e deixa divisão automática para uma regra explícita futura.
+This choice preserves the old plan's organization and leaves automatic splitting for an explicit future rule.
 
-## Validações e Erros
+## Validations and Errors
 
-Erros tipados:
+Typed errors:
 
 - `InvalidCalendarDateError`;
 - `InvalidAvailabilityError`;
 - `NoStudyDaysEnabledError`;
 - `InvalidStudyPlanError`.
 
-Validações implementadas:
+Implemented validations:
 
-- data inicial inválida;
-- timezone vazia;
-- semana totalmente desabilitada;
-- minutos negativos;
-- dia habilitado com zero minutos;
-- plano sem ID;
-- sequência inválida;
-- sequência duplicada;
-- bloco sem ID;
-- ID de bloco duplicado;
-- duração negativa ou não finita.
+- an invalid start date;
+- an empty timezone;
+- a fully disabled week;
+- negative minutes;
+- an enabled day with zero minutes;
+- a plan without an ID;
+- an invalid sequence;
+- a duplicate sequence;
+- a block without an ID;
+- a duplicate block ID;
+- a negative or non-finite duration.
 
-Plano sem dias retorna agenda vazia. Esse comportamento é permitido porque uma importação parcial ou bootstrap inicial pode ainda não ter conteúdo carregado.
+A plan with no days returns an empty schedule. This behavior is allowed because a partial import or initial bootstrap may not have content loaded yet.
 
 ## Selectors
 
-Foram adicionados selectors puros para:
+Pure selectors were added to:
 
-- buscar dia por data;
-- obter primeiro e último dia de estudo;
-- obter próximo e anterior dia de estudo;
-- calcular status `past | today | future` recebendo `today` por argumento;
-- obter range da agenda;
-- agrupar por semana real, de segunda a domingo.
+- fetch a day by date;
+- get the first and last study day;
+- get the next and previous study day;
+- compute `past | today | future` status, receiving `today` as an argument;
+- get the schedule's range;
+- group by real week, Monday to Sunday.
 
-## Limitações
+## Limitations
 
-Ainda não existem:
+There's still no:
 
-- progresso persistido;
-- conclusão de blocos;
-- atraso real;
-- reagendamento;
-- mover plano para frente;
-- pular conteúdo;
-- revisões;
-- integração com Dashboard, Plano ou Revisar Hoje.
+- persisted progress;
+- block completion;
+- real lateness;
+- rescheduling;
+- moving the plan forward;
+- skipping content;
+- reviews;
+- integration with Dashboard, Plan or Review Today.
 
-Essas regras pertencem às próximas entregas.
+These rules belong to the next deliveries.
 
-## Testes Herdados
+## Inherited Tests
 
-O caminho do repositório antigo veio como placeholder (`<CAMINHO_DO_REPOSITORIO_ANTIGO>`), então ele não foi consultado. Os cenários foram implementados a partir da especificação da entrega, descartando qualquer comportamento antigo que vinculava datas a labels fixos.
+The old repository path came as a placeholder (`<OLD_REPOSITORY_PATH>`), so it wasn't consulted. The scenarios were implemented from the delivery's specification, discarding any old behavior that tied dates to fixed labels.
 
-## Preparação para Entrega 04
+## Preparation for Delivery 04
 
-O scheduler já expõe contratos que podem receber progresso futuramente, mas não antecipa regras de progresso. A Entrega 04 deve consumir esta agenda como base e adicionar decisões explícitas de conclusão, atraso, reagendamento, pulo e histórico.
+The scheduler already exposes contracts that can receive progress later, but it doesn't anticipate progress rules. Delivery 04 should consume this schedule as a base and add explicit decisions for completion, lateness, rescheduling, skipping and history.
